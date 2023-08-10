@@ -1,7 +1,4 @@
-// The var name MUST match the name of the script file
-// All applications must extend SAGE2_App
 var webbViewer = SAGE2_App.extend({
-
     // The init function will be called during application creation
     // The signature must include the data parameter which will be passed to the parent through SAGE2Init()
     init: function(data) {
@@ -11,35 +8,54 @@ var webbViewer = SAGE2_App.extend({
 
         // `this.element` is created and assigned based on the above SAGE2Init.
         // In this case, this.element is a div
-        var div = this.element
+        var container = this.element
 
         // Assign the div node an id.
         // `this.id` is a unique identifier created for this instance of the app
         this.element.id = "div" + this.id;
 
-        // Fill the element with text "Hello World"
-        // this.element.textContent = "This is not the James Webb Telescope Viewer";
-
-        // Makes the app background white
         this.element.style.background = "white";
 
-        var h1 = document.createElement("h1")
-        h1.innerHTML = "Heading"
-        div.appendChild(h1)
+        const images = [
+            {
+                title: "Heading",
+                description: "Description",
+                url: "https://placehold.co/600x400/png"
+            },
+            {
+                title: "Heading2",
+                description: "Description2",
+                url: "https://placehold.co/500x450/png"
+            },
+        ]
 
-        var p = document.createElement("p")
-        p.innerHTML = "Paragraph"
-        div.appendChild(p)
+        container.style.display = "flex"
 
-        var p2 = document.createElement("p")
-        p2.innerHTML = "Paragraph"
-        div.appendChild(p2)
+        images.forEach(image => {
+            let div = document.createElement("div")
+            div.style.display = "flex"
+            div.style.flexDirection = "row"
+            container.appendChild(div)
 
-        var img = document.createElement("img")
-        img.src = "https://placehold.co/600x400/png"
-        img.alt = "picture"
-        div.appendChild(img)
+            let textPart = document.createElement("div")
+            div.appendChild(textPart)
+
+            let title = document.createElement("h1")
+            title.innerHTML = image.title
+            textPart.appendChild(title)
+
+            let description = document.createElement("p")
+            description.innerHTML = image.description
+            textPart.appendChild(description)
+            
+            let imagePart = document.createElement("div")
+            div.appendChild(imagePart)
+
+            let img = document.createElement("img")
+            img.src = image.url
+            img.style.height = "100%"
+            img.style.maxWidth = "100%"
+            imagePart.appendChild(img)
+        });
     },
-
-
 });

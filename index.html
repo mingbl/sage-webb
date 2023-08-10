@@ -2,26 +2,51 @@
     <body>
         <div class="container"></div>
         <script>
-            var div = document.querySelector("div.container")
+            var container = document.querySelector("div.container")
 
-            div.style.background = "white";
+            container.style.background = "white";
 
-            var h1 = document.createElement("h1")
-            h1.innerHTML = "Heading"
-            div.appendChild(h1)
+            const images = [
+                {
+                    title: "Heading",
+                    description: "Description",
+                    url: "https://placehold.co/600x400/png"
+                },
+                {
+                    title: "Heading2",
+                    description: "Description2",
+                    url: "https://placehold.co/500x450/png"
+                },
+            ]
 
-            var p = document.createElement("p")
-            p.innerHTML = "Paragraph"
-            div.appendChild(p)
+            container.style.display = "flex"
 
-            var p2 = document.createElement("p")
-            p2.innerHTML = "Paragraph"
-            div.appendChild(p2)
+            images.forEach(image => {
+                let div = document.createElement("div")
+                div.style.display = "flex"
+                div.style.flexDirection = "row"
+                container.appendChild(div)
 
-            var img = document.createElement("img")
-            img.src = "https://placehold.co/600x400/png"
-            img.alt = "picture"
-            div.appendChild(img)
-        </script>       
+                let textPart = document.createElement("div")
+                div.appendChild(textPart)
+
+                let title = document.createElement("h1")
+                title.innerHTML = image.title
+                textPart.appendChild(title)
+
+                let description = document.createElement("p")
+                description.innerHTML = image.description
+                textPart.appendChild(description)
+                
+                let imagePart = document.createElement("div")
+                div.appendChild(imagePart)
+
+                let img = document.createElement("img")
+                img.src = image.url
+                img.style.height = "100%"
+                img.style.maxWidth = "100%"
+                imagePart.appendChild(img)
+            });
+        </script>
     </body>
 </html>
