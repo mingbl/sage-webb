@@ -1,9 +1,9 @@
 {
     "main_script": "webbViewer.js",
-    "width": 1280,
-    "height": 720,
+    "width": 4000,
+    "height": 440,
     "title": "MeSH James Webb Telescope Viewer",
     "author": "Ming Leong <>",
     "license": "SAGE2-Software-License",
-    "version": "0.0.3"
+    "version": "0.0.5"
 }
