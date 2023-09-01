@@ -5,7 +5,7 @@ function displayImages(_imageArray){
         let div = document.createElement("div")
         div.style.display = "flex"
         div.style.flexDirection = "row"
-        APPCONTAINER.appendChild(div)
+        CONTAINER.appendChild(div)
 
         let textPart = document.createElement("div")
         div.appendChild(textPart)

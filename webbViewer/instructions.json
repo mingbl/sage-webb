@@ -1,9 +1,13 @@
 {
     "main_script": "webbViewer.js",
-    "width": 4000,
-    "height": 440,
+    "width": 27320,
+    "height": 3072,
+    "resize": "proportional",
     "title": "MeSH James Webb Telescope Viewer",
-    "author": "Ming Leong <>",
+    "description": "Cave2 image viewer for images taken using the James Web Telescope.",
+    "author": "MeSH - Ming Leong, Scott Green and Hugh Crossan",
     "license": "SAGE2-Software-License",
-    "version": "0.0.6"
+    "version": "0.0.6",
+    "dependencies": ["./scripts/imageRetrieval.js", "./scripts/imageDisplay.js", "./data/localImages.js","./styles/main.css"],
+    "icon": "./images/Meta/moon-stars-fill.png"
 }
