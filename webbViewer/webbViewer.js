@@ -132,16 +132,14 @@ var webbViewer = SAGE2_App.extend({
 
                 let imageContainerWidth = numOfColumns * columnWidth
 
-                if (columnsUsed + numOfRequiredColumns > columns) continue
+                // if (columnsUsed + numOfRequiredColumns > columns) continue
 
                 columnsUsed += numOfRequiredColumns
                 createShowcase(image, imageContainerWidth)
             }
         }
 
-        window.onload = () => {
-            renderDisplay()
-        }
+        renderDisplay()
     },
     resize: function(date) {
         this.refresh(date)
