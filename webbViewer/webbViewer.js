@@ -75,7 +75,7 @@ var webbViewer = SAGE2_App.extend({
             columnWidth: columnWidth
         })
 
-        function createShowcase(image, numOfColumns) {
+        function createShowcase(image, numOfColumns, datab) {
             let div = document.createElement("div")
             div.classList.add("showcase")
             container.appendChild(div)
@@ -92,7 +92,7 @@ var webbViewer = SAGE2_App.extend({
 
             let description = document.createElement("p")
             description.classList.add("description")
-            description.innerHTML = image.description
+            description.innerHTML = datab + image.description
             textPart.appendChild(description)
             
             let imagePart = document.createElement("div")
@@ -135,7 +135,7 @@ var webbViewer = SAGE2_App.extend({
                 // if (columnsUsed + numOfRequiredColumns > columns) continue
 
                 columnsUsed += numOfRequiredColumns
-                createShowcase(image, numOfColumns)
+                createShowcase(image, numOfColumns, `imgasp${imageAspectRatio} resc${rescaledImageWidth} numofc${numOfColumns}`)
             }
         }
         
