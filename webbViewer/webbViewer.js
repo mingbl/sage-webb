@@ -65,7 +65,7 @@ var webbViewer = SAGE2_App.extend({
         ]  
 
         // Get window width/height https://stackoverflow.com/a/8876069
-        const vw = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0)
+        const vw = 1280 * 20
         const vh = Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0)
         const columns = 20
         const columnWidth = vw / columns
