@@ -16,7 +16,7 @@ div.showcase {
 div.text-part {
     height: inherit;
     /* width: 5vw; */
-    width: calc(128 / 72 * 100vh);
+    width: calc(128 / 72 * 25vh);
     /* min-width: 1280px; */
     /* margin: 0; */
     padding: 1em;
@@ -24,13 +24,13 @@ div.text-part {
 }
 h1.title {
     margin: 0;
-    font-size: 2em;
+    font-size: 4em;
     width: inherit;
     color: white
 }
 p.description {
     margin: 0;
-    font-size: 1em;
+    font-size: 2em;
     text-align: justify;
     text-justify: inter-word;
     width: inherit;
