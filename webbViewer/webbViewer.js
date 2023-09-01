@@ -18,6 +18,9 @@ var webbViewer = SAGE2_App.extend({
         var container = this.element
         this.element.classList.add("container")
 
+        var imageDirectory = "./webbViewer/local_images/"
+        var container = document.querySelector("div.container")
+        
         const images = [
             {
                 title: "Heading",
@@ -26,7 +29,6 @@ var webbViewer = SAGE2_App.extend({
                 // url: `${imageDirectory}1.jpg`,
                 width: 2048,
                 height: 1193
-                // url: "https://live.staticflickr.com/65535/53104943445_3da1b9392b_o_d.png"
             },
             {
                 title: "Heading2",
@@ -35,7 +37,6 @@ var webbViewer = SAGE2_App.extend({
                 // url: `${imageDirectory}2.jpg`,
                 width: 2015,
                 height: 2048
-                // url: "https://live.staticflickr.com/65535/53068407159_0d8983cdb3_o_d.jpg"
             },
             {
                 title: "Heading3",
@@ -44,7 +45,6 @@ var webbViewer = SAGE2_App.extend({
                 // url: `${imageDirectory}3.jpg`,
                 width: 2048,
                 height: 1918
-                // url: "https://live.staticflickr.com/65535/53072881464_4275f02ec5_o_d.png"
             },
             {
                 title: "Heading4",
@@ -53,7 +53,6 @@ var webbViewer = SAGE2_App.extend({
                 // url: `${imageDirectory}4.jpg`,
                 width: 2048,
                 height: 1152
-                // url: "https://live.staticflickr.com/65535/53040527259_5682c6bcf0_o_d.png"
             },
             {
                 title: "Heading5",
@@ -62,81 +61,76 @@ var webbViewer = SAGE2_App.extend({
                 width: 1402,
                 height: 1080
             }
-        ]  
-
-        // Get window width/height https://stackoverflow.com/a/8876069
-        const vw = 1366 * 20
-        const vh = Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0)
-        const columns = 20
-        const columnWidth = vw / columns
-        const viewerAspectRatio = vw / vh
-        console.log({
-            viewerAspectRatio: viewerAspectRatio,
-            columnWidth: columnWidth
-        })
-
-        function createShowcase(image, numOfColumns, datab) {
-            let div = document.createElement("div")
-            div.classList.add("showcase")
-            container.appendChild(div)
-
-            let textPart = document.createElement("div")
-            textPart.classList.add("text-part")
-            div.appendChild(textPart)
-            
-
-            let title = document.createElement("h1")
-            title.classList.add("title")
-            title.innerHTML = `${numOfColumns} ${image.title}`
-            textPart.appendChild(title)
-
-            let description = document.createElement("p")
-            description.classList.add("description")
-            description.innerHTML = datab + image.description
-            textPart.appendChild(description)
-            
-            let imagePart = document.createElement("div")
-            imagePart.classList.add("image-part")
-
-            // let img = document.createElement("img")
-            // img.classList.add("img")
-            imagePart.style.backgroundImage = `url(${image.url})`
-            // imagePart.appendChild(img)
-
-            // imagePart.style.width = `calc(${numOfColumns} * ${columnWidth})`
-            imagePart.style.width = numOfColumns * columnWidth
-
-            // imagePart.style.width = `calc(${aspectRatio} * 100vh)`
-
-            div.appendChild(imagePart)
+        ]
+        
+        const columns = 20, columnWidth = 100 / columns
+        
+        /**
+         * Create an element, add class name, and append to a parent element
+         * @param {string} tag - html element <div> <h1> <p> etc.
+         * @param {string} className - class name to add to element, for CSS
+         * @param {string} parent - parent element, for appending this element to as a child
+         * @returns reference to the new component (element) created
+         */
+        function createComponent(tag, className, parent) {
+            let newElement = document.createElement(tag)
+            newElement.classList.add(className)
+            parent.appendChild(newElement)
+            return newElement
         }
-
-        // let imageCounter = 0;
-
+        
+        function createShowcase(image, numOfRequiredColumns, datab) {
+            
+            const div = createComponent("div", "showcase", container)
+            div.style.width = `${(numOfRequiredColumns) * columnWidth}%`
+        
+            const textPart = createComponent("div", "text-part", div)
+            textPart.style.width = `${(100 / numOfRequiredColumns)}%`
+            
+            const title = createComponent("h1", "title", textPart)
+            title.innerHTML = `${image.title}`
+        
+            const description = createComponent("p", "description", textPart)
+            description.innerHTML = image.description
+            
+            const imagePart = createComponent("div", "image-part", div)
+            imagePart.style.backgroundImage = `url(${image.url})`
+            imagePart.style.width = `${(100 / numOfRequiredColumns * (numOfRequiredColumns - 1))}%`
+        }
+        
         function getShowcaseWidth(imageCols) {
             return numOfRequiredColumns + 1
         }
-
+        
         function renderDisplay() {
+            const vw = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0)
+            const vh = Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0)
+            const viewerAspectRatio = vw / vh
+        
             let columnsUsed = 0
             for (let i = 0; i < images.length; i++) {
                 const image = images[i]
-
-                // Calculate what the width should be to fit into column widths
-
+        
                 let imageAspectRatio = image.width / image.height
-
-                let rescaledImageWidth = imageAspectRatio * vh
-
-                let numOfColumns = Math.ceil(rescaledImageWidth / columnWidth)
+        
+                let numOfColumns = Math.ceil((columns / viewerAspectRatio) * imageAspectRatio)
                 let numOfRequiredColumns = numOfColumns + 1 // Image + Text
-
-                // let imageContainerWidth = numOfColumns
-
-                // if (columnsUsed + numOfRequiredColumns > columns) continue
-
+        
+                if (columnsUsed + numOfRequiredColumns > columns) continue
+        
                 columnsUsed += numOfRequiredColumns
-                createShowcase(image, numOfColumns, `imgasp${imageAspectRatio}<br>resc${rescaledImageWidth}<br>numofc${numOfColumns}<br>cols${columns}<br>colwidth${columnWidth}<br>vw${vw}<br>vh${vh}<br>viewasp${viewerAspectRatio}`)
+                const debugData = {
+                    vw: vw,
+                    vh: vh,
+                    columns: columns,
+                    viewerAspectRatio: viewerAspectRatio,
+                    columnsUsed: columnsUsed,
+                    imageAspectRatio: imageAspectRatio,
+                    numOfColumns: numOfColumns,
+                    numOfRequiredColumns: numOfRequiredColumns
+                }
+                createShowcase(image, numOfRequiredColumns, JSON.stringify(debugData))
+                console.log(debugData)
             }
         }
         

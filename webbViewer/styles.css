@@ -5,8 +5,8 @@ body, div.container {
 div.container {
     display: flex;
     flex-direction: row;
-    width: 100vw;
-    height: 100vh;
+    width: 100%;
+    height: 100%;
 }
 div.showcase {
     height: inherit;
@@ -15,34 +15,38 @@ div.showcase {
 }
 div.text-part {
     height: inherit;
-    /* width: 5vw; */
-    width: 1280px;
+    /* width: 5%;
+    min-width: 5%;
+    max-width: 5%; */
     /* min-width: 1280px; */
-    /* margin: 0; */
-    padding: 1em;
+    /* margin: 1em; */
+    /* padding: 1em; */
     overflow: scroll;
 }
 h1.title {
     margin: 0;
+    padding: 10%;
     font-size: 4em;
     width: inherit;
     color: white
 }
 p.description {
     margin: 0;
+    padding: 10%;
     font-size: 2em;
     text-align: justify;
     text-justify: inter-word;
     width: inherit;
     color: white;
+    /* hyphens: auto; */
 }
 img.img {
-    height: 100vh;
+    height: 100%;
     /* width: 20vw; */
 }
 div.image-part {
-    height: 100vh;
-    min-width: 5vw;
+    height: 100%;
+    min-width: 5%;
     /* max-width: 20vw; */
     background-color: darkgrey;
     background-size: contain;
