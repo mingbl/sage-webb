@@ -135,7 +135,7 @@ var webbViewer = SAGE2_App.extend({
                 // if (columnsUsed + numOfRequiredColumns > columns) continue
 
                 columnsUsed += numOfRequiredColumns
-                createShowcase(image, numOfColumns, `imgasp${imageAspectRatio} resc${rescaledImageWidth} numofc${numOfColumns}`)
+                createShowcase(image, numOfColumns, `imgasp${imageAspectRatio}<br>resc${rescaledImageWidth}<br>numofc${numOfColumns}<br>cols${columns}<br>colwidth${columnWidth}<br>vw${vw}<br>vh${vh}<br>viewasp${viewerAspectRatio}`)
             }
         }
         

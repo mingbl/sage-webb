@@ -15,9 +15,9 @@ div.showcase {
 }
 div.text-part {
     height: inherit;
-    width: 5vw;
-    min-width: 5vw;
-    max-width: 5vw;
+    /* width: 5vw; */
+    width: calc(128 / 72 * 100vh);
+    /* min-width: 1280px; */
     /* margin: 0; */
     padding: 1em;
     overflow: scroll;
@@ -44,7 +44,8 @@ div.image-part {
     height: 100vh;
     min-width: 5vw;
     /* max-width: 20vw; */
-    background-size: cover;
+    background-color: darkgrey;
+    background-size: contain;
     background-position: center;
     background-repeat: no-repeat;
 }
