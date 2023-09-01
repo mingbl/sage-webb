@@ -16,7 +16,7 @@ div.showcase {
 div.text-part {
     height: inherit;
     /* width: 5vw; */
-    width: calc(128 / 72 * 25vh);
+    width: 1280px;
     /* min-width: 1280px; */
     /* margin: 0; */
     padding: 1em;
