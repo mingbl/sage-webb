@@ -75,7 +75,7 @@ var webbViewer = SAGE2_App.extend({
             columnWidth: columnWidth
         })
 
-        function createShowcase(image, neededWidth) {
+        function createShowcase(image, numOfColumns) {
             let div = document.createElement("div")
             div.classList.add("showcase")
             container.appendChild(div)
@@ -87,7 +87,7 @@ var webbViewer = SAGE2_App.extend({
 
             let title = document.createElement("h1")
             title.classList.add("title")
-            title.innerHTML = image.title
+            title.innerHTML = `${numOfColumns} ${image.title}`
             textPart.appendChild(title)
 
             let description = document.createElement("p")
@@ -103,7 +103,7 @@ var webbViewer = SAGE2_App.extend({
             imagePart.style.backgroundImage = `url(${image.url})`
             // imagePart.appendChild(img)
 
-            imagePart.style.width = neededWidth
+            imagePart.style.width = `calc(${numOfColumns} * 5vw)`
 
             // imagePart.style.width = `calc(${aspectRatio} * 100vh)`
 
@@ -130,15 +130,15 @@ var webbViewer = SAGE2_App.extend({
                 let numOfColumns = Math.ceil(rescaledImageWidth / columnWidth)
                 let numOfRequiredColumns = numOfColumns + 1 // Image + Text
 
-                let imageContainerWidth = numOfColumns * columnWidth
+                // let imageContainerWidth = numOfColumns
 
                 // if (columnsUsed + numOfRequiredColumns > columns) continue
 
                 columnsUsed += numOfRequiredColumns
-                createShowcase(image, imageContainerWidth)
+                createShowcase(image, numOfColumns)
             }
         }
-
+        
         renderDisplay()
     },
     resize: function(date) {
