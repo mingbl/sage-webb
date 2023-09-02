@@ -15,28 +15,35 @@ div.showcase {
 }
 div.text-part {
     height: inherit;
+    border-left: 5px solid white;
+    box-sizing: border-box;
     /* width: 5%;
     min-width: 5%;
     max-width: 5%; */
     /* min-width: 1280px; */
     /* margin: 1em; */
     /* padding: 1em; */
-    overflow: scroll;
+    /* overflow: scroll; */
+    overflow: hidden;
 }
 h1.title {
     margin: 0;
     padding: 10%;
     font-size: 4em;
-    width: inherit;
-    color: white
+    width: 100%;
+    color: white;
+    hyphens: auto;
+    box-sizing: border-box;
 }
 p.description {
     margin: 0;
     padding: 10%;
     font-size: 2em;
+    width: 100%;
+    box-sizing: border-box;
     text-align: justify;
     text-justify: inter-word;
-    width: inherit;
+    /* width: inherit; */
     color: white;
     /* hyphens: auto; */
 }
@@ -47,8 +54,10 @@ img.img {
 div.image-part {
     height: 100%;
     min-width: 5%;
+    /* width: auto; */
     /* max-width: 20vw; */
-    background-color: darkgrey;
+    /* background-color: darkgrey; */
+    background-color: black;
     background-size: contain;
     background-position: center;
     background-repeat: no-repeat;

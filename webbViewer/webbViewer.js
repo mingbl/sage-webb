@@ -73,7 +73,7 @@ var webbViewer = SAGE2_App.extend({
          * @returns reference to the new component (element) created
          */
         function createComponent(tag, className, parent) {
-            let newElement = document.createElement(tag)
+            const newElement = document.createElement(tag)
             newElement.classList.add(className)
             parent.appendChild(newElement)
             return newElement
@@ -111,12 +111,12 @@ var webbViewer = SAGE2_App.extend({
             for (let i = 0; i < images.length; i++) {
                 const image = images[i]
         
-                let imageAspectRatio = image.width / image.height
+                const imageAspectRatio = image.width / image.height
         
-                let numOfColumns = Math.ceil((columns / viewerAspectRatio) * imageAspectRatio)
-                let numOfRequiredColumns = numOfColumns + 1 // Image + Text
+                const numOfColumns = Math.ceil((columns / viewerAspectRatio) * imageAspectRatio)
+                const numOfRequiredColumns = numOfColumns + 1 // Image + Text
         
-                if (columnsUsed + numOfRequiredColumns > columns) continue
+                if (columnsUsed + numOfRequiredColumns > columns) return
         
                 columnsUsed += numOfRequiredColumns
                 const debugData = {

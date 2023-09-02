@@ -7,6 +7,7 @@
         <script src="index.js"></script>
         <script>
             window.addEventListener('resize', function(event) {
+                while (container.firstChild) container.removeChild(container.lastChild)
                 renderDisplay()
             }, true);
         </script>
