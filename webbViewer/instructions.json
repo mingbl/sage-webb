@@ -6,8 +6,9 @@
     "dependencies": [
         "styles.css"
     ],
+    "animation": true,
     "title": "MeSH James Webb Telescope Viewer",
     "author": "Ming Leong",
     "license": "SAGE2-Software-License",
-    "version": "0.0.7"
+    "version": "0.1.0"
 }
