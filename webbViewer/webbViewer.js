@@ -19,18 +19,16 @@ var webbViewer = SAGE2_App.extend({
         let externalImagesIDs = []
         let blacklist = []
 
-        queueExternalImages()
+        // queueExternalImages()
 
         const columns = 20, viewerWidth = 4000, viewerHeight = 440
         
         /**
          * Time in milliseconds before the image set is replaced
          */
-        const imageLifespan = 10000
+        const imageLifespan = 5 * 1000
         
         const viewerAspectRatio = viewerWidth / viewerHeight
-        const imageSets = []
-        let imageSetCounter = 0
         
         /**
          * Create an element, add class name, and append to a parent element
@@ -57,7 +55,7 @@ var webbViewer = SAGE2_App.extend({
             textPart.style.setProperty("animation-duration", `${imageLifespan / 1000}s`)
             
             const title = createComponent("h1", "title", textPart)
-            title.innerHTML = `${image.title}`
+            title.innerHTML = image.title
         
             const description = createComponent("p", "description", textPart)
             description.innerHTML = image.description
@@ -69,69 +67,47 @@ var webbViewer = SAGE2_App.extend({
         }
         
         /**
-         * Arrange/group images {} in the 'images' [] array into 'imageSets' [].
-         * 
-         * This algorithm uses the aspect ratio of the image to calculate 
-         * how many columns are required to display this image and its text part.
+         * Render as many images as can be displayed until adding an image exceeds 20 columns.
          */
-        function arrangeImageSets() {
-            let imageCounter = 0, columnsUsed = 0, imageSetCounter = 0
-            while (images.length > imageCounter) {
-                const image = images[imageCounter]
+        let imageCounter = 0
+        function renderDisplay() {
+            // If there are no images in the images array, skip rendering this rotation
+            if (images.length < 1) return
+
+            // Clear display
+            while (container.firstChild) container.removeChild(container.lastChild)
+
+            /**
+             * This algorithm uses the aspect ratio of the image to calculate 
+             * how many columns are required to display this image and its text part.
+             */
+            let columnsUsed = 0
+            while (columnsUsed < columns) {
+                let imageCounterModulo = imageCounter % images.length
+                const image = images[imageCounterModulo]
         
                 const imageAspectRatio = image.width / image.height
         
                 const numOfColumns = Math.ceil((columns / viewerAspectRatio) * imageAspectRatio)
                 const numOfRequiredColumns = numOfColumns + 1 // Image + Text
-        
-                if (columnsUsed + numOfRequiredColumns > columns) {
-                    columnsUsed = 0
-                    imageSetCounter++
-                }
-        
+
+                // Don't render this image this rotation if it can't fit on the screen
+                if (columnsUsed + numOfRequiredColumns > columns) return
+
                 columnsUsed += numOfRequiredColumns
-        
-                if (!imageSets[imageSetCounter]) imageSets[imageSetCounter] = []
-                imageSets[imageSetCounter].push({
-                    image: image,
-                    numOfColumns: numOfColumns
-                })
-
                 imageCounter++
-            }
-        }
-        
-        /**
-         * Render the current image set.
-         * 
-         * (set by imageSetCounter)
-         */
-        function renderDisplay() {
-            if (!localImageDataLoaded || !apiImageDataLoaded) return
 
-            let imageSetCounterModulo = imageSetCounter % imageSets.length
-            console.log(`Rendering set ${imageSetCounterModulo}`)
-            const imageSet = imageSets[imageSetCounterModulo]
-            
-            // Clear display
-            while (container.firstChild) container.removeChild(container.lastChild)
-        
-            /**
-             * Render each image in the image set
-             */
-            for (let j = 0; j < imageSet.length; j++) {
-                console.log(`Rendering image ${j}`)
-                const image = imageSet[j];
-                createShowcase(image.image, image.numOfColumns)
+                createShowcase(image, numOfColumns)
             }
-        
-            imageSetCounter++
+
+            // if (!localImageDataLoaded || !apiImageDataLoaded) return
+
         }
 
-        let localImageDataLoaded = false
-        let apiImageDataLoaded = false
+        // let localImageDataLoaded = false
+        // let apiImageDataLoaded = false
 
-        async function readLocalImages() {
+        function readLocalImages() {
             readFile(imageJson, function(err, imageData) {
                 this.log(`attempting to read file ${imageJson}`)
                 if (err) throw err
@@ -143,17 +119,16 @@ var webbViewer = SAGE2_App.extend({
                         this.log(image.title)
                     });
     
-                    arrangeImageSets()
+                    // localImageDataLoaded = true
 
-                    localImageDataLoaded = true
-                    // renderDisplay()
-                            
+                    renderDisplay()
                 }
               }, "JSON")
         }
 
         readLocalImages()
 
+        setInterval(renderDisplay, imageLifespan)
 
         /**
          *  Pull external images, check if they are excluded from the blacklist and add to the dictionary of image objects to be displayed
@@ -205,12 +180,6 @@ var webbViewer = SAGE2_App.extend({
             apiImageDataLoaded = true
 
         }
-        
-        arrangeImageSets()
-        renderDisplay()
-                
-        setInterval(renderDisplay, imageLifespan)
-
     },
     resize: function(date) {
         this.refresh(date)
