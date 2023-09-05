@@ -1,84 +1,159 @@
 var webbViewer = SAGE2_App.extend({
-    // The init function will be called during application creation
-    // The signature must include the data parameter which will be passed to the parent through SAGE2Init()
     init: function(data) {
-
-        // Create the application with a div node
         this.SAGE2Init("div", data);
-
-        // `this.element` is created and assigned based on the above SAGE2Init.
-        // In this case, this.element is a div
-        var container = this.element
-
-        // Assign the div node an id.
-        // `this.id` is a unique identifier created for this instance of the app
         this.element.id = "div" + this.id;
 
-        container.style.background = "black";
+        this.redraw = true
+        this.log("Webb Viewer started")
 
-        const images = [
-            {
-                title: "Heading",
-                description: "Discovered by Hubble, Earendel is the farthest star ever detected. It existed in the first billion years after the big bang! The James Webb Space Telescope now shows it to be a massive B-type star, more than twice as hot as our Sun and about a million times more luminous. It’s only detectable thanks to its alignment with a galaxy cluster between Earendel and us. The cluster’s gravity bends light, magnifying what is behind it — in the case of a star-sized object like Earendel, by a factor of at least 4000. Based on the colors of the light of Earendel, astronomers think it may have a cooler companion star. Webb is also able to see other details in Earendel’s host galaxy, the Sunrise Arc — the most highly magnified galaxy yet detected in the universe’s first billion years. Those features include both young star-forming regions and older, established star clusters as small as 10 light-years across.",
-                url: "https://live.staticflickr.com/65535/53104943445_3da1b9392b_o_d.png"
-            },
-            {
-                title: "Heading2",
-                description: "Discovered by Hubble, Earendel is the farthest star ever detected. It existed in the first billion years after the big bang! The James Webb Space Telescope now shows it to be a massive B-type star, more than twice as hot as our Sun and about a million times more luminous. It’s only detectable thanks to its alignment with a galaxy cluster between Earendel and us. The cluster’s gravity bends light, magnifying what is behind it — in the case of a star-sized object like Earendel, by a factor of at least 4000. Based on the colors of the light of Earendel, astronomers think it may have a cooler companion star. Webb is also able to see other details in Earendel’s host galaxy, the Sunrise Arc — the most highly magnified galaxy yet detected in the universe’s first billion years. Those features include both young star-forming regions and older, established star clusters as small as 10 light-years across.",
-                url: "https://live.staticflickr.com/65535/53068407159_0d8983cdb3_o_d.jpg"
-            },
-            {
-                title: "Heading3",
-                description: "Discovered by Hubble, Earendel is the farthest star ever detected. It existed in the first billion years after the big bang! The James Webb Space Telescope now shows it to be a massive B-type star, more than twice as hot as our Sun and about a million times more luminous. It’s only detectable thanks to its alignment with a galaxy cluster between Earendel and us. The cluster’s gravity bends light, magnifying what is behind it — in the case of a star-sized object like Earendel, by a factor of at least 4000. Based on the colors of the light of Earendel, astronomers think it may have a cooler companion star. Webb is also able to see other details in Earendel’s host galaxy, the Sunrise Arc — the most highly magnified galaxy yet detected in the universe’s first billion years. Those features include both young star-forming regions and older, established star clusters as small as 10 light-years across.",
-                url: "https://live.staticflickr.com/65535/53072881464_4275f02ec5_o_d.png"
-            },
-            {
-                title: "Heading4",
-                description: "Discovered by Hubble, Earendel is the farthest star ever detected. It existed in the first billion years after the big bang! The James Webb Space Telescope now shows it to be a massive B-type star, more than twice as hot as our Sun and about a million times more luminous. It’s only detectable thanks to its alignment with a galaxy cluster between Earendel and us. The cluster’s gravity bends light, magnifying what is behind it — in the case of a star-sized object like Earendel, by a factor of at least 4000. Based on the colors of the light of Earendel, astronomers think it may have a cooler companion star. Webb is also able to see other details in Earendel’s host galaxy, the Sunrise Arc — the most highly magnified galaxy yet detected in the universe’s first billion years. Those features include both young star-forming regions and older, established star clusters as small as 10 light-years across.",
-                url: "https://live.staticflickr.com/65535/53040527259_5682c6bcf0_o_d.png"
-            },             
-        ]
+        const imageDirectory = `${this.resrcPath}local_images/`
+        const imageJson = `${imageDirectory}images.json`
 
-        container.style.display = "flex"
-        // container.style.justifyContent = "space-around"
-        container.style.flexDirection = "row"
+        const container = this.element
+        this.element.classList.add("container")
+        
+        this.resizeEvents = "continuous"
+        
+        let images = []
 
-        images.forEach(image => {
-            let div = document.createElement("div")
-            div.style.display = "flex"
-            div.style.flexDirection = "row"
-            container.appendChild(div)
-
-            let textPart = document.createElement("div")
-            div.appendChild(textPart)
-            textPart.style.padding = "50px"
-
-            let title = document.createElement("h1")
-            title.innerHTML = image.title
-            title.style.margin = 0
-            title.style.fontSize = "200px"
-            title.style.color = "white"
-            textPart.appendChild(title)
-
-            let description = document.createElement("p")
-            description.innerHTML = image.description
-            description.style.margin = 10
-            description.style.fontSize = "50px"
-            description.style.textAlign = "justify"
-            description.style.textJustify = "inter-word"
-            description.style.width = "1200px"
-            description.style.color = "white"
-            textPart.appendChild(description)
+        const columns = 20, viewerWidth = 4000, viewerHeight = 440
+        
+        /**
+         * Time in milliseconds before the image set is replaced
+         */
+        const imageLifespan = 10000
+        
+        const viewerAspectRatio = viewerWidth / viewerHeight
+        const imageSets = []
+        let imageSetCounter = 0
+        
+        /**
+         * Create an element, add class name, and append to a parent element
+         * @param {string} tag - html element <div> <h1> <p> etc.
+         * @param {string} className - class name to add to element, for CSS
+         * @param {string} parent - parent element, for appending this element to as a child
+         * @returns reference to the new component (element) created
+         */
+        function createComponent(tag, className, parent) {
+            const newElement = document.createElement(tag)
+            newElement.classList.add(className)
+            parent.appendChild(newElement)
+            return newElement
+        }
+        
+        /**
+         * Create a showcase (text part + image part) and append to the container
+         * @param {object} image - an image object {} in the images [] array
+         * @param {integer} numOfColumns - number of columns necessary to display the whole image (excluding text part)
+         */
+        function createShowcase(image, numOfColumns) {
+            const textPart = createComponent("div", "text-part", container)
+            textPart.style.width = `${100 / columns}%`
+            textPart.style.setProperty("animation-duration", `${imageLifespan / 1000}s`)
             
-            let imagePart = document.createElement("div")
-            // div.style.display = "flex"
-            div.appendChild(imagePart)
+            const title = createComponent("h1", "title", textPart)
+            title.innerHTML = `${image.title}`
+        
+            const description = createComponent("p", "description", textPart)
+            description.innerHTML = image.description
+            
+            const imagePart = createComponent("div", "image-part", container)
+            imagePart.style.backgroundImage = `url(${imageDirectory + image.url})`
+            imagePart.style.width = `${numOfColumns * (100 / columns)}%`
+            imagePart.style.setProperty("animation-duration", `${imageLifespan / 1000}s`)
+        }
+        
+        /**
+         * Arrange/group images {} in the 'images' [] array into 'imageSets' [].
+         * 
+         * This algorithm uses the aspect ratio of the image to calculate 
+         * how many columns are required to display this image and its text part.
+         */
+        function arrangeImageSets() {
+            let imageCounter = 0, columnsUsed = 0, imageSetCounter = 0
+            while (images.length > imageCounter) {
+                const image = images[imageCounter]
+        
+                const imageAspectRatio = image.width / image.height
+        
+                const numOfColumns = Math.ceil((columns / viewerAspectRatio) * imageAspectRatio)
+                const numOfRequiredColumns = numOfColumns + 1 // Image + Text
+        
+                if (columnsUsed + numOfRequiredColumns > columns) {
+                    columnsUsed = 0
+                    imageSetCounter++
+                }
+        
+                columnsUsed += numOfRequiredColumns
+        
+                if (!imageSets[imageSetCounter]) imageSets[imageSetCounter] = []
+                imageSets[imageSetCounter].push({
+                    image: image,
+                    numOfColumns: numOfColumns
+                })
 
-            let img = document.createElement("img")
-            img.src = image.url
-            img.style.height = "100vh"
-            // img.style.maxWidth = "100%"
-            imagePart.appendChild(img)
-        });
+                imageCounter++
+            }
+        }
+        
+        /**
+         * Render the current image set.
+         * 
+         * (set by imageSetCounter)
+         */
+        function renderDisplay() {
+            if (!localImageDataLoaded) return
+
+            let imageSetCounterModulo = imageSetCounter % imageSets.length
+            console.log(`Rendering set ${imageSetCounterModulo}`)
+            const imageSet = imageSets[imageSetCounterModulo]
+            
+            // Clear display
+            while (container.firstChild) container.removeChild(container.lastChild)
+        
+            /**
+             * Render each image in the image set
+             */
+            for (let j = 0; j < imageSet.length; j++) {
+                console.log(`Rendering image ${j}`)
+                const image = imageSet[j];
+                createShowcase(image.image, image.numOfColumns)
+            }
+        
+            imageSetCounter++
+        }
+
+        let localImageDataLoaded = false
+        let apiImagesLoaded = false
+
+        async function readLocalImages() {
+            readFile(imageJson, function(err, imageData) {
+                this.log(`attempting to read file ${imageJson}`)
+                if (err) throw err
+                else {
+                    images = images.concat(imageData)
+                    this.log(`Reading images`)
+    
+                    images.forEach(image => {
+                        this.log(image.title)
+                    });
+    
+                    arrangeImageSets()
+
+                    localImageDataLoaded = true
+                    // renderDisplay()
+                            
+                }
+              }, "JSON")
+        }
+
+        readLocalImages()
+
+        setInterval(renderDisplay, imageLifespan)
+
     },
+    resize: function(date) {
+        this.refresh(date)
+    },
+    quit: function() { },
 });
