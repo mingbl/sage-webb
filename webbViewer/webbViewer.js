@@ -102,6 +102,8 @@ var webbViewer = SAGE2_App.extend({
          * (set by imageSetCounter)
          */
         function renderDisplay() {
+            if (!localImageDataLoaded) return
+
             let imageSetCounterModulo = imageSetCounter % imageSets.length
             console.log(`Rendering set ${imageSetCounterModulo}`)
             const imageSet = imageSets[imageSetCounterModulo]
@@ -121,26 +123,33 @@ var webbViewer = SAGE2_App.extend({
             imageSetCounter++
         }
 
-        readFile(imageJson, function(err, imageData) {
-            this.log(`attempting to read file ${imageJson}`)
-			if (err) {
-				throw err
-			}
-			else {
-                images = images.concat(imageData)
-                this.log(`Reading images`)
-                this.log((this.images))
-                images.forEach(image => {
-                    this.log(image.title)
-                });
+        let localImageDataLoaded = false
+        let apiImagesLoaded = false
 
-                arrangeImageSets()
-                renderDisplay()
-                        
-                setInterval(renderDisplay, imageLifespan)
-			}
-  		}, "JSON")
-        
+        async function readLocalImages() {
+            readFile(imageJson, function(err, imageData) {
+                this.log(`attempting to read file ${imageJson}`)
+                if (err) throw err
+                else {
+                    images = images.concat(imageData)
+                    this.log(`Reading images`)
+    
+                    images.forEach(image => {
+                        this.log(image.title)
+                    });
+    
+                    arrangeImageSets()
+
+                    localImageDataLoaded = true
+                    // renderDisplay()
+                            
+                }
+              }, "JSON")
+        }
+
+        readLocalImages()
+
+        setInterval(renderDisplay, imageLifespan)
 
     },
     resize: function(date) {
