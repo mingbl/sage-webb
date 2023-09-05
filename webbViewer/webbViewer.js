@@ -6,7 +6,7 @@ var webbViewer = SAGE2_App.extend({
         this.redraw = true
         this.log("Webb Viewer started")
 
-        const imageDirectory = `${this.resrcPath}local_images/`
+        const imageDirectory = `${this.resrcPath}images/local_images/`
         const imageJson = `${imageDirectory}images.json`
 
         const container = this.element
