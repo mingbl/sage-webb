@@ -24,7 +24,6 @@ div.text-part, div.image-part {
     animation-name: fadeInAnimation;
 }
 div.text-part {
-    border-left: 2px solid white;
     width: 5%;
     overflow: hidden;
 }
@@ -51,5 +50,4 @@ div.image-part {
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-    border-right: 2px solid white;
 }
