@@ -2,50 +2,66 @@
     {
         "title": "The Pillars of Creation (Webb NIRCam Image)",
         "description": "<--- This Webb image of the “Pillars of Creation” has layers of semi-opaque, rusty red gas and dust that start at the bottom left and go toward the top right. There are three prominent pillars rising toward the top right. The left pillar is the largest and widest. The peaks of the second and third pillars are set off in darker shades of brown and have red outlines. Peeking through the layers of gas and dust is the background, set in shades of blue and littered with tiny yellow and blue stars. Many of the tips of the pillars appear tinged with what looks like lava. There are also tiny red dots at the edges of the pillars, which are newly born stars.",
-        "url": "1.jpg",
-        "width": 3547,
-        "height": 6144
+        "url": "1.jpg"
     },
     {
         "title": "The Phantom Galaxy Across the Spectrum",
         "description": "This image shows Webb near-infrared data combined with optical data from Hubble. Lacy red filaments spiraling out of the center of the galaxy are overlaid over a black field speckled with stars. The center of the galaxy glows in a pale color. The red filaments contain pops of bright pink, and some blue stars are visible in the background. The red color is dust, lighter oranges in the dust mean that dust is hotter. The young stars sprinkled through the arms and around the core of the galaxy are blue. Heavier older stars nearer the center of the galaxy are cyan and green and contribute to its glow. The pink pops of color are star forming regions. ",
-        "url": "2.jpg",
-        "width": 2048,
-        "height": 1273
+        "url": "2.jpg"
     },
     {
         "title": "Heading",
         "description": "Discovered by Hubble, Earendel is the farthest star ever detected. It existed in the first billion years after the big bang! The James Webb Space Telescope now shows it to be a massive B-type star, more than twice as hot as our Sun and about a million times more luminous. It’s only detectable thanks to its alignment with a galaxy cluster between Earendel and us. The cluster’s gravity bends light, magnifying what is behind it — in the case of a star-sized object like Earendel, by a factor of at least 4000. Based on the colors of the light of Earendel, astronomers think it may have a cooler companion star. Webb is also able to see other details in Earendel’s host galaxy, the Sunrise Arc — the most highly magnified galaxy yet detected in the universe’s first billion years. Those features include both young star-forming regions and older, established star clusters as small as 10 light-years across.",
-        "url": "3.jpg",
-        "width": 2048,
-        "height": 1193
+        "url": "3.jpg"
     },
     {
         "title": "Headin asdas dasdasd asdg2",
         "description": "Discovered by Hubble, Earendel is the farthest star ever detected. It existed in the first billion years after the big bang! The James Webb Space Telescope now shows it to be a massive B-type star, more than twice as hot as our Sun and about a million times more luminous. It’s only detectable thanks to its alignment with a galaxy cluster between Earendel and us. The cluster’s gravity bends light, magnifying what is behind it — in the case of a star-sized object like Earendel, by a factor of at least 4000. Based on the colors of the light of Earendel, astronomers think it may have a cooler companion star. Webb is also able to see other details in Earendel’s host galaxy, the Sunrise Arc — the most highly magnified galaxy yet detected in the universe’s first billion years. Those features include both young star-forming regions and older, established star clusters as small as 10 light-years across.",
-        "url": "4.jpg",
-        "width": 2015,
-        "height": 2048
+        "url": "4.jpg"
     },
     {
         "title": "Heading3",
         "description": "Discovered by Hubble, Earendel is the farthest star ever detected. It existed in the first billion years after the big bang! The James Webb Space Telescope now shows it to be a massive B-type star, more than twice as hot as our Sun and about a million times more luminous. It’s only detectable thanks to its alignment with a galaxy cluster between Earendel and us. The cluster’s gravity bends light, magnifying what is behind it — in the case of a star-sized object like Earendel, by a factor of at least 4000. Based on the colors of the light of Earendel, astronomers think it may have a cooler companion star. Webb is also able to see other details in Earendel’s host galaxy, the Sunrise Arc — the most highly magnified galaxy yet detected in the universe’s first billion years. Those features include both young star-forming regions and older, established star clusters as small as 10 light-years across.",
-        "url": "5.jpg",
-        "width": 2048,
-        "height": 1918
+        "url": "5.jpg"
     },
     {
         "title": "Tennant Titles",
         "description": "This title sequence.",
-        "url": "6.jpg",
-        "width": 2048,
-        "height": 1152
+        "url": "6.jpg"
     },
     {
         "title": "Smith Titles",
         "description": "That title sequence",
-        "url": "7.jpg",
-        "width": 1402,
-        "height": 1080
+        "url": "7.jpg"
+    },
+    {
+        "title": "NASA’s Webb Catches Fiery Hourglass as New Star Forms",
+        "description": "Hidden in the neck of this “hourglass” of light are the very beginnings of a new star — a protostar. The clouds of dust and gas within this region are only visible in infrared light, the wavelengths that Webb specializes in.",
+        "url": "8.jpg"
+    },
+    {
+        "title": "A Wreath of Star Formation in NGC 7469",
+        "description": "Webb’s holiday card sorted! 🎄",
+        "url": "52577236876_57db7ad9f7_4k.jpg"
+    },
+    {
+        "title": "NASA’s Webb Unveils Young Stars in Early Stages of Formation",
+        "description": "Webb scientists uncovered “buried treasure,” and the Cosmic Cliffs marked the spot. ‍☠️",
+        "url": "52565304936_b7f9913fea_o.png"
+    },
+    {
+        "title": "Webb Glimpses Field of Extragalactic PEARLS, Studded With Galactic Diamonds (cropped image)",
+        "description": "A galactic panoramic",
+        "url": "52563599528_3b615c4d7a_o.png"
+    },
+    {
+        "title": "Externally hosted image",
+        "description": "Enim adipisicing cillum irure commodo magna sint eu.", 
+        "url": "https://cdn.discordapp.com/attachments/716936586180165682/1148898572654362694/external_image.png"
+    },
+    {
+        "title": "Externally hosted image 2 ",
+        "description": "Enim adipisicing cillum irure commodo magna sint eu.", 
+        "url": "https://cdn.discordapp.com/attachments/716936586180165682/1147782441784836116/6.webp"
     }
 ]

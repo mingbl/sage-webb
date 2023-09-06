@@ -9,12 +9,18 @@ var webbViewer = SAGE2_App.extend({
         const imageDirectory = `${this.resrcPath}local_images/`
         const imageJson = `${imageDirectory}images.json`
 
+        String.prototype.asImageUrl = function () {
+            if (this.includes("http")) return this
+            else return `${imageDirectory}${this}`
+        }
+
         const container = this.element
         this.element.classList.add("container")
         
         this.resizeEvents = "continuous"
         
         let images = []
+        let imageCache = []
 
         let externalImagesIDs = []
         let blacklist = []
@@ -22,11 +28,23 @@ var webbViewer = SAGE2_App.extend({
         // queueExternalImages()
 
         const columns = 20, viewerWidth = 4000, viewerHeight = 440
+        const numOfImagesToPreload = 8
+        let imagesPreloadedInOrder = numOfImagesToPreload - 1 // Based on the order of the image array
+
+        let numOfImagesCurrentlyPreloaded = 0
         
+        function printConsoleLog(message) {
+            this.log(message)
+        }
+
         /**
          * Time in milliseconds before the image set is replaced
          */
         const imageLifespan = 5 * 1000
+        /**
+         * Time in milliseconds before the next image in the images array [] is preloaded
+         */
+        const preloadDelay = 1 * 1000
         
         const viewerAspectRatio = viewerWidth / viewerHeight
         
@@ -50,6 +68,8 @@ var webbViewer = SAGE2_App.extend({
          * @param {integer} numOfColumns - number of columns necessary to display the whole image (excluding text part)
          */
         function createShowcase(image, numOfColumns) {
+            this.log(`creating showcase: ${image.url}`)
+
             const textPart = createComponent("div", "text-part", container)
             textPart.style.width = `${100 / columns}%`
             textPart.style.setProperty("animation-duration", `${imageLifespan / 1000}s`)
@@ -61,7 +81,7 @@ var webbViewer = SAGE2_App.extend({
             description.innerHTML = image.description
             
             const imagePart = createComponent("div", "image-part", container)
-            imagePart.style.backgroundImage = `url(${imageDirectory + image.url})`
+            imagePart.style.backgroundImage = `url(${image.url.asImageUrl()})`
             imagePart.style.width = `${numOfColumns * (100 / columns)}%`
             imagePart.style.setProperty("animation-duration", `${imageLifespan / 1000}s`)
         }
@@ -72,7 +92,14 @@ var webbViewer = SAGE2_App.extend({
         let imageCounter = 0
         function renderDisplay() {
             // If there are no images in the images array, skip rendering this rotation
-            if (images.length < 1) return
+            // if (images.length < 1) return
+
+            this.log(`Rendering Display`)
+
+            if (numOfImagesCurrentlyPreloaded < 1) {
+                this.log(`No images preloaded`)
+                return
+            }
 
             // Clear display
             while (container.firstChild) container.removeChild(container.lastChild)
@@ -86,6 +113,14 @@ var webbViewer = SAGE2_App.extend({
                 let imageCounterModulo = imageCounter % images.length
                 const image = images[imageCounterModulo]
         
+                // If image has not been preloaded, skip this image for now
+                if (image.preloaded === false) {
+                    this.log(`Image ${imageCounterModulo}/${imageCounter} not preloaded`)
+                    continue
+                }
+
+                this.log(`image: ${JSON.stringify(image)}`)
+
                 const imageAspectRatio = image.width / image.height
         
                 const numOfColumns = Math.ceil((columns / viewerAspectRatio) * imageAspectRatio)
@@ -104,6 +139,78 @@ var webbViewer = SAGE2_App.extend({
 
         }
 
+        async function preloadImage(imageID) {
+            
+            if (images.length < imageID) return
+
+            const image = images[imageID]
+
+            // If image already preloaded, skip
+            if (image.preloaded === true) {
+                this.log(`IMAGE ${imageID} is already preloaded. Skipping.`)
+                return
+            }
+
+            this.log(`IMAGE ${imageID} will be preloaded.`)
+
+            // Create img in memory
+            // const imgCache = new Image()
+            const imgCache = document.createElement("img")
+            // this.log(`created img cache for ${image.url} ${imgCache}`)
+
+
+            // this.log(`setting img src for ${image.url} ${imgCache}. ${imageDirectory}${image.url}`)
+            imgCache.src = image.url.asImageUrl()
+            // this.log(`imgCache.src = ${imgCache.src}`)
+
+            imageCache[imageID] = imgCache
+
+            // this.log(`setting onload for imageID ${imageID}`)
+
+            imgCache.onload = function () {
+                image.width = imgCache.naturalWidth
+                image.height = imgCache.naturalHeight
+                image.preloaded = true
+
+
+                printConsoleLog(`IMAGE ${imageID} has preloaded. Width: ${imgCache.naturalWidth} Height: ${imgCache.naturalHeight}`)
+
+                numOfImagesCurrentlyPreloaded++
+            }
+            // this.log(`onload line passed for imageID ${imageID}`)
+        }
+
+        async function preloadNextImage() {
+            if (imagesPreloadedInOrder > images.length) return
+            const imageID = imagesPreloadedInOrder % images.length
+            preloadImage(imageID + 1)
+            imagesPreloadedInOrder++
+        }
+
+        // function imageLoaded(imageID) {
+        //     const image = images[imageID]
+        //     const imgCache = imageCache[imageID]
+
+        //     this.log(`width: ${this.width}. height: ${this.height}`)
+        //     this.log(`this: ${this}`)
+        //     this.log(`imgcache: ${imgCache}`)
+        //     this.log(`imgcache width: ${imgCache.width}. height: ${imgCache.height}`)
+        //     this.log(`imgcache width: ${imgCache.naturalWidth}. height: ${imgCache.naturalHeight}`)
+
+        //     this.log(`image preloaded`)
+        //     this.log(`image preloaded image ${image.url}`)
+        //     image.width = imgCache.width
+        //     image.height = imgCache.height
+
+        //     this.log(`currentSrc: ${imageCache.currentSrc}`)
+
+        //     image.preloaded = true
+
+        //     this.log(JSON.stringify(image))
+        //     this.log(JSON.stringify(imgCache))
+
+        // }
+
         // let localImageDataLoaded = false
         // let apiImageDataLoaded = false
 
@@ -112,23 +219,40 @@ var webbViewer = SAGE2_App.extend({
                 this.log(`attempting to read file ${imageJson}`)
                 if (err) throw err
                 else {
-                    images = images.concat(imageData)
+                    for (let i = 0; i < imageData.length; i++) {
+                        const image = imageData[i];
+                        image.preloaded = false
+
+                        images.push(image)
+                    }
+                    // images = images.concat(imageData)
                     this.log(`Reading images`)
     
                     images.forEach(image => {
                         this.log(image.title)
                     });
     
+                    // Preload first (numOfImagesToPreload) images
+                    for (let i = 0; i < numOfImagesToPreload; i++) {
+                        preloadImage(i)
+                    }
+
                     // localImageDataLoaded = true
 
-                    renderDisplay()
+                    // renderDisplay()
                 }
               }, "JSON")
         }
 
+        const loadingText = createComponent("p", "description", container)
+        loadingText.innerHTML = "Loading..."
+
         readLocalImages()
 
+
         setInterval(renderDisplay, imageLifespan)
+
+        setInterval(preloadNextImage, preloadDelay)
 
         /**
          *  Pull external images, check if they are excluded from the blacklist and add to the dictionary of image objects to be displayed
