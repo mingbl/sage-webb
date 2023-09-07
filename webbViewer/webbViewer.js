@@ -13,15 +13,71 @@ var webbViewer = SAGE2_App.extend({
         this.element.classList.add("container")
         
         this.resizeEvents = "continuous"
+
         
-        let images = []
+        //  -----   -----   Global variables    -----   -----   //
 
-        let externalImagesIDs = []
-        let blacklist = []
+        //  Store API key in a variable
+        const apiKey = "01dcb39fbbee4546f965dd0d8d512342";
+        //  Store API secret in a variable
+        const apiSecret = "0dec3ebc72ea2d36";
+        //  Store ID of a photoset (album) to retrieve images from
+        let albumID = "72177720305127361";
 
-        queueExternalImages()
+        //  Initialise list to hold images to display
+        let images = [];
 
+        //  Initialise a list to hold the IDs of blacklisted images
+        let blacklist = [];
+
+        //  Initialise a list to hole the IDs of whitelisted images
+        let whitelist = [];   
+
+        //  Initialise variables to represent CAVE screen attributes
         const columns = 20, viewerWidth = 4000, viewerHeight = 440
+
+        //  -----   -----   End global variables    -----   -----   //
+
+
+        //  -----   -----   Loading animation    -----   -----   //
+
+        //  Create containing div for startup animation
+        let loadingContainer = createComponent("div", "display-center", container);
+
+        let loading = createComponent("div", "auto-size", loadingContainer);  
+
+        //  Create startup animation element
+        loading.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="160" height="160" fill="#fff" class="bi bi-star-fill rotate" viewBox="0 0 16 16"><path d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z"/></svg>';
+
+        //  -----   -----   End loading animation   -----   -----   //
+
+        /**
+         *  Removes element from DOM without deleting from memory
+         * 
+         */
+        function hideElement(_element){
+
+            //  Create new reference to the unwanted element
+            //  (This keeps the original reference, so the element is not removed from memory)
+            let unwantedElement = _element;
+
+            //  If the element has a parent node (is on screen)
+            if (unwantedElement.parentNode) {
+
+                //  Remove the element from its parent element
+                unwantedElement.parentNode.removeChild(unwantedElement);
+
+            }
+
+        }
+
+        //  Pull external images, check if they are excluded from the blacklist and add to the dictionary of image objects to be displayed
+        //  Then use list of external image IDs to add external images and necessary properties to list of images to display
+        getExternalImages(); 
+        
+        let interval = 5000;
+
+        setInterval(createExternalImageObject, interval);
         
         /**
          * Time in milliseconds before the image set is replaced
@@ -109,6 +165,9 @@ var webbViewer = SAGE2_App.extend({
         function renderDisplay() {
             if (!localImageDataLoaded || !apiImageDataLoaded) return
 
+            //  Hide the loading image
+            hideElement(loadingContainer);
+
             let imageSetCounterModulo = imageSetCounter % imageSets.length
             console.log(`Rendering set ${imageSetCounterModulo}`)
             const imageSet = imageSets[imageSetCounterModulo]
@@ -154,31 +213,21 @@ var webbViewer = SAGE2_App.extend({
 
         readLocalImages()
 
-
         /**
          *  Pull external images, check if they are excluded from the blacklist and add to the dictionary of image objects to be displayed
          * 
          */
-        async function queueExternalImages(){
-
-            //  -----   Initialise variables    -----   //
-
-            //  Store API key in a variable
-            const apiKey = "01dcb39fbbee4546f965dd0d8d512342";
-            //  Store API secret in a variable
-            const apiSecret = "0dec3ebc72ea2d36";
-            //  Store ID of a photoset (album) to retrieve images from
-            let albumID = "72177720305127361";
+        async function getExternalImages(){
 
             //  Build url to make api calls to
-            const apiURL = "https://www.flickr.com/services/rest/?method=flickr.photosets.getPhotos&api_key=" + apiKey + "&photoset_id=" + albumID + "&format=json&nojsoncallback=1"
+            const apiURL = "https://www.flickr.com/services/rest/?method=flickr.photosets.getPhotos&api_key=" + apiKey + "&photoset_id=" + albumID + "&format=json&nojsoncallback=1";
 
             //  Make api call / request
             const apiResponse = await fetch(apiURL);    
             //  Parse api call data to JSON
             const responseData = await apiResponse.json();
 
-            //  Get the list of images from the album via the response data
+            //  Store the response data for use
             let responseImages = responseData["photoset"]["photo"]; 
             
             //  -----   Function logic  -----   //
@@ -193,18 +242,32 @@ var webbViewer = SAGE2_App.extend({
                 if (!blacklist.includes(externalImageID)){
 
                     //  Add the images to the queue of images to display
-                    externalImagesIDs.push(externalImageID);
-                    this.log(externalImageID);
+                    whitelist.push(externalImageID);
 
                 };
                         
             };
 
-            this.log(externalImagesIDs)
+            this.log("***** WHITELIST FETCHED   *****")
 
-            apiImageDataLoaded = true
+            //  Start showing internal images on CAVE screen
+            apiImageDataLoaded = true  
 
         }
+
+        /**
+         *  Retrieves the information required to display each image in the whitelist
+         * 
+         */
+        async function createExternalImageObject(){
+
+            this.log("-----  Whitelist length = " + whitelist.length + "    -----");
+
+
+
+
+
+        };
         
         arrangeImageSets()
         renderDisplay()

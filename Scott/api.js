@@ -32,7 +32,7 @@ getExternalImages(createExternalImageObjects());
 function hideStartup(){
 
     //  (If the app has finished starting up)
-    document.querySelector("#startup").style.display = "none";
+    document.querySelector(".display-center").style.display = "none";
 
 }
 
@@ -75,6 +75,8 @@ async function getExternalImages(_callback){
         imagesChecked += 1;
                 
     };
+
+    console.log(whitelist);
     
     //  Hide loading animation
     hideStartup();
