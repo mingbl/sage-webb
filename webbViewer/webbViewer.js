@@ -19,13 +19,12 @@ var webbViewer = SAGE2_App.extend({
 
         //  Initialise variables to represent CAVE screen attributes
         const columns = 20, viewerWidth = 4000, viewerHeight = 440
-        const numOfStartUpImagesToPreload = 8
 
-        // Time in milliseconds before the image set is replaced
+        // Startup screen delay duration
+        const startupDelay = 2 * 1000
+        // Time before the image set is replaced (ms)
         const imageLifespan = 10 * 1000
-        // Time in milliseconds before the next image in the images array [] is preloaded
-        const preloadDelay = 1 * 1000
-        // Time in milliseconds before the next external image is pulled from the API
+        // Time before the next external image is pulled from the API (ms)
         const externalImagePullRate = 5 * 1000
         
         // Array of image objects [{title, description, url}...]
@@ -34,8 +33,8 @@ var webbViewer = SAGE2_App.extend({
         let imageCache = []
         // Incrementing counter for image displayed, used by renderDisplay()
         let imageCounter = 0
-        // Counter for local image displayed, used by preloadImage() and preloadNextLocalImage() to stop attempting to preload nonexistant local images
-        let numOfImagesCurrentlyPreloaded = 0
+        // Counter for startup images preloaded. Used by checkStartupImagesFullyPreloaded() to stop attempting to preload nonexistant startup images
+        let numOfStartupImages = 0, numOfImagesCurrentlyPreloaded = 0, startUpImagesFullyPreloaded = false
         // Incrementing counter for external images pulled
         let numOfExternalImagesPulled = 0
         
@@ -46,10 +45,8 @@ var webbViewer = SAGE2_App.extend({
         //  Store ID of a photoset (album) to retrieve images from
         const albumID = "72177720305127361"
 
-        //  Initialise a list to hold the IDs of blacklisted images
-        let blacklist = []
-        //  Initialise a list to hold the IDs of whitelisted images
-        let whitelist = []
+        //  Initialise arrays to hold the IDs of blacklisted and whitelisted images
+        let blacklist = [], whitelist = []
 
         const viewerAspectRatio = viewerWidth / viewerHeight
 
@@ -69,7 +66,6 @@ var webbViewer = SAGE2_App.extend({
          * 
          */
         function hideElement(_element){
-
             //  Create new reference to the unwanted element
             //  (This keeps the original reference, so the element is not removed from memory)
             let unwantedElement = _element // this gets deleted after the function closes as it's contained within the scope of the function {}
@@ -79,9 +75,7 @@ var webbViewer = SAGE2_App.extend({
 
                 //  Remove the element from its parent element
                 unwantedElement.parentNode.removeChild(unwantedElement)
-
             }
-
         }
     
         /**
@@ -110,7 +104,7 @@ var webbViewer = SAGE2_App.extend({
          * @param {object} image - an image object {} in the images [] array
          * @param {integer} numOfColumns - number of columns necessary to display the whole image (excluding text part)
          */
-        function createShowcase(image, numOfColumns, imageID) {
+        function createShowcase(image, numOfColumns) {
             this.log(`CREATING SHOWCASE for: ${image.url.asImageUrl()}`)
 
             const textPart = createComponent("div", "text-part", container)
@@ -133,18 +127,10 @@ var webbViewer = SAGE2_App.extend({
          * Render as many images as can be displayed until adding an image exceeds 20 columns.
          */
         function renderDisplay() {
-            // If there are no images in the images array, skip rendering this rotation
-            // if (images.length < 1) return
-
             this.log(`Rendering Display`)
 
             //  Hide the loading image
             // hideElement(loadingContainer);
-
-            if (numOfImagesCurrentlyPreloaded < 1) {
-                this.log(`No images preloaded`)
-                return
-            }
 
             // Clear display
             while (container.firstChild) container.removeChild(container.lastChild)
@@ -176,48 +162,62 @@ var webbViewer = SAGE2_App.extend({
 
                 columnsUsed += numOfRequiredColumns
 
-                createShowcase(image, numOfColumns, imageCounterModulo)
+                createShowcase(image, numOfColumns)
             }
         }
 
-        async function preloadImage(imageID) {
-            if (images.length < imageID) return
+        /**
+         * Preload an image by creating an image element in memory and setting the src to the url, to download the img and cache it in memory.
+         * @param {integer} imageIndex - index in images array []
+         */
+        async function preloadImage(imageIndex) {
+            if (images.length < imageIndex) return
 
-            const image = images[imageID]
+            const image = images[imageIndex]
 
-            /**
-             * If the image is already preloaded, skip.
-             * This function should not be called at this point.
-             */
+            // If the image is already preloaded, skip. This function should not be called at this point.
             if (image.preloaded === true) return
 
-            this.log(`IMAGE ${imageID} will be preloaded. (${image.url.asImageUrl()})`)
+            this.log(`IMAGE ${imageIndex} will be preloaded. (${image.url.asImageUrl()})`)
 
             // Create img in memory
-            const imgCache = document.createElement("img")
+            const imgCache = new Image()
+            // const imgCache = document.createElement("img")
             imgCache.src = image.url.asImageUrl()
-            imageCache[imageID] = imgCache
-
-            numOfImagesCurrentlyPreloaded++
+            imageCache[imageIndex] = imgCache
 
             imgCache.onload = function () {
                 image.width = imgCache.naturalWidth
                 image.height = imgCache.naturalHeight
                 image.preloaded = true
 
-                printConsoleLog(`IMAGE ${imageID} has preloaded. Width: ${imgCache.naturalWidth} Height: ${imgCache.naturalHeight}. (${image.url.asImageUrl()})`)
+                printConsoleLog(`IMAGE ${imageIndex} has preloaded. Width: ${imgCache.naturalWidth} Height: ${imgCache.naturalHeight}. (${image.url.asImageUrl()})`)
+
+                checkStartupImagesFullyPreloaded()
             }
         }
 
-        async function preloadNextLocalImage() {
-            if (numOfImagesCurrentlyPreloaded >= images.length) return // Done preloading all LOCAL images in the images array []
-            
-            let nextImageinQueue = numOfImagesCurrentlyPreloaded
+        /**
+         * Checks if startup images are fully preloaded now, and starts the render loop.
+         */
+        function checkStartupImagesFullyPreloaded() {
+            // If the 'startup images fully preloaded' flag has already been marked true, don't continue
+            if (startUpImagesFullyPreloaded) return
 
-            preloadImage(nextImageinQueue)
+            numOfImagesCurrentlyPreloaded++
+
+            // If startup images are all preloaded, begin render loop
+            if (numOfImagesCurrentlyPreloaded === numOfStartupImages) {
+                startUpImagesFullyPreloaded = true
+                printConsoleLog(`STARTUP IMAGES fully preloaded (${numOfImagesCurrentlyPreloaded}/${numOfStartupImages})`)
+                setTimeout(startRenderLoop, startupDelay)
+            }
         }
 
-        function readLocalImages() {
+        /**
+         * Read startup images specified in images/local_images/images.json
+         */
+        function readStartupImages() {
             readFile(imageJson, function(err, imageData) {
                 this.log(`Attempting to read file ${imageJson}`)
                 if (err) throw err
@@ -230,22 +230,20 @@ var webbViewer = SAGE2_App.extend({
                     }
                     this.log(`Reading images`)
     
-                    images.forEach(image => {this.log(`IMAGE ${image.title} found in the json`)})
+                    images.forEach(image => {this.log(`IMAGE ${image.title} ${image.url} found in the json`)})
     
-                    // Preload start up images
-                    for (let i = 0; i < numOfStartUpImagesToPreload; i++) {
+                    // Preload startup images
+                    numOfStartupImages = imageData.length
+                    for (let i = 0; i < numOfStartupImages; i++) {
                         preloadImage(i)
                     }
-
-                    // localImageDataLoaded = true
-
-                    // renderDisplay()
                 }
               }, "JSON")
         }
 
         /**
-         *  Pull external images, check if they are excluded from the blacklist and add to the dictionary of image objects to be displayed
+         * Pull external images, check if they are excluded from the blacklist and add to the dictionary of image objects to be displayed 
+         * Then use list of external image IDs to add external images and necessary properties to list of images to display
          */
         async function getExternalImages(){
 
@@ -281,7 +279,7 @@ var webbViewer = SAGE2_App.extend({
 
             //  Start showing internal images on CAVE screen
             apiImageDataLoaded = true  
-
+            startPullingExternalImages()
         }
 
         /**
@@ -302,12 +300,18 @@ var webbViewer = SAGE2_App.extend({
             
             // Create image object
 
-            // Add to images array
+            // Push to images array
 
             // Increment 'external images pulled' counter
             numOfExternalImagesPulled++
+
+            // The following line should preload the image
+            // preloadImage(images.length)
         }
 
+        /**
+         * Create loading screen.
+         */
         function createLoadingScreen() {
             //  Create containing div for startup animation
             let loadingContainer = createComponent("div", "display-center", container)
@@ -317,21 +321,32 @@ var webbViewer = SAGE2_App.extend({
             //  Create startup animation element
             let loadingStar = createComponent("img", "loading-star-icon rotate", loading)
             loadingStar.src = `${metaImageDirectory}star.svg`
-            this.log(loadingStar.src)
+        }
+
+        /**
+         * Start render loop.
+         */
+        function startRenderLoop() {
+            printConsoleLog(`STARTING FIRST RENDER`)
+            // Initial render
+            renderDisplay()
+            // Render loop
+            setInterval(renderDisplay, imageLifespan)
+
+            // Get external images
+            getExternalImages()
+        }
+
+        /**
+         * Start pulling external images.
+         */
+        function startPullingExternalImages() {
+            setInterval(createExternalImageObject, externalImagePullRate)
         }
 
         createLoadingScreen()
 
-        readLocalImages()
-
-        //  Pull external images, check if they are excluded from the blacklist and add to the dictionary of image objects to be displayed
-        //  Then use list of external image IDs to add external images and necessary properties to list of images to display
-        getExternalImages()
-
-        setInterval(renderDisplay, imageLifespan)
-
-        setInterval(preloadNextLocalImage, preloadDelay)
-        setInterval(createExternalImageObject, externalImagePullRate)
+        readStartupImages()
 
     },
     resize: function(date) {
