@@ -28,8 +28,8 @@ var webbViewer = SAGE2_App.extend({
         // queueExternalImages()
 
         const columns = 20, viewerWidth = 4000, viewerHeight = 440
-        const numOfImagesToPreload = 8
-        let imagesPreloadedInOrder = numOfImagesToPreload - 1 // Based on the order of the image array
+        const numOfStartUpImagesToPreload = 8
+        // let imagesPreloadedInOrder = numOfImagesToPreload - 1 // Based on the order of the image array
 
         let numOfImagesCurrentlyPreloaded = 0
         
@@ -40,7 +40,7 @@ var webbViewer = SAGE2_App.extend({
         /**
          * Time in milliseconds before the image set is replaced
          */
-        const imageLifespan = 5 * 1000
+        const imageLifespan = 10 * 1000
         /**
          * Time in milliseconds before the next image in the images array [] is preloaded
          */
@@ -67,8 +67,13 @@ var webbViewer = SAGE2_App.extend({
          * @param {object} image - an image object {} in the images [] array
          * @param {integer} numOfColumns - number of columns necessary to display the whole image (excluding text part)
          */
-        function createShowcase(image, numOfColumns) {
-            this.log(`creating showcase: ${image.url}`)
+        function createShowcase(image, numOfColumns, imageID) {
+            // const img = document.createElement("img")
+            // img.src = imageCache[imageID].src
+            // container.appendChild(img)
+            // img.style.width = `${numOfColumns * (100 / columns)}%`
+            // img.style.setProperty("animation-duration", `${imageLifespan / 1000}s`)
+            this.log(`CREATING SHOWCASE for: ${image.url.asImageUrl()}`)
 
             const textPart = createComponent("div", "text-part", container)
             textPart.style.width = `${100 / columns}%`
@@ -80,8 +85,12 @@ var webbViewer = SAGE2_App.extend({
             const description = createComponent("p", "description", textPart)
             description.innerHTML = image.description
             
+            // printConsoleLog(`imageCache ${imageCache}, imageID ${imageID}, ${imageCache[imageID]}, ${JSON.stringify(imageCache[imageID])}, ${imageCache[imageID].src}`)
+
             const imagePart = createComponent("div", "image-part", container)
             imagePart.style.backgroundImage = `url(${image.url.asImageUrl()})`
+            // imagePart.style.backgroundImage = `url(${imageCache[imageID].src})`
+            // imagePart.style.src = imageCache[imageID].src
             imagePart.style.width = `${numOfColumns * (100 / columns)}%`
             imagePart.style.setProperty("animation-duration", `${imageLifespan / 1000}s`)
         }
@@ -113,13 +122,15 @@ var webbViewer = SAGE2_App.extend({
                 let imageCounterModulo = imageCounter % images.length
                 const image = images[imageCounterModulo]
         
+                imageCounter++
+
                 // If image has not been preloaded, skip this image for now
                 if (image.preloaded === false) {
-                    this.log(`Image ${imageCounterModulo}/${imageCounter} not preloaded`)
+                    this.log(`IMAGE NOT PRELOADED: ${imageCounterModulo}/${images.length - 1} (${image.url.asImageUrl()})`)
                     continue
                 }
 
-                this.log(`image: ${JSON.stringify(image)}`)
+                // this.log(`image: ${JSON.stringify(image)}`)
 
                 const imageAspectRatio = image.width / image.height
         
@@ -130,9 +141,8 @@ var webbViewer = SAGE2_App.extend({
                 if (columnsUsed + numOfRequiredColumns > columns) return
 
                 columnsUsed += numOfRequiredColumns
-                imageCounter++
 
-                createShowcase(image, numOfColumns)
+                createShowcase(image, numOfColumns, imageCounterModulo)
             }
 
             // if (!localImageDataLoaded || !apiImageDataLoaded) return
@@ -145,13 +155,13 @@ var webbViewer = SAGE2_App.extend({
 
             const image = images[imageID]
 
-            // If image already preloaded, skip
-            if (image.preloaded === true) {
-                this.log(`IMAGE ${imageID} is already preloaded. Skipping.`)
-                return
-            }
+            /**
+             * If the image is already preloaded, skip.
+             * This function should not be called at this point.
+             */
+            if (image.preloaded === true) return
 
-            this.log(`IMAGE ${imageID} will be preloaded.`)
+            this.log(`IMAGE ${imageID} will be preloaded. (${image.url.asImageUrl()})`)
 
             // Create img in memory
             // const imgCache = new Image()
@@ -167,24 +177,26 @@ var webbViewer = SAGE2_App.extend({
 
             // this.log(`setting onload for imageID ${imageID}`)
 
+            numOfImagesCurrentlyPreloaded++
+
             imgCache.onload = function () {
                 image.width = imgCache.naturalWidth
                 image.height = imgCache.naturalHeight
                 image.preloaded = true
 
 
-                printConsoleLog(`IMAGE ${imageID} has preloaded. Width: ${imgCache.naturalWidth} Height: ${imgCache.naturalHeight}`)
+                printConsoleLog(`IMAGE ${imageID} has preloaded. Width: ${imgCache.naturalWidth} Height: ${imgCache.naturalHeight}. (${image.url.asImageUrl()})`)
 
-                numOfImagesCurrentlyPreloaded++
             }
             // this.log(`onload line passed for imageID ${imageID}`)
         }
 
         async function preloadNextImage() {
-            if (imagesPreloadedInOrder > images.length) return
-            const imageID = imagesPreloadedInOrder % images.length
-            preloadImage(imageID + 1)
-            imagesPreloadedInOrder++
+            if (numOfImagesCurrentlyPreloaded === images.length) return // Done preloading all images in the images array []
+            
+            let nextImageinQueue = numOfImagesCurrentlyPreloaded
+
+            preloadImage(nextImageinQueue)
         }
 
         // function imageLoaded(imageID) {
@@ -232,8 +244,8 @@ var webbViewer = SAGE2_App.extend({
                         this.log(image.title)
                     });
     
-                    // Preload first (numOfImagesToPreload) images
-                    for (let i = 0; i < numOfImagesToPreload; i++) {
+                    // Preload start up images
+                    for (let i = 0; i < numOfStartUpImagesToPreload; i++) {
                         preloadImage(i)
                     }
 
