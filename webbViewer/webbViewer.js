@@ -21,11 +21,11 @@ var webbViewer = SAGE2_App.extend({
         const columns = 20, viewerWidth = 4000, viewerHeight = 440
 
         // Startup screen delay duration
-        const loadingDelay = 2 * 1000
+        const loadingDelay = 5 * 1000
         // Time before the image set is replaced (ms)
-        const imageLifespan = 10 * 1000
+        const imageLifespan = 20 * 1000
         // Time before the next external image is pulled from the API (ms)
-        const externalImagePullRate = 5 * 1000
+        const externalImagePullRate = 0.5 * 1000
         
         // Array of image objects [{title, description, url}...]
         let images = []
