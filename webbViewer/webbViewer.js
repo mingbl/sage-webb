@@ -287,10 +287,12 @@ var webbViewer = SAGE2_App.extend({
 
             const lineBreakRegex = /\\n/g, linkRegex = /<a/g, lineBreakReplacement = "<br/>", linkReplacement = "<br/><a"
 
+            "hi\nhello\n".split("\n").join("")
+
             let desc = responseImage["description"]["_content"]
 
-            desc = JSON.stringify(desc).replace(lineBreakRegex, linkRegex)
-            desc = JSON.stringify(desc).replace(lineBreakReplacement, linkReplacement)
+            desc = JSON.stringify(desc).replace(lineBreakRegex, lineBreakReplacement)
+            desc = JSON.stringify(desc).replace(linkRegex, linkReplacement)
             desc = desc.substring(1, desc.length - 1)
             desc = desc.substring(0, desc.indexOf("Image description"))
 
