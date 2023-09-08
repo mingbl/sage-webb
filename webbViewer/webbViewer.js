@@ -21,7 +21,7 @@ var webbViewer = SAGE2_App.extend({
         const columns = 20, viewerWidth = 4000, viewerHeight = 440
 
         // Startup screen delay duration
-        const startupDelay = 2 * 1000
+        const loadingDelay = 2 * 1000
         // Time before the image set is replaced (ms)
         const imageLifespan = 10 * 1000
         // Time before the next external image is pulled from the API (ms)
@@ -60,24 +60,7 @@ var webbViewer = SAGE2_App.extend({
             if (this.includes("http")) return this
             else return `${imageDirectory}${this}`
         }
-
-        /**
-         *  Removes element from DOM without deleting from memory
-         * 
-         */
-        function hideElement(_element){
-            //  Create new reference to the unwanted element
-            //  (This keeps the original reference, so the element is not removed from memory)
-            let unwantedElement = _element // this gets deleted after the function closes as it's contained within the scope of the function {}
-
-            //  If the element has a parent node (is on screen)
-            if (unwantedElement.parentNode) {
-
-                //  Remove the element from its parent element
-                unwantedElement.parentNode.removeChild(unwantedElement)
-            }
-        }
-    
+  
         /**
          * Workaround for printing to the console
          * @param {string} message - Message to print to console log
@@ -128,9 +111,6 @@ var webbViewer = SAGE2_App.extend({
          */
         function renderDisplay() {
             this.log(`Rendering Display`)
-
-            //  Hide the loading image
-            // hideElement(loadingContainer);
 
             // Clear display
             while (container.firstChild) container.removeChild(container.lastChild)
@@ -210,7 +190,7 @@ var webbViewer = SAGE2_App.extend({
             if (numOfImagesCurrentlyPreloaded === numOfStartupImages) {
                 startUpImagesFullyPreloaded = true
                 printConsoleLog(`STARTUP IMAGES fully preloaded (${numOfImagesCurrentlyPreloaded}/${numOfStartupImages})`)
-                setTimeout(startRenderLoop, startupDelay)
+                setTimeout(startRenderLoop, loadingDelay)
             }
         }
 
@@ -277,36 +257,81 @@ var webbViewer = SAGE2_App.extend({
             this.log("***** WHITELIST FETCHED   *****")
             this.log(`WHITELIST: ${JSON.stringify(whitelist)}`)
 
-            //  Start showing internal images on CAVE screen
-            apiImageDataLoaded = true  
+            //  Start pulling data for external images
             startPullingExternalImages()
         }
 
         /**
          *  Retrieves the information required to display each image in the whitelist
          */
-        async function createExternalImageObject() {
-            // insert check to ensure local images have been loaded first
-
-            // If the API image list has not been pulled yet, don't continue
-            if (!apiImageDataLoaded) return
+        async function getExternalImageData() {          
 
             // insert check for if all images in the whitelist have been pulled, end here
-
-            this.log("-----  Whitelist length = " + whitelist.length + "    -----")
+            if (numOfExternalImagesPulled == whitelist.length) return  
 
             // Pull image data
-            this.log(`PULLING EXTERNAL IMAGE: Array no. [${numOfExternalImagesPulled}] ID: ${whitelist[numOfExternalImagesPulled]} of a list of ${whitelist.length} images`)
+            this.log(`----- PULLING EXTERNAL IMAGE: Array no. [${numOfExternalImagesPulled}] ID: ${whitelist[numOfExternalImagesPulled]} of a list of ${whitelist.length} images`)
             
-            // Create image object
+            //  -----   -----   Get image title and description -----   -----   //
+
+            //  Build url to make api calls to
+            const apiURL = `https://www.flickr.com/services/rest/?method=flickr.photos.getInfo&api_key=${apiKey}&photo_id=${whitelist[numOfExternalImagesPulled]}&format=json&nojsoncallback=1`
+
+            //  Make api call / request
+            const apiResponse = await fetch(apiURL)
+            //  Parse api call data to JSON
+            const responseData = await apiResponse.json()
+
+            //  Store the response data for use
+            const responseImage = responseData["photo"];
+
+            //  Create image object to push to list of images to display
+            let imageObject = {
+
+                title: responseImage["title"]["_content"],
+                description: responseImage["description"]["_content"],
+                url: ""
+
+            };  
+            
+            //  -----   -----   Get image URL   -----   -----   //
+
+            //  Build url to make api calls to
+            const sizeURL = `https://www.flickr.com/services/rest/?method=flickr.photos.getSizes&api_key=${apiKey}&photo_id=${whitelist[numOfExternalImagesPulled]}&format=json&nojsoncallback=1`
+
+            //  Make api call / request
+            const sizeReponse = await fetch(sizeURL)
+            //  Parse api call data to JSON
+            const sizeData = await sizeReponse.json()
+
+            //  Store the response data for use
+            const responseSize = sizeData["sizes"]["size"];
+
+            for (let i = 0; i < responseSize.length; i++) {
+                
+                const s = responseSize[i];
+
+                if (s.label = "Original") {
+
+                    imageObject.url = s.source
+                    
+                }
+                
+            }
+
+            printConsoleLog(`Pulled ${imageObject.title} from external repo`);
+            printConsoleLog(`Description: ${imageObject.description}`);
+            printConsoleLog(`URL: ${imageObject.url}`);
 
             // Push to images array
+            images.push(imageObject);
 
             // Increment 'external images pulled' counter
             numOfExternalImagesPulled++
 
             // The following line should preload the image
-            // preloadImage(images.length)
+            preloadImage(images.length-1)
+            
         }
 
         /**
@@ -341,7 +366,12 @@ var webbViewer = SAGE2_App.extend({
          * Start pulling external images.
          */
         function startPullingExternalImages() {
-            setInterval(createExternalImageObject, externalImagePullRate)
+
+            printConsoleLog("*****  Starting to pull external image data   *****")
+            
+            //  Create delay for API calls so not calling all at once
+            setInterval(getExternalImageData, externalImagePullRate)
+            
         }
 
         createLoadingScreen()
