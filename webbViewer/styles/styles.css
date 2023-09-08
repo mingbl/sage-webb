@@ -47,6 +47,9 @@ p.description {
     text-align: justify;
     text-justify: inter-word;
 }
+p.description > a:link {
+    color: #bada55;
+}
 div.image-part {
     background-size: cover;
     background-position: center;

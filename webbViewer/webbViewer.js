@@ -289,7 +289,7 @@ var webbViewer = SAGE2_App.extend({
             let imageObject = {
 
                 title: responseImage["title"]["_content"],
-                description: responseImage["description"]["_content"],
+                description: responseImage["description"]["_content"].replace(/\\n/g, "<br/>"),
                 url: ""
 
             };  
