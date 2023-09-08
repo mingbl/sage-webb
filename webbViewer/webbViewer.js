@@ -285,20 +285,20 @@ var webbViewer = SAGE2_App.extend({
             //  Store the response data for use
             const responseImage = responseData["photo"];
 
-            let regex = /\\n/g
-            let replacement = "<br/>"
+            const lineBreakRegex = /\\n/g, linkRegex = /<a/g, lineBreakReplacement = "<br/>", linkReplacement = "<br/><a"
 
             let desc = responseImage["description"]["_content"]
-            desc = JSON.stringify(desc).replace(regex, replacement)
+
+            desc = JSON.stringify(desc).replace(lineBreakRegex, linkRegex)
+            desc = JSON.stringify(desc).replace(lineBreakReplacement, linkReplacement)
             desc = desc.substring(1, desc.length - 1)
+            desc = desc.substring(0, desc.indexOf("Image description"))
 
             //  Create image object to push to list of images to display
             let imageObject = {
-
                 title: responseImage["title"]["_content"],
                 description: String(desc),
                 url: ""
-
             };  
 
             printConsoleLog(desc)
