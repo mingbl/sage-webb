@@ -311,7 +311,7 @@ var webbViewer = SAGE2_App.extend({
                 
                 const s = responseSize[i];
 
-                if (s.label = "Original") {
+                if (s.label = "Small") {
 
                     imageObject.url = s.source
                     
