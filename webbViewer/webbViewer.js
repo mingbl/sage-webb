@@ -53,6 +53,8 @@ var webbViewer = SAGE2_App.extend({
 
         //  Initialise arrays to hold the IDs of blacklisted and whitelisted images
         let blacklist = [], whitelist = []
+        // Intervals to be started later
+        let renderLoopInterval, externalImagePullingInterval
 
         const viewerAspectRatio = viewerWidth / viewerHeight
 
@@ -90,7 +92,7 @@ var webbViewer = SAGE2_App.extend({
         
         /**
          * Create a showcase (text part + image part) and append to a fragment
-         * @param {integet} imageIndex - the image index for an image object {} in the images [] array
+         * @param {integer} imageIndex - the image index for an image object {} in the images [] array
          * @param {integer} numOfColumns - number of columns necessary to display the whole image (excluding text part)
          * @param {element} fragment - the fragment to append elements to
          */
@@ -98,11 +100,13 @@ var webbViewer = SAGE2_App.extend({
             // Get image
             let image = images[imageIndex]
 
+            const animationDuration = `${imageLifespan / 1000}s` // ms to seconds
+
             this.log(`CREATING SHOWCASE for: IMAGE ${imageIndex}/${images.length}. URL: ${image.url.asImageUrl()}. Preloaded: ${image.preloaded}. Width: ${image.width}. Height: ${image.height}`)
 
             const textPart = createComponent("div", "text-part", fragment)
             textPart.style.width = `${100 / columns}%`
-            textPart.style.setProperty("animation-duration", `${imageLifespan / 1000}s`)
+            textPart.style.setProperty("animation-duration", animationDuration)
             
             const title = createComponent("h1", "title", textPart)
             title.innerHTML = image.title
@@ -113,7 +117,7 @@ var webbViewer = SAGE2_App.extend({
             const imagePart = createComponent("div", "image-part", fragment)
             imagePart.style.backgroundImage = `url(${image.url.asImageUrl()})`
             imagePart.style.width = `${numOfColumns * (100 / columns)}%`
-            imagePart.style.setProperty("animation-duration", `${imageLifespan / 1000}s`)
+            imagePart.style.setProperty("animation-duration", animationDuration)
         }
         
         /**
@@ -300,8 +304,9 @@ var webbViewer = SAGE2_App.extend({
             let index = indexForExternalImagePulled
 
             // insert check for if all images in the whitelist have been pulled, end here
-            if (index == whitelist.length) {
+            if (index === whitelist.length) {
                 printConsoleLog(`Finished pulling external images.`)
+                clearInterval(externalImagePullingInterval)
                 return
             }
 
@@ -425,7 +430,7 @@ var webbViewer = SAGE2_App.extend({
             // Initial render
             renderDisplay()
             // Render loop
-            setInterval(renderDisplay, imageLifespan)
+            renderLoopInterval = setInterval(renderDisplay, imageLifespan)
         }
 
         /**
@@ -436,7 +441,7 @@ var webbViewer = SAGE2_App.extend({
             printConsoleLog("*****  Starting to pull external image data   *****")
             
             //  Create delay for API calls so not calling all at once
-            setInterval(getExternalImageData, externalImagePullRate)
+            externalImagePullingInterval = setInterval(getExternalImageData, externalImagePullRate)
             
         }
 
