@@ -100,22 +100,24 @@ var webbViewer = SAGE2_App.extend({
             // Get image
             let image = images[imageIndex]
 
+            const { title, description, url, width, height } = image
+
             const animationDuration = `${imageLifespan / 1000}s` // ms to seconds
 
-            this.log(`CREATING SHOWCASE for: IMAGE ${imageIndex}/${images.length}. URL: ${image.url.asImageUrl()}. Preloaded: ${image.preloaded}. Width: ${image.width}. Height: ${image.height}`)
+            this.log(`CREATING SHOWCASE for: IMAGE ${imageIndex}/${images.length}. URL: ${url.asImageUrl()}. Preloaded: ${image.preloaded}. Width: ${width}. Height: ${height}`)
 
             const textPart = createComponent("div", "text-part", fragment)
             textPart.style.width = `${100 / columns}%`
             textPart.style.setProperty("animation-duration", animationDuration)
             
-            const title = createComponent("h1", "title", textPart)
-            title.innerHTML = image.title
+            const titleComponent = createComponent("h1", "title", textPart)
+            titleComponent.innerHTML = title
         
-            const description = createComponent("p", "description", textPart)
-            description.innerHTML = image.description
+            const descriptionComponent = createComponent("p", "description", textPart)
+            descriptionComponent.innerHTML = description
             
             const imagePart = createComponent("div", "image-part", fragment)
-            imagePart.style.backgroundImage = `url(${image.url.asImageUrl()})`
+            imagePart.style.backgroundImage = `url(${url.asImageUrl()})`
             imagePart.style.width = `${numOfColumns * (100 / columns)}%`
             imagePart.style.setProperty("animation-duration", animationDuration)
         }
@@ -138,22 +140,20 @@ var webbViewer = SAGE2_App.extend({
              */
             let columnsUsed = 0
             while (columnsUsed < usableColumns) {
-                let imageCounterModulo = imageCounter % images.length
-                const image = images[imageCounterModulo]
+                let imageIndex = imageCounter % images.length
+                
+                const image = images[imageIndex]
+                const { preloaded, numOfColumns, url } = image
         
                 imageCounter++
 
                 // If image has not been preloaded, skip this image for now
-                if (image.preloaded != true) {
-                    this.log(`IMAGE NOT PRELOADED: ${imageCounterModulo}/${images.length - 1} (${image.url.asImageUrl()})`)
+                if (preloaded != true) {
+                    this.log(`IMAGE NOT PRELOADED: ${imageIndex}/${images.length - 1} (${url.asImageUrl()})`)
                     continue
                 }
 
-                const imageAspectRatio = image.width / image.height
-        
-                const numOfColumns = Math.ceil((columns / viewerAspectRatio) * imageAspectRatio)
                 const numOfRequiredColumns = numOfColumns + 1 // Image + Text
-
 
                 /**
                  * Don't render this image this rotation if it can't fit on the screen. 
@@ -164,7 +164,7 @@ var webbViewer = SAGE2_App.extend({
 
                 columnsUsed += numOfRequiredColumns
 
-                createShowcase(imageCounterModulo, numOfColumns, fragment)
+                createShowcase(imageIndex, numOfColumns, fragment)
             }
 
             container.appendChild(fragment)
@@ -203,10 +203,15 @@ var webbViewer = SAGE2_App.extend({
 
             const { naturalWidth: width, naturalHeight: height } = imageCache[imageIndex]
 
+            const aspectRatio = width / height
+            const numOfColumns = Math.ceil((columns / viewerAspectRatio) * aspectRatio)
+
             image.width = width
             image.height = height
             image.preloaded = true
-            
+            image.aspectRatio = aspectRatio
+            image.numOfColumns = numOfColumns
+        
             printConsoleLog(`IMAGE ${imageIndex} has preloaded. Width: ${width} Height: ${height}. (${image.url.asImageUrl()})`)
 
             checkStartupImagesFullyPreloaded()
@@ -339,8 +344,6 @@ var webbViewer = SAGE2_App.extend({
             const responseImage = responseData["photo"];
 
             const lineBreakRegex = /\\n/g, linkRegex = /<a/g, lineBreakReplacement = "<br/>", linkReplacement = "<br/><a"
-
-            "hi\nhello\n".split("\n").join("")
 
             let desc = responseImage["description"]["_content"]
 
