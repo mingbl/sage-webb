@@ -196,7 +196,7 @@ var webbViewer = SAGE2_App.extend({
          */
         function updateArtifactAttributes(imageIndex) {
             const image = images[imageIndex]
-            
+
             const { naturalWidth: width, naturalHeight: height } = imageCache[imageIndex]
 
             image.width = width
@@ -235,21 +235,18 @@ var webbViewer = SAGE2_App.extend({
                 this.log(`Attempting to read file ${imageJson}`)
                 if (err) throw err
                 else {
-                    for (let i = 0; i < imageData.length; i++) {
-                        const image = imageData[i]
-                        image.preloaded = false
-
-                        images.push(image)
-                    }
-                    this.log(`Reading images`)
-    
-                    images.forEach(image => {this.log(`IMAGE ${image.title} ${image.url} found in the json`)})
-    
-                    // Preload startup images
+                    // Save number of startup images, to be used by a preload check
                     numOfStartupImages = imageData.length
-                    for (let i = 0; i < numOfStartupImages; i++) {
-                        preloadImage(i)
-                    }
+
+                    // Copy to images array
+                    imageData.forEach((artifact, index) => {
+                        images.push(artifact)
+
+                        let { title, url } = artifact
+                        printConsoleLog(`IMAGE ${title} ${url} found in the json`)
+
+                        preloadImage(index)
+                    })
                 }
               }, "JSON")
         }
@@ -366,7 +363,7 @@ var webbViewer = SAGE2_App.extend({
             // Get the url for the image that matches the resolution choice (e.g. 'Original', 'Small')
             for (let i = 0; i < responseSize.length; i++) {
                 const s = responseSize[i]
-                printConsoleLog(`${responseImage["title"]["_content"]}: ${s.label}`)
+                // printConsoleLog(`${responseImage["title"]["_content"]}: ${s.label}`)
                 if (s.label = "Small") {
                     url = s.source
                 }
