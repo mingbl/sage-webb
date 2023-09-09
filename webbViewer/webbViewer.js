@@ -18,7 +18,7 @@ var webbViewer = SAGE2_App.extend({
         this.resizeEvents = "continuous"
 
         //  Initialise variables to represent CAVE screen attributes
-        const columns = 20, viewerWidth = 4000, viewerHeight = 440
+        const columns = 20, usableColumns = 20, viewerWidth = 4000, viewerHeight = 440
 
         // Startup screen delay duration
         const loadingDelay = 3 * 1000
@@ -28,6 +28,10 @@ var webbViewer = SAGE2_App.extend({
         const externalImagePullRate = 2 * 1000
         // Pull external images in order? aka, Maintain image album order?
         const pullImagesInOrder = false
+        // Limit how many external images should be pulled?
+        const limitNumOfExternalImagesToPull = true
+        // The max number of external images to pull (irrelevant if the above is set to false)
+        const numOfExternalImagesToPull = 20
         
         // Array of image objects [{title, description, url}...]
         let images = []
@@ -41,9 +45,9 @@ var webbViewer = SAGE2_App.extend({
         let indexForExternalImagePulled = 0
         
         //  Store API key in a variable
-        const apiKey = "01dcb39fbbee4546f965dd0d8d512342"
+        const apiKey = "92c8e64a1118fb6e9e5b777c5625f04b"
         //  Store API secret in a variable
-        const apiSecret = "0dec3ebc72ea2d36"
+        const apiSecret = "295160358e33d9b6"
         //  Store ID of a photoset (album) to retrieve images from
         const albumID = "72177720305127361"
 
@@ -119,7 +123,6 @@ var webbViewer = SAGE2_App.extend({
             this.log(`Rendering Display`)
 
             // Clear display
-            // while (container.firstChild) container.removeChild(container.lastChild)
             container.replaceChildren()
 
             // Fragment to append this rotation's images to, before appending to the DOM container
@@ -130,7 +133,7 @@ var webbViewer = SAGE2_App.extend({
              * how many columns are required to display this image and its text part.
              */
             let columnsUsed = 0
-            while (columnsUsed < columns) {
+            while (columnsUsed < usableColumns) {
                 let imageCounterModulo = imageCounter % images.length
                 const image = images[imageCounterModulo]
         
@@ -147,8 +150,13 @@ var webbViewer = SAGE2_App.extend({
                 const numOfColumns = Math.ceil((columns / viewerAspectRatio) * imageAspectRatio)
                 const numOfRequiredColumns = numOfColumns + 1 // Image + Text
 
-                // Don't render this image this rotation if it can't fit on the screen
-                if (columnsUsed + numOfRequiredColumns > columns) break
+
+                /**
+                 * Don't render this image this rotation if it can't fit on the screen. 
+                 * If we had images that could fit within 1 column, 'break' could be set to 'continue', 
+                 * but consideration of its accompanying text part means the columns needs to have 2 empty spaces
+                 */
+                if (columnsUsed + numOfRequiredColumns > usableColumns) break
 
                 columnsUsed += numOfRequiredColumns
 
@@ -296,6 +304,9 @@ var webbViewer = SAGE2_App.extend({
                 return
             }
 
+            // Limit number of external images to pull
+            if (limitNumOfExternalImagesToPull && index >= numOfExternalImagesToPull) return
+
             // Increment 'external images pulled' counter, so the setInterval loop doesn't try to pull this same image again
             indexForExternalImagePulled++
 
@@ -325,15 +336,6 @@ var webbViewer = SAGE2_App.extend({
             desc = desc.substring(1, desc.length - 1)
             desc = desc.substring(0, desc.indexOf("Image description"))
 
-            //  Create image object to push to list of images to display
-            let imageObject = {
-                title: responseImage["title"]["_content"],
-                description: String(desc),
-                url: ""
-            };  
-
-            // printConsoleLog(desc)
-            
             //  -----   -----   Get image URL   -----   -----   //
 
             //  Build url to make api calls to
@@ -347,30 +349,47 @@ var webbViewer = SAGE2_App.extend({
             //  Store the response data for use
             const responseSize = sizeData["sizes"]["size"];
 
+            // Initialise url variable
+            let url = ""
+
+            // Get the url for the image that matches the resolution choice (e.g. 'Original', 'Small')
             for (let i = 0; i < responseSize.length; i++) {
-                
-                const s = responseSize[i];
-
+                const s = responseSize[i]
+                printConsoleLog(`${responseImage["title"]["_content"]}: ${s.label}`)
                 if (s.label = "Small") {
-
-                    imageObject.url = s.source
-                    
+                    url = s.source
                 }
-                
             }
 
-            printConsoleLog(`Pulled ${imageObject.title} from external repo`);
-            // printConsoleLog(`Description: ${imageObject.description}`);
-            // printConsoleLog(`URL: ${imageObject.url}`);
+            //  Create image object to push to list of images to display
+            let artifact = createArtifact(responseImage["title"]["_content"], String(desc), url)
+
+            printConsoleLog(`Pulled ${artifact.title} from external repo`)
 
             // Push to images array
-            images.push(imageObject);
+            images.push(artifact);
 
             // Preload this image
             preloadImage(images.length - 1)
-            
         }
 
+        /**
+         * Create an artifact (image object {})
+         * @param {string} title 
+         * @param {string} description 
+         * @param {string} url 
+         * @returns - the artifact object {}, for pushing to the images array []
+         */
+        function createArtifact(title, description, url) {
+            let artifact = {
+                title: title,
+                description: description,
+                url: url,
+                preloaded: false
+            }
+            return artifact
+        }
+        
         /**
          * Create loading screen.
          */
