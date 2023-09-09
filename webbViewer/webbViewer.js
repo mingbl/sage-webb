@@ -21,11 +21,13 @@ var webbViewer = SAGE2_App.extend({
         const columns = 20, viewerWidth = 4000, viewerHeight = 440
 
         // Startup screen delay duration
-        const loadingDelay = 5 * 1000
+        const loadingDelay = 3 * 1000
         // Time before the image set is replaced (ms)
-        const imageLifespan = 20 * 1000
+        const imageLifespan = 15 * 1000
         // Time before the next external image is pulled from the API (ms)
-        const externalImagePullRate = 0.5 * 1000
+        const externalImagePullRate = 2 * 1000
+        // Pull external images in order? aka, Maintain image album order?
+        const pullImagesInOrder = false
         
         // Array of image objects [{title, description, url}...]
         let images = []
@@ -36,7 +38,7 @@ var webbViewer = SAGE2_App.extend({
         // Counter for startup images preloaded. Used by checkStartupImagesFullyPreloaded() to stop attempting to preload nonexistant startup images
         let numOfStartupImages = 0, numOfImagesCurrentlyPreloaded = 0, startUpImagesFullyPreloaded = false
         // Incrementing counter for external images pulled
-        let numOfExternalImagesPulled = 0
+        let indexForExternalImagePulled = 0
         
         //  Store API key in a variable
         const apiKey = "01dcb39fbbee4546f965dd0d8d512342"
@@ -83,14 +85,18 @@ var webbViewer = SAGE2_App.extend({
         }
         
         /**
-         * Create a showcase (text part + image part) and append to the container
-         * @param {object} image - an image object {} in the images [] array
+         * Create a showcase (text part + image part) and append to a fragment
+         * @param {integet} imageIndex - the image index for an image object {} in the images [] array
          * @param {integer} numOfColumns - number of columns necessary to display the whole image (excluding text part)
+         * @param {element} fragment - the fragment to append elements to
          */
-        function createShowcase(image, numOfColumns) {
-            this.log(`CREATING SHOWCASE for: ${image.url.asImageUrl()}`)
+        function createShowcase(imageIndex, numOfColumns, fragment) {
+            // Get image
+            let image = images[imageIndex]
 
-            const textPart = createComponent("div", "text-part", container)
+            this.log(`CREATING SHOWCASE for: IMAGE ${imageIndex}/${images.length}. URL: ${image.url.asImageUrl()}. Preloaded: ${image.preloaded}. Width: ${image.width}. Height: ${image.height}`)
+
+            const textPart = createComponent("div", "text-part", fragment)
             textPart.style.width = `${100 / columns}%`
             textPart.style.setProperty("animation-duration", `${imageLifespan / 1000}s`)
             
@@ -100,7 +106,7 @@ var webbViewer = SAGE2_App.extend({
             const description = createComponent("p", "description", textPart)
             description.innerHTML = image.description
             
-            const imagePart = createComponent("div", "image-part", container)
+            const imagePart = createComponent("div", "image-part", fragment)
             imagePart.style.backgroundImage = `url(${image.url.asImageUrl()})`
             imagePart.style.width = `${numOfColumns * (100 / columns)}%`
             imagePart.style.setProperty("animation-duration", `${imageLifespan / 1000}s`)
@@ -113,7 +119,11 @@ var webbViewer = SAGE2_App.extend({
             this.log(`Rendering Display`)
 
             // Clear display
-            while (container.firstChild) container.removeChild(container.lastChild)
+            // while (container.firstChild) container.removeChild(container.lastChild)
+            container.replaceChildren()
+
+            // Fragment to append this rotation's images to, before appending to the DOM container
+            let fragment = new DocumentFragment()
 
             /**
              * This algorithm uses the aspect ratio of the image to calculate 
@@ -127,7 +137,7 @@ var webbViewer = SAGE2_App.extend({
                 imageCounter++
 
                 // If image has not been preloaded, skip this image for now
-                if (image.preloaded === false) {
+                if (image.preloaded != true) {
                     this.log(`IMAGE NOT PRELOADED: ${imageCounterModulo}/${images.length - 1} (${image.url.asImageUrl()})`)
                     continue
                 }
@@ -138,12 +148,14 @@ var webbViewer = SAGE2_App.extend({
                 const numOfRequiredColumns = numOfColumns + 1 // Image + Text
 
                 // Don't render this image this rotation if it can't fit on the screen
-                if (columnsUsed + numOfRequiredColumns > columns) return
+                if (columnsUsed + numOfRequiredColumns > columns) break
 
                 columnsUsed += numOfRequiredColumns
 
-                createShowcase(image, numOfColumns)
+                createShowcase(imageCounterModulo, numOfColumns, fragment)
             }
+
+            container.appendChild(fragment)
         }
 
         /**
@@ -190,6 +202,8 @@ var webbViewer = SAGE2_App.extend({
             if (numOfImagesCurrentlyPreloaded === numOfStartupImages) {
                 startUpImagesFullyPreloaded = true
                 printConsoleLog(`STARTUP IMAGES fully preloaded (${numOfImagesCurrentlyPreloaded}/${numOfStartupImages})`)
+                // Get external images
+                getExternalImages()
                 setTimeout(startRenderLoop, loadingDelay)
             }
         }
@@ -226,6 +240,7 @@ var webbViewer = SAGE2_App.extend({
          * Then use list of external image IDs to add external images and necessary properties to list of images to display
          */
         async function getExternalImages(){
+            printConsoleLog("PULLING LIST OF EXTERNAL IMAGES")
 
             //  Build url to make api calls to
             const apiURL = `https://www.flickr.com/services/rest/?method=flickr.photosets.getPhotos&api_key=${apiKey}&photoset_id=${albumID}&format=json&nojsoncallback=1`
@@ -264,18 +279,32 @@ var webbViewer = SAGE2_App.extend({
         /**
          *  Retrieves the information required to display each image in the whitelist
          */
-        async function getExternalImageData() {          
+        async function getExternalImageData() {
+            // A copy of the external image index variable with a shorter name for readability
+            let index = indexForExternalImagePulled
 
             // insert check for if all images in the whitelist have been pulled, end here
-            if (numOfExternalImagesPulled == whitelist.length) return  
+            if (index == whitelist.length) {
+                printConsoleLog(`Finished pulling external images.`)
+                return
+            }
 
-            // Pull image data
-            this.log(`----- PULLING EXTERNAL IMAGE: Array no. [${numOfExternalImagesPulled}] ID: ${whitelist[numOfExternalImagesPulled]} of a list of ${whitelist.length} images`)
+            // check if the last image has preloaded yet, if not, don't continue. 
+            // External images should be pulled and preloaded in order.
+            if (images[images.length - 1].preloaded != true && pullImagesInOrder) {
+                printConsoleLog(`Last image not preloaded yet.`)
+                return
+            }
+
+            // Increment 'external images pulled' counter, so the setInterval loop doesn't try to pull this same image again
+            indexForExternalImagePulled++
+
+            this.log(`----- PULLING EXTERNAL IMAGE: Array no. [${index}] ID: ${whitelist[index]} of a list of ${whitelist.length} images`)
             
             //  -----   -----   Get image title and description -----   -----   //
 
             //  Build url to make api calls to
-            const apiURL = `https://www.flickr.com/services/rest/?method=flickr.photos.getInfo&api_key=${apiKey}&photo_id=${whitelist[numOfExternalImagesPulled]}&format=json&nojsoncallback=1`
+            const apiURL = `https://www.flickr.com/services/rest/?method=flickr.photos.getInfo&api_key=${apiKey}&photo_id=${whitelist[index]}&format=json&nojsoncallback=1`
 
             //  Make api call / request
             const apiResponse = await fetch(apiURL)
@@ -303,12 +332,12 @@ var webbViewer = SAGE2_App.extend({
                 url: ""
             };  
 
-            printConsoleLog(desc)
+            // printConsoleLog(desc)
             
             //  -----   -----   Get image URL   -----   -----   //
 
             //  Build url to make api calls to
-            const sizeURL = `https://www.flickr.com/services/rest/?method=flickr.photos.getSizes&api_key=${apiKey}&photo_id=${whitelist[numOfExternalImagesPulled]}&format=json&nojsoncallback=1`
+            const sizeURL = `https://www.flickr.com/services/rest/?method=flickr.photos.getSizes&api_key=${apiKey}&photo_id=${whitelist[index]}&format=json&nojsoncallback=1`
 
             //  Make api call / request
             const sizeReponse = await fetch(sizeURL)
@@ -331,17 +360,14 @@ var webbViewer = SAGE2_App.extend({
             }
 
             printConsoleLog(`Pulled ${imageObject.title} from external repo`);
-            printConsoleLog(`Description: ${imageObject.description}`);
-            printConsoleLog(`URL: ${imageObject.url}`);
+            // printConsoleLog(`Description: ${imageObject.description}`);
+            // printConsoleLog(`URL: ${imageObject.url}`);
 
             // Push to images array
             images.push(imageObject);
 
-            // Increment 'external images pulled' counter
-            numOfExternalImagesPulled++
-
-            // The following line should preload the image
-            preloadImage(images.length-1)
+            // Preload this image
+            preloadImage(images.length - 1)
             
         }
 
@@ -349,14 +375,19 @@ var webbViewer = SAGE2_App.extend({
          * Create loading screen.
          */
         function createLoadingScreen() {
+            // Fragment for appending loading elements to before appending to the DOM container
+            let fragment = new DocumentFragment()
+
             //  Create containing div for startup animation
-            let loadingContainer = createComponent("div", "display-center", container)
+            let loadingContainer = createComponent("div", "display-center", fragment)
 
             let loading = createComponent("div", "auto-size", loadingContainer)
 
             //  Create startup animation element
             let loadingStar = createComponent("img", "loading-star-icon rotate", loading)
             loadingStar.src = `${metaImageDirectory}star.svg`
+
+            container.appendChild(fragment)
         }
 
         /**
@@ -368,9 +399,6 @@ var webbViewer = SAGE2_App.extend({
             renderDisplay()
             // Render loop
             setInterval(renderDisplay, imageLifespan)
-
-            // Get external images
-            getExternalImages()
         }
 
         /**
