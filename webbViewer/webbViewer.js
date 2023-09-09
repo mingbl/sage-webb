@@ -186,15 +186,26 @@ var webbViewer = SAGE2_App.extend({
             imgCache.src = image.url.asImageUrl()
             imageCache[imageIndex] = imgCache
 
-            imgCache.onload = function () {
-                image.width = imgCache.naturalWidth
-                image.height = imgCache.naturalHeight
-                image.preloaded = true
+            imgCache.onload = () => updateArtifactAttributes(imageIndex)
+        }
 
-                printConsoleLog(`IMAGE ${imageIndex} has preloaded. Width: ${imgCache.naturalWidth} Height: ${imgCache.naturalHeight}. (${image.url.asImageUrl()})`)
+        /**
+         * Update the attributes for an artifact/image object. Triggered on preload of an image.
+         * Add attributes for width and height, and set the 'preloaded' flag to true.
+         * @param {integer} imageIndex - index in images array []
+         */
+        function updateArtifactAttributes(imageIndex) {
+            const image = images[imageIndex]
+            
+            const { naturalWidth: width, naturalHeight: height } = imageCache[imageIndex]
 
-                checkStartupImagesFullyPreloaded()
-            }
+            image.width = width
+            image.height = height
+            image.preloaded = true
+            
+            printConsoleLog(`IMAGE ${imageIndex} has preloaded. Width: ${width} Height: ${height}. (${image.url.asImageUrl()})`)
+
+            checkStartupImagesFullyPreloaded()
         }
 
         /**
