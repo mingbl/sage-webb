@@ -20,12 +20,14 @@ var webbViewer = SAGE2_App.extend({
         //  Initialise variables to represent CAVE screen attributes
         const columns = 20, usableColumns = 20, viewerWidth = 4000, viewerHeight = 440
 
-        // Startup screen delay duration
-        const loadingDelay = 3 * 1000
-        // Time before the image set is replaced (ms)
-        const imageLifespan = 15 * 1000
-        // Time before the next external image is pulled from the API (ms)
-        const externalImagePullRate = 2 * 1000
+        // Startup screen delay duration (seconds)
+        const loadingDelay = 2
+        // Time before the image set is replaced (seconds) (exclusive of fade transition duration below)
+        const imageLifespan = 15
+        // Duration of fade in / fade out transitions
+        const fadeDuration = 1.5
+        // Time before the next external image is pulled from the API (seconds)
+        const externalImagePullRate = 2
         // Pull external images in order? aka, Maintain image album order?
         const pullImagesInOrder = false
         // Limit how many external images should be pulled?
@@ -57,6 +59,7 @@ var webbViewer = SAGE2_App.extend({
         let renderLoopInterval, externalImagePullingInterval
 
         const viewerAspectRatio = viewerWidth / viewerHeight
+        const animationStyle = `${fadeDuration}s linear fadein, ${fadeDuration}s linear ${imageLifespan + fadeDuration}s fadeout`
 
         //  -----   -----   End global variables    -----   -----   //
 
@@ -102,13 +105,11 @@ var webbViewer = SAGE2_App.extend({
 
             const { title, description, url, width, height } = image
 
-            const animationDuration = `${imageLifespan / 1000}s` // ms to seconds
-
             this.log(`CREATING SHOWCASE for: IMAGE ${imageIndex}/${images.length}. URL: ${url.asImageUrl()}. Preloaded: ${image.preloaded}. Width: ${width}. Height: ${height}`)
 
             const textPart = createComponent("div", "text-part", fragment)
             textPart.style.width = `${100 / columns}%`
-            textPart.style.setProperty("animation-duration", animationDuration)
+            textPart.style.setProperty("animation", animationStyle)
             
             const titleComponent = createComponent("h1", "title", textPart)
             titleComponent.innerHTML = title
@@ -119,7 +120,7 @@ var webbViewer = SAGE2_App.extend({
             const imagePart = createComponent("div", "image-part", fragment)
             imagePart.style.backgroundImage = `url(${url.asImageUrl()})`
             imagePart.style.width = `${numOfColumns * (100 / columns)}%`
-            imagePart.style.setProperty("animation-duration", animationDuration)
+            imagePart.style.setProperty("animation", animationStyle)
         }
         
         /**
@@ -232,7 +233,7 @@ var webbViewer = SAGE2_App.extend({
                 printConsoleLog(`STARTUP IMAGES fully preloaded (${numOfImagesCurrentlyPreloaded}/${numOfStartupImages})`)
                 // Get external images
                 getExternalImages()
-                setTimeout(startRenderLoop, loadingDelay)
+                setTimeout(startRenderLoop, loadingDelay * 1000)
             }
         }
 
@@ -433,7 +434,7 @@ var webbViewer = SAGE2_App.extend({
             // Initial render
             renderDisplay()
             // Render loop
-            renderLoopInterval = setInterval(renderDisplay, imageLifespan)
+            renderLoopInterval = setInterval(renderDisplay, imageLifespan * 1000 + (fadeDuration * 2 * 1000))
         }
 
         /**
@@ -444,7 +445,7 @@ var webbViewer = SAGE2_App.extend({
             printConsoleLog("*****  Starting to pull external image data   *****")
             
             //  Create delay for API calls so not calling all at once
-            externalImagePullingInterval = setInterval(getExternalImageData, externalImagePullRate)
+            externalImagePullingInterval = setInterval(getExternalImageData, externalImagePullRate * 1000)
             
         }
 
