@@ -76,7 +76,10 @@ var webbViewer = SAGE2_App.extend({
          * Workaround for printing to the console
          * @param {string} message - Message to print to console log
          */
-        function printConsoleLog(message) {this.log(message)}
+        function printConsoleLog(message) {
+            this.log(message)
+            displayLog.innerHTML += `<br>${message}`
+        }
 
         /**
          * Create an element, add class name, and append to a parent element
@@ -105,7 +108,7 @@ var webbViewer = SAGE2_App.extend({
 
             const { title, description, url, width, height } = image
 
-            this.log(`CREATING SHOWCASE for: IMAGE ${imageIndex}/${images.length}. URL: ${url.asImageUrl()}. Preloaded: ${image.preloaded}. Width: ${width}. Height: ${height}`)
+            printConsoleLog(`CREATING SHOWCASE for: IMAGE ${imageIndex}/${images.length}. URL: ${url.asImageUrl()}. Preloaded: ${image.preloaded}. Width: ${width}. Height: ${height}`)
 
             const textPart = createComponent("div", "text-part", fragment)
             textPart.style.width = `${100 / columns}%`
@@ -127,7 +130,7 @@ var webbViewer = SAGE2_App.extend({
          * Render as many images as can be displayed until adding an image exceeds 20 columns.
          */
         function renderDisplay() {
-            this.log(`Rendering Display`)
+            printConsoleLog(`Rendering Display`)
 
             // Clear display
             container.replaceChildren()
@@ -150,7 +153,7 @@ var webbViewer = SAGE2_App.extend({
 
                 // If image has not been preloaded, skip this image for now
                 if (preloaded != true) {
-                    this.log(`IMAGE NOT PRELOADED: ${imageIndex}/${images.length - 1} (${url.asImageUrl()})`)
+                    printConsoleLog(`IMAGE NOT PRELOADED: ${imageIndex}/${images.length - 1} (${url.asImageUrl()})`)
                     continue
                 }
 
@@ -183,7 +186,7 @@ var webbViewer = SAGE2_App.extend({
             // If the image is already preloaded, skip. This function should not be called at this point.
             if (image.preloaded === true) return
 
-            this.log(`IMAGE ${imageIndex} will be preloaded. (${image.url.asImageUrl()})`)
+            printConsoleLog(`IMAGE ${imageIndex} will be preloaded. (${image.url.asImageUrl()})`)
 
             // Create img in memory
             const imgCache = new Image()
@@ -242,7 +245,7 @@ var webbViewer = SAGE2_App.extend({
          */
         function readStartupImages() {
             readFile(imageJson, function(err, imageData) {
-                this.log(`Attempting to read file ${imageJson}`)
+                printConsoleLog(`Attempting to read file ${imageJson}`)
                 if (err) throw err
                 else {
                     // Save number of startup images, to be used by a preload check
@@ -295,8 +298,8 @@ var webbViewer = SAGE2_App.extend({
                 }
             }
 
-            this.log("***** WHITELIST FETCHED   *****")
-            this.log(`WHITELIST: ${JSON.stringify(whitelist)}`)
+            printConsoleLog("***** WHITELIST FETCHED   *****")
+            printConsoleLog(`WHITELIST: ${JSON.stringify(whitelist)}`)
 
             //  Start pulling data for external images
             startPullingExternalImages()
@@ -329,7 +332,7 @@ var webbViewer = SAGE2_App.extend({
             // Increment 'external images pulled' counter, so the setInterval loop doesn't try to pull this same image again
             indexForExternalImagePulled++
 
-            this.log(`----- PULLING EXTERNAL IMAGE: Array no. [${index}] ID: ${whitelist[index]} of a list of ${whitelist.length} images`)
+            printConsoleLog(`----- PULLING EXTERNAL IMAGE: Array no. [${index}] ID: ${whitelist[index]} of a list of ${whitelist.length} images`)
             
             //  -----   -----   Get image title and description -----   -----   //
 
@@ -424,6 +427,7 @@ var webbViewer = SAGE2_App.extend({
             loadingStar.src = `${metaImageDirectory}star.svg`
 
             container.appendChild(fragment)
+
         }
 
         /**
@@ -450,6 +454,8 @@ var webbViewer = SAGE2_App.extend({
         }
 
         createLoadingScreen()
+
+        const displayLog = createComponent("p", "display-log", container)
 
         readStartupImages()
 
