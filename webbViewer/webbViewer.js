@@ -374,7 +374,7 @@ var webbViewer = SAGE2_App.extend({
             for (let i = 0; i < responseSize.length; i++) {
                 const s = responseSize[i]
                 // printConsoleLog(`${responseImage["title"]["_content"]}: ${s.label}`)
-                if (s.label = "Original") {
+                if (s.label === "Original") {
                     url = s.source
                     // break
                 }
