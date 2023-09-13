@@ -374,11 +374,10 @@ var webbViewer = SAGE2_App.extend({
             for (let i = 0; i < responseSize.length; i++) {
                 const s = responseSize[i]
                 // printConsoleLog(`${responseImage["title"]["_content"]}: ${s.label}`)
-                if (s.label = "Small") {
-                    url = s.source
-                    description += JSON.stringify(s)
-                    // break
-                }
+                if (s.label != "Large") continue
+                url = s.source
+                description += JSON.stringify(s)
+                break
             }
 
             //  Create image object to push to list of images to display
@@ -418,6 +417,12 @@ var webbViewer = SAGE2_App.extend({
                 //  Remove sentences from paragraphs which contain links
                 if (paragraph.includes("href")) {
                     paragraph = removeLinks(paragraph)
+                }
+                
+                // Cut off text after a (and inclusive of) backslash
+                if (paragraph.includes("\\")) {
+                    let backslashIndex = paragraph.indexOf("\\")
+                    paragraph = paragraph.substring(0, backslashIndex)
                 }
 
                 // Apply styling to 'credits' or 'illustration' paragraph
