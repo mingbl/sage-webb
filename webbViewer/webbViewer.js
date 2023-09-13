@@ -352,7 +352,7 @@ var webbViewer = SAGE2_App.extend({
 
             const title = responseImage["title"]["_content"]
 
-            const description = formatDescription(responseImage["description"]["_content"])
+            let description = formatDescription(responseImage["description"]["_content"])
 
             //  -----   -----   Get image URL   -----   -----   //
 
