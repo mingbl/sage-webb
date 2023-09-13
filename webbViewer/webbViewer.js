@@ -133,7 +133,8 @@ var webbViewer = SAGE2_App.extend({
             printConsoleLog(`Rendering Display`)
 
             // Clear display
-            container.replaceChildren()
+            // container.replaceChildren()
+            while (container.firstChild) container.removeChild(container.lastChild)
 
             // Fragment to append this rotation's images to, before appending to the DOM container
             let fragment = new DocumentFragment()
