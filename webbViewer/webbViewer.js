@@ -369,15 +369,13 @@ var webbViewer = SAGE2_App.extend({
 
             // Initialise url variable
             let url = ""
-            let label = ""
 
             // Get the url for the image that matches the resolution choice (e.g. 'Original', 'Small')
             for (let i = 0; i < responseSize.length; i++) {
                 const s = responseSize[i]
                 // printConsoleLog(`${responseImage["title"]["_content"]}: ${s.label}`)
-                if (true) {
+                if (s.label = "Small") {
                     url = s.source
-                    label = s.label
                     description += JSON.stringify(s)
                     // break
                 }
