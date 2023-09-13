@@ -376,6 +376,7 @@ var webbViewer = SAGE2_App.extend({
                 // printConsoleLog(`${responseImage["title"]["_content"]}: ${s.label}`)
                 if (s.label = "Small") {
                     url = s.source
+                    break
                 }
             }
 
@@ -392,6 +393,11 @@ var webbViewer = SAGE2_App.extend({
         }
 
 
+        /**
+         * Format description to style credits paragraphs, remove links, etc.
+         * @param {string} description - description, plain unformatted response from the API
+         * @returns 
+         */
         function formatDescription(description) {
 
             const paragraphs = description.split("\n")
@@ -430,6 +436,11 @@ var webbViewer = SAGE2_App.extend({
             return newParagraphs.join("<br/>")
         }
 
+        /**
+         * Remove links (and accompanying 'Learn more:' preceding text) from a paragraph
+         * @param {string} paragraph - Input paragraph
+         * @returns paragraph with links excluded
+         */
         function removeLinks(paragraph) {
             //  Split paragraph into sentences
             const sentences = paragraph.split(/[\. \? \! ]\s/)
