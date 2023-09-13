@@ -1,5 +1,11 @@
 @import url('https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;500&display=swap');
 
+:root {
+    --highlightColour: #bada55;
+    --secondaryColour: #E8F3C6;
+    --mutedColour: #888;
+}
+
 body, div.container {
     background-color: black;
     margin: 0;
@@ -42,23 +48,47 @@ p.description {
     text-align: left;
     text-justify: inter-word;
 }
-p.description > a:link {
-    color: #bada55;
+/* p.description > a:link {
+    color: var(--highlightColour);
+} */
+p.description::first-letter {
+    color: var(--highlightColour);
+    font-size: 5em;
+    margin: 0 .1em 0 0;
+    line-height: 0.85;
+}
+p > span.credits {
+    color: var(--secondaryColour);
+    font-style: italic;
+}
+p > span.meta-description {
+    color: var(--mutedColour);
+}
+p > br {
+    display: block;
+    margin-bottom: 1em;
+    line-height: 1em;
+    content: " ";
 }
 div.image-part {
-    background-size: cover;
+    background-size: contain;
     background-position: center;
     background-repeat: no-repeat;
 }
 .display-center {
-    width: 100%;
-    height: 50%;
+    width: 99%;
+    height: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
 }
 .auto-size {
     width: auto;
+}
+.display-log {
+    padding-left: 10px;
+    width: 1%;
+    height: 100%;
 }
 .loading-star-icon {
     width: 160px;

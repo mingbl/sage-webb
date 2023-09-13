@@ -53,6 +53,7 @@ var webbViewer = SAGE2_App.extend({
         //  Store ID of a photoset (album) to retrieve images from
         const albumID = "72177720305127361"
 
+        let displayLog
         //  Initialise arrays to hold the IDs of blacklisted and whitelisted images
         let blacklist = [], whitelist = []
         // Intervals to be started later
@@ -349,14 +350,9 @@ var webbViewer = SAGE2_App.extend({
             //  Store the response data for use
             const responseImage = responseData["photo"];
 
-            const lineBreakRegex = /\\n/g, linkRegex = /<a/g, lineBreakReplacement = "<br/>", linkReplacement = "<br/><a"
+            const title = responseImage["title"]["_content"]
 
-            let desc = responseImage["description"]["_content"]
-
-            desc = JSON.stringify(desc).replace(lineBreakRegex, lineBreakReplacement)
-            desc = JSON.stringify(desc).replace(linkRegex, linkReplacement)
-            desc = desc.substring(1, desc.length - 1)
-            desc = desc.substring(0, desc.indexOf("Image description"))
+            const description = formatDescription(responseImage["description"]["_content"])
 
             //  -----   -----   Get image URL   -----   -----   //
 
@@ -384,7 +380,7 @@ var webbViewer = SAGE2_App.extend({
             }
 
             //  Create image object to push to list of images to display
-            let artifact = createArtifact(responseImage["title"]["_content"], String(desc), url)
+            let artifact = createArtifact(title, description, url)
 
             printConsoleLog(`Pulled ${artifact.title} from external repo`)
 
@@ -393,6 +389,61 @@ var webbViewer = SAGE2_App.extend({
 
             // Preload this image
             preloadImage(images.length - 1)
+        }
+
+
+        function formatDescription(description) {
+
+            const paragraphs = description.split("\n")
+            let newParagraphs = []
+
+            console.log("++++++++++++++++++++   DESCRIPTION PARAGRAPHS ++++++++++++++++++++++++")
+            
+            //  For each paragraph in the description
+            paragraphs.forEach((paragraph) => {
+                if (paragraph.length < 1) return
+
+                let lowercase = paragraph.toLowerCase()
+
+                // If paragraph includes 'image description', exclude this paragraph
+                if (lowercase.includes("image description:")) return
+
+                //  Remove sentences from paragraphs which contain links
+                if (paragraph.includes("href")) {
+                    paragraph = removeLinks(paragraph)
+                }
+
+                // Apply styling to 'credits' or 'illustration' paragraph
+                if (lowercase.includes("credit") || lowercase.includes("illustration:")){
+                    paragraph = `<span class="credits">${paragraph}</span>`
+                }
+
+                //  Apply styling to 'this image' paragraph
+                if (lowercase.includes("this image:")){
+                    paragraph = `<span class="meta-description">${paragraph}</span>`
+                }
+                
+                //  Add the paragraph to the list of descriptions to show on-screen
+                newParagraphs.push(paragraph)
+            })
+
+            return newParagraphs.join("<br/>")
+        }
+
+        function removeLinks(paragraph) {
+            //  Split paragraph into sentences
+            const sentences = paragraph.split(/[\. \? \! ]\s/)
+            //  Declare variable to store new sentence
+            let newSentences = []
+        
+            //  For each sentence in the paragraph
+            sentences.forEach((sentence) => {
+                if (sentence.includes("href")) return
+                newSentences.push(sentence)
+            })
+        
+            //  Change the paragraph to contain only the sentences we want to keep
+            return paragraph = newSentences.join(". ")
         }
 
         /**
@@ -418,6 +469,8 @@ var webbViewer = SAGE2_App.extend({
         function createLoadingScreen() {
             // Fragment for appending loading elements to before appending to the DOM container
             let fragment = new DocumentFragment()
+
+            displayLog = createComponent("p", "display-log", fragment)
 
             //  Create containing div for startup animation
             let loadingContainer = createComponent("div", "display-center", fragment)
@@ -456,8 +509,6 @@ var webbViewer = SAGE2_App.extend({
         }
 
         createLoadingScreen()
-
-        const displayLog = createComponent("p", "display-log", container)
 
         readStartupImages()
 
