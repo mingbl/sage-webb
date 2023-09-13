@@ -11,6 +11,6 @@
     "description": "Cave2 image viewer for images taken using the James Web Telescope.",
     "author": "MeSH - Ming Leong, Scott Green and Hugh Crossan",
     "license": "SAGE2-Software-License",
-    "version": "0.2.2",
+    "version": "0.3.0",
     "icon": "./images/meta/moon-stars-fill.png"
 }

@@ -23,7 +23,7 @@ var webbViewer = SAGE2_App.extend({
         // Startup screen delay duration (seconds)
         const loadingDelay = 2
         // Time before the image set is replaced (seconds) (exclusive of fade transition duration below)
-        const imageLifespan = 15
+        const imageLifespan = 5
         // Duration of fade in / fade out transitions
         const fadeDuration = 1.5
         // Time before the next external image is pulled from the API (seconds)
@@ -79,7 +79,7 @@ var webbViewer = SAGE2_App.extend({
          */
         function printConsoleLog(message) {
             this.log(message)
-            displayLog.innerHTML += `<br>${message}`
+            // displayLog.innerHTML += `<br>${message}`
         }
 
         /**
@@ -352,8 +352,9 @@ var webbViewer = SAGE2_App.extend({
 
             const title = responseImage["title"]["_content"]
 
-            let description = formatDescription(responseImage["description"]["_content"])
-
+            // let description = formatDescription(responseImage["description"]["_content"])
+            let description = "This is an example description."
+            
             //  -----   -----   Get image URL   -----   -----   //
 
             //  Build url to make api calls to
@@ -374,9 +375,9 @@ var webbViewer = SAGE2_App.extend({
             for (let i = 0; i < responseSize.length; i++) {
                 const s = responseSize[i]
                 // printConsoleLog(`${responseImage["title"]["_content"]}: ${s.label}`)
-                if (s.label != "Large") continue
+                if (s.label != "Original") continue
                 url = s.source
-                description += JSON.stringify(s)
+                description += `<br/>${JSON.stringify(s)}`
                 break
             }
 
@@ -487,7 +488,7 @@ var webbViewer = SAGE2_App.extend({
             // Fragment for appending loading elements to before appending to the DOM container
             let fragment = new DocumentFragment()
 
-            displayLog = createComponent("p", "display-log", fragment)
+            // displayLog = createComponent("p", "display-log", fragment)
 
             //  Create containing div for startup animation
             let loadingContainer = createComponent("div", "display-center", fragment)

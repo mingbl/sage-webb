@@ -21,7 +21,7 @@ div.container {
 }
 div.text-part, div.image-part {
     height: inherit;
-    background-color: black;
+    /* background-color: black; */
     box-sizing: border-box;
     min-width: 5%;
 }
