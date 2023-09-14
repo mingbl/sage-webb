@@ -23,7 +23,7 @@ var webbViewer = SAGE2_App.extend({
         // Startup screen delay duration (seconds)
         const loadingDelay = 2
         // Time before the image set is replaced (seconds) (exclusive of fade transition duration below)
-        const imageLifespan = 5
+        const imageLifespan = 1000
         // Duration of fade in / fade out transitions
         const fadeDuration = 1.5
         // Time before the next external image is pulled from the API (seconds)
