@@ -29,7 +29,7 @@ var webbViewer = SAGE2_App.extend({
         // Time before the next external image is pulled from the API (seconds)
         const externalImagePullRate = 2
         // Pull external images in order? aka, Maintain image album order?
-        const pullImagesInOrder = false
+        const pullImagesInOrder = true
         // Limit how many external images should be pulled?
         const limitNumOfExternalImagesToPull = false
         // The max number of external images to pull (irrelevant if the above is set to false)
