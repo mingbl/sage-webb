@@ -13,17 +13,19 @@ var webbViewer = SAGE2_App.extend({
             imageJson = `${imageDirectory}images.json`,
             metaImageDirectory = `${resourcePath}images/meta/`
 
-        const container = this.element
-        this.element.classList.add("container")
+        const display = this.element
+        const displayLog = createComponent("div", "display-log", display)
+        const container = createComponent("div", "container", display)
+        // this.element.classList.add("container")
         this.resizeEvents = "continuous"
 
         //  Initialise variables to represent CAVE screen attributes
-        const columns = 20, usableColumns = 20, viewerWidth = 4000, viewerHeight = 440
+        const columns = 20, usableColumns = 19, viewerWidth = 4000, viewerHeight = 440
 
         // Startup screen delay duration (seconds)
         const loadingDelay = 2
         // Time before the image set is replaced (seconds) (exclusive of fade transition duration below)
-        const imageLifespan = 1000
+        const imageLifespan = 5
         // Duration of fade in / fade out transitions
         const fadeDuration = 1.5
         // Time before the next external image is pulled from the API (seconds)
@@ -53,7 +55,6 @@ var webbViewer = SAGE2_App.extend({
         //  Store ID of a photoset (album) to retrieve images from
         const albumID = "72177720305127361"
 
-        let displayLog
         //  Initialise arrays to hold the IDs of blacklisted and whitelisted images
         let blacklist = [], whitelist = []
         // Intervals to be started later
@@ -79,7 +80,7 @@ var webbViewer = SAGE2_App.extend({
          */
         function printConsoleLog(message) {
             this.log(message)
-            // displayLog.innerHTML += `<br>${message}`
+            displayLog.innerHTML += `<br>${message}`
         }
 
         /**
@@ -487,8 +488,6 @@ var webbViewer = SAGE2_App.extend({
         function createLoadingScreen() {
             // Fragment for appending loading elements to before appending to the DOM container
             let fragment = new DocumentFragment()
-
-            // displayLog = createComponent("p", "display-log", fragment)
 
             //  Create containing div for startup animation
             let loadingContainer = createComponent("div", "display-center", fragment)
