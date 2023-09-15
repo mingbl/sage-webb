@@ -159,10 +159,10 @@ var webbViewer = SAGE2_App.extend({
                 imageCounter++
 
                 // If image has not been preloaded, skip this image for now
-                if (preloaded != true) {
-                    printConsoleLog(`IMAGE NOT PRELOADED: ${imageIndex}/${images.length - 1} (${url.asImageUrl()})`)
-                    continue
-                }
+                // if (preloaded != true) {
+                //     printConsoleLog(`IMAGE NOT PRELOADED: ${imageIndex}/${images.length - 1} (${url.asImageUrl()})`)
+                //     continue
+                // }
 
                 const numOfRequiredColumns = numOfColumns + 1 // Image + Text
 
@@ -243,7 +243,6 @@ var webbViewer = SAGE2_App.extend({
                 printConsoleLog(`STARTUP IMAGES fully preloaded (${numOfImagesCurrentlyPreloaded}/${numOfStartupImages})`)
                 // Get external images
                 getExternalImages()
-                setTimeout(startRenderLoop, loadingDelay * 1000)
             }
         }
 
@@ -531,6 +530,8 @@ var webbViewer = SAGE2_App.extend({
         createLoadingScreen()
 
         readStartupImages()
+
+        setTimeout(startRenderLoop, loadingDelay * 1000)
 
     },
     resize: function(date) {

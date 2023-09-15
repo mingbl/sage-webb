@@ -25,7 +25,7 @@ div.container {
     min-width: 10%;
     width: calc(var(--usableColumns) / var(--columns) * 100%);
     /* width: 70%; */
-    background-color: grey;
+    background-color: black;
     /* width: calc((100% / var(--usableColumns)) * var(--usableColumns)); */
     height: 100%;
 }
@@ -103,11 +103,11 @@ div.image-part {
     width: 5%;
     max-width: 5%;
     height: 100%;
-    overflow: scroll;
+    overflow: hidden;
     background-color: rgb(20,20,20);
     /* display: none; */
-    overflow-y: auto;
-    scrollbar-gutter: stable;
+    /* overflow-y: auto; */
+    /* scrollbar-gutter: stable; */
 }
 .display-log > p.display-log-text {
     color: white;
