@@ -221,7 +221,8 @@ var webbViewer = SAGE2_App.extend({
             image.height = height
             image.preloaded = true
             image.aspectRatio = aspectRatio
-            image.numOfColumns = numOfColumns
+            image.numOfColumns = 3
+            // image.numOfColumns = numOfColumns
         
             printConsoleLog(`IMAGE ${imageIndex} has preloaded. Width: ${width} Height: ${height}. (${image.url.asImageUrl()})`)
 
