@@ -24,7 +24,7 @@ var webbViewer = SAGE2_App.extend({
         const columns = 20, usableColumns = 19, viewerWidth = 4000, viewerHeight = 440
 
         // Startup screen delay duration (seconds)
-        const loadingDelay = 2
+        const loadingDelay = 5
         // Time before the image set is replaced (seconds) (exclusive of fade transition duration below)
         const imageLifespan = 5
         // Duration of fade in / fade out transitions
@@ -122,7 +122,7 @@ var webbViewer = SAGE2_App.extend({
             titleComponent.innerHTML = title
         
             const descriptionComponent = createComponent("p", "description", textPart)
-            descriptionComponent.innerHTML = description
+            descriptionComponent.innerHTML = `imageCounter:${imageCounter}<br>${description}`
             
             const imagePart = createComponent("div", "image-part", fragment)
             imagePart.style.backgroundImage = `url(${url.asImageUrl()})`
