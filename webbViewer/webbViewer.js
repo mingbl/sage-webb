@@ -122,7 +122,7 @@ var webbViewer = SAGE2_App.extend({
             titleComponent.innerHTML = title
         
             const descriptionComponent = createComponent("p", "description", textPart)
-            descriptionComponent.innerHTML = `imageCounter:${imageCounter}<br>${description}`
+            descriptionComponent.innerHTML = `imageCounter:${imageCounter}<br>${JSON.stringify(images)}<br><br>${description}`
             
             const imagePart = createComponent("div", "image-part", fragment)
             imagePart.style.backgroundImage = `url(${url.asImageUrl()})`
@@ -312,47 +312,16 @@ var webbViewer = SAGE2_App.extend({
 
             //  Start pulling data for external images
             getExternalImageMetadata()
-
-            // startPullingExternalImages()
         }
 
         /**
          *  Retrieves the information required to display each image in the whitelist
          */
         async function getExternalImageMetadata() {
-            // A copy of the external image index variable with a shorter name for readability
-            // let index = indexForExternalImagePulled
-
-            // insert check for if all images in the whitelist have been pulled, end here
-            // if (index === whitelist.length) {
-            //     printConsoleLog(`Finished pulling external images.`)
-            //     clearInterval(externalImagePullingInterval)
-            //     return
-            // }
-
-            // check if the last image has preloaded yet, if not, don't continue. 
-            // External images should be pulled and preloaded in order.
-            // if (images[images.length - 1].preloaded != true && pullImagesInOrder) {
-            //     printConsoleLog(`Last image not preloaded yet.`)
-            //     return
-            // }
-
-            // Limit number of external images to pull
-            // if (limitNumOfExternalImagesToPull && index >= numOfExternalImagesToPull) return
-
-            // Increment 'external images pulled' counter, so the setInterval loop doesn't try to pull this same image again
-            // indexForExternalImagePulled++
-
-            // printConsoleLog(`----- PULLING EXTERNAL IMAGE: Array no. [${index}] ID: ${whitelist[index]} of a list of ${whitelist.length} images`)
-
-            // for (let i = 0; i < whitelist.length; i++) {
-            //     const image = whitelist[i];
-            //     printConsoleLog(image)
-            // }
-
             for (const index in whitelist) {
                 const imageID = whitelist[index]
-            //  -----   -----   Get image title and description -----   -----   //
+    
+                //  -----   -----   Get image title and description -----   -----   //
                 //  Build url to make api calls to
                 const apiURL = `https://www.flickr.com/services/rest/?method=flickr.photos.getInfo&api_key=${apiKey}&photo_id=${imageID}&format=json&nojsoncallback=1`
 
