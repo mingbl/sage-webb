@@ -118,12 +118,15 @@ var webbViewer = SAGE2_App.extend({
             // textPart.style.width = `${100 / columns}%`
             textPart.style.setProperty("animation", animationStyle)
             
-            const titleComponent = createComponent("h1", "title", textPart)
-            titleComponent.innerHTML = title
+            // const titleComponent = createComponent("h1", "title", textPart)
+            // titleComponent.innerHTML = title
         
             const descriptionComponent = createComponent("p", "description", textPart)
             // descriptionComponent.innerHTML = `imageCounter:${imageCounter}<br>${JSON.stringify(images)}<br><br>${description}`
-            descriptionComponent.innerHTML = `imageCounter:${imageCounter}<br>${JSON.stringify(images)}`
+            // descriptionComponent.innerHTML = `imageCounter:${imageCounter}<br>${JSON.stringify(images)}`
+            images.forEach((image, index) => {
+                descriptionComponent.innerHTML += `image ${index}: ${image.url}<br>`
+            });
             
             const imagePart = createComponent("div", "image-part", fragment)
             imagePart.style.backgroundImage = `url(${url.asImageUrl()})`
