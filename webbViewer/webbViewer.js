@@ -528,7 +528,7 @@ var webbViewer = SAGE2_App.extend({
             // Initial render
             renderDisplay()
             // Render loop
-            renderLoopInterval = setInterval(nextRotation, imageLifespan * 1000 + (fadeDuration * 2 * 1000))
+            renderLoopInterval = setInterval(nextRotation, imageLifespan * 1000 + (fadeDuration * 2 * 1000) + cooldownPeriod * 1000)
         }
 
         /**
