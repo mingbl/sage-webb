@@ -122,7 +122,8 @@ var webbViewer = SAGE2_App.extend({
             titleComponent.innerHTML = title
         
             const descriptionComponent = createComponent("p", "description", textPart)
-            descriptionComponent.innerHTML = `imageCounter:${imageCounter}<br>${JSON.stringify(images)}<br><br>${description}`
+            // descriptionComponent.innerHTML = `imageCounter:${imageCounter}<br>${JSON.stringify(images)}<br><br>${description}`
+            descriptionComponent.innerHTML = `imageCounter:${imageCounter}<br>${JSON.stringify(images)}`
             
             const imagePart = createComponent("div", "image-part", fragment)
             imagePart.style.backgroundImage = `url(${url.asImageUrl()})`
