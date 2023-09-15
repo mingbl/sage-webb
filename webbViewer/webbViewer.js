@@ -267,7 +267,7 @@ var webbViewer = SAGE2_App.extend({
                         preloadImage(index)
                     })
 
-                    getExternalImages()
+                    getExternalImagesList()
 
                 }
               }, "JSON")
@@ -277,7 +277,7 @@ var webbViewer = SAGE2_App.extend({
          * Pull external images, check if they are excluded from the blacklist and add to the dictionary of image objects to be displayed 
          * Then use list of external image IDs to add external images and necessary properties to list of images to display
          */
-        async function getExternalImages(){
+        async function getExternalImagesList() {
             printConsoleLog("PULLING LIST OF EXTERNAL IMAGES")
 
             //  Build url to make api calls to
@@ -311,13 +311,15 @@ var webbViewer = SAGE2_App.extend({
             printConsoleLog(`WHITELIST: ${JSON.stringify(whitelist)}`)
 
             //  Start pulling data for external images
-            startPullingExternalImages()
+            getExternalImageMetadata()
+
+            // startPullingExternalImages()
         }
 
         /**
          *  Retrieves the information required to display each image in the whitelist
          */
-        async function getExternalImageData() {
+        async function getExternalImageMetadata() {
             // A copy of the external image index variable with a shorter name for readability
             // let index = indexForExternalImagePulled
 
@@ -343,7 +345,13 @@ var webbViewer = SAGE2_App.extend({
 
             // printConsoleLog(`----- PULLING EXTERNAL IMAGE: Array no. [${index}] ID: ${whitelist[index]} of a list of ${whitelist.length} images`)
 
-            for (const imageID in whitelist) {
+            // for (let i = 0; i < whitelist.length; i++) {
+            //     const image = whitelist[i];
+            //     printConsoleLog(image)
+            // }
+
+            for (const index in whitelist) {
+                const imageID = whitelist[index]
             //  -----   -----   Get image title and description -----   -----   //
                 //  Build url to make api calls to
                 const apiURL = `https://www.flickr.com/services/rest/?method=flickr.photos.getInfo&api_key=${apiKey}&photo_id=${imageID}&format=json&nojsoncallback=1`
@@ -390,10 +398,11 @@ var webbViewer = SAGE2_App.extend({
                 //  Create image object to push to list of images to display
                 let artifact = createArtifact(title, description, url)
 
-                printConsoleLog(`Pulled ${artifact.title} from external repo`)
 
                 // Push to images array
                 images.push(artifact);
+
+                printConsoleLog(`Pulled IMAGE ${images.length} ${artifact.title} from external repo`)
 
                 // Preload this image
                 preloadImage(images.length - 1)
@@ -527,7 +536,7 @@ var webbViewer = SAGE2_App.extend({
             printConsoleLog("*****  Starting to pull external image data   *****")
             
             //  Create delay for API calls so not calling all at once
-            getExternalImageData()
+            getExternalImageMetadata()
             // externalImagePullingInterval = setInterval(getExternalImageData, externalImagePullRate * 1000)
             
         }
