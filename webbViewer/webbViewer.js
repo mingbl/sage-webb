@@ -32,7 +32,7 @@ var webbViewer = SAGE2_App.extend({
         // Time before the next external image is pulled from the API (seconds)
         const externalImagePullRate = 2
         // Pull external images in order? aka, Maintain image album order?
-        const pullImagesInOrder = true
+        const pullImagesInOrder = false
         // Limit how many external images should be pulled?
         const limitNumOfExternalImagesToPull = false
         // The max number of external images to pull (irrelevant if the above is set to false)
@@ -226,7 +226,7 @@ var webbViewer = SAGE2_App.extend({
         
             printConsoleLog(`IMAGE ${imageIndex} has preloaded. Width: ${width} Height: ${height}. (${image.url.asImageUrl()})`)
 
-            checkStartupImagesFullyPreloaded()
+            // checkStartupImagesFullyPreloaded()
         }
 
         /**
@@ -243,7 +243,6 @@ var webbViewer = SAGE2_App.extend({
                 startUpImagesFullyPreloaded = true
                 printConsoleLog(`STARTUP IMAGES fully preloaded (${numOfImagesCurrentlyPreloaded}/${numOfStartupImages})`)
                 // Get external images
-                getExternalImages()
             }
         }
 
@@ -267,6 +266,9 @@ var webbViewer = SAGE2_App.extend({
 
                         preloadImage(index)
                     })
+
+                    getExternalImages()
+
                 }
               }, "JSON")
         }
@@ -317,84 +319,85 @@ var webbViewer = SAGE2_App.extend({
          */
         async function getExternalImageData() {
             // A copy of the external image index variable with a shorter name for readability
-            let index = indexForExternalImagePulled
+            // let index = indexForExternalImagePulled
 
             // insert check for if all images in the whitelist have been pulled, end here
-            if (index === whitelist.length) {
-                printConsoleLog(`Finished pulling external images.`)
-                clearInterval(externalImagePullingInterval)
-                return
-            }
+            // if (index === whitelist.length) {
+            //     printConsoleLog(`Finished pulling external images.`)
+            //     clearInterval(externalImagePullingInterval)
+            //     return
+            // }
 
             // check if the last image has preloaded yet, if not, don't continue. 
             // External images should be pulled and preloaded in order.
-            if (images[images.length - 1].preloaded != true && pullImagesInOrder) {
-                printConsoleLog(`Last image not preloaded yet.`)
-                return
-            }
+            // if (images[images.length - 1].preloaded != true && pullImagesInOrder) {
+            //     printConsoleLog(`Last image not preloaded yet.`)
+            //     return
+            // }
 
             // Limit number of external images to pull
-            if (limitNumOfExternalImagesToPull && index >= numOfExternalImagesToPull) return
+            // if (limitNumOfExternalImagesToPull && index >= numOfExternalImagesToPull) return
 
             // Increment 'external images pulled' counter, so the setInterval loop doesn't try to pull this same image again
-            indexForExternalImagePulled++
+            // indexForExternalImagePulled++
 
-            printConsoleLog(`----- PULLING EXTERNAL IMAGE: Array no. [${index}] ID: ${whitelist[index]} of a list of ${whitelist.length} images`)
-            
+            // printConsoleLog(`----- PULLING EXTERNAL IMAGE: Array no. [${index}] ID: ${whitelist[index]} of a list of ${whitelist.length} images`)
+
+            for (const imageID in whitelist) {
             //  -----   -----   Get image title and description -----   -----   //
+                //  Build url to make api calls to
+                const apiURL = `https://www.flickr.com/services/rest/?method=flickr.photos.getInfo&api_key=${apiKey}&photo_id=${imageID}&format=json&nojsoncallback=1`
 
-            //  Build url to make api calls to
-            const apiURL = `https://www.flickr.com/services/rest/?method=flickr.photos.getInfo&api_key=${apiKey}&photo_id=${whitelist[index]}&format=json&nojsoncallback=1`
+                //  Make api call / request
+                const apiResponse = await fetch(apiURL)
+                //  Parse api call data to JSON
+                const responseData = await apiResponse.json()
 
-            //  Make api call / request
-            const apiResponse = await fetch(apiURL)
-            //  Parse api call data to JSON
-            const responseData = await apiResponse.json()
+                //  Store the response data for use
+                const responseImage = responseData["photo"];
 
-            //  Store the response data for use
-            const responseImage = responseData["photo"];
+                const title = responseImage["title"]["_content"]
 
-            const title = responseImage["title"]["_content"]
+                let description = formatDescription(responseImage["description"]["_content"])
+                // let description = "This is an example description."
+                
+                //  -----   -----   Get image URL   -----   -----   //
 
-            let description = formatDescription(responseImage["description"]["_content"])
-            // let description = "This is an example description."
-            
-            //  -----   -----   Get image URL   -----   -----   //
+                //  Build url to make api calls to
+                const sizeURL = `https://www.flickr.com/services/rest/?method=flickr.photos.getSizes&api_key=${apiKey}&photo_id=${imageID}&format=json&nojsoncallback=1`
 
-            //  Build url to make api calls to
-            const sizeURL = `https://www.flickr.com/services/rest/?method=flickr.photos.getSizes&api_key=${apiKey}&photo_id=${whitelist[index]}&format=json&nojsoncallback=1`
+                //  Make api call / request
+                const sizeReponse = await fetch(sizeURL)
+                //  Parse api call data to JSON
+                const sizeData = await sizeReponse.json()
 
-            //  Make api call / request
-            const sizeReponse = await fetch(sizeURL)
-            //  Parse api call data to JSON
-            const sizeData = await sizeReponse.json()
+                //  Store the response data for use
+                const responseSize = sizeData["sizes"]["size"];
 
-            //  Store the response data for use
-            const responseSize = sizeData["sizes"]["size"];
+                // Initialise url variable
+                let url = ""
 
-            // Initialise url variable
-            let url = ""
+                // Get the url for the image that matches the resolution choice (e.g. 'Original', 'Small')
+                for (let i = 0; i < responseSize.length; i++) {
+                    const s = responseSize[i]
+                    // printConsoleLog(`${responseImage["title"]["_content"]}: ${s.label}`)
+                    if (s.label != "Original") continue
+                    url = s.source
+                    description += `<br/>${JSON.stringify(s)}`
+                    break
+                }
 
-            // Get the url for the image that matches the resolution choice (e.g. 'Original', 'Small')
-            for (let i = 0; i < responseSize.length; i++) {
-                const s = responseSize[i]
-                // printConsoleLog(`${responseImage["title"]["_content"]}: ${s.label}`)
-                if (s.label != "Original") continue
-                url = s.source
-                description += `<br/>${JSON.stringify(s)}`
-                break
+                //  Create image object to push to list of images to display
+                let artifact = createArtifact(title, description, url)
+
+                printConsoleLog(`Pulled ${artifact.title} from external repo`)
+
+                // Push to images array
+                images.push(artifact);
+
+                // Preload this image
+                preloadImage(images.length - 1)
             }
-
-            //  Create image object to push to list of images to display
-            let artifact = createArtifact(title, description, url)
-
-            printConsoleLog(`Pulled ${artifact.title} from external repo`)
-
-            // Push to images array
-            images.push(artifact);
-
-            // Preload this image
-            preloadImage(images.length - 1)
         }
 
 
@@ -524,7 +527,8 @@ var webbViewer = SAGE2_App.extend({
             printConsoleLog("*****  Starting to pull external image data   *****")
             
             //  Create delay for API calls so not calling all at once
-            externalImagePullingInterval = setInterval(getExternalImageData, externalImagePullRate * 1000)
+            getExternalImageData()
+            // externalImagePullingInterval = setInterval(getExternalImageData, externalImagePullRate * 1000)
             
         }
 
