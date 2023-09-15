@@ -14,9 +14,10 @@ var webbViewer = SAGE2_App.extend({
             metaImageDirectory = `${resourcePath}images/meta/`
 
         const display = this.element
-        const displayLog = createComponent("div", "display-log", display)
+        const log = createComponent("div", "display-log", display)
+        const logText = createComponent("p", "display-log-text", log)
         const container = createComponent("div", "container", display)
-        // this.element.classList.add("container")
+        this.element.classList.add("display")
         this.resizeEvents = "continuous"
 
         //  Initialise variables to represent CAVE screen attributes
@@ -80,7 +81,7 @@ var webbViewer = SAGE2_App.extend({
          */
         function printConsoleLog(message) {
             this.log(message)
-            displayLog.innerHTML += `<br>${message}`
+            logText.innerHTML += `<br>${message}`
         }
 
         /**
@@ -113,7 +114,8 @@ var webbViewer = SAGE2_App.extend({
             printConsoleLog(`CREATING SHOWCASE for: IMAGE ${imageIndex}/${images.length}. URL: ${url.asImageUrl()}. Preloaded: ${image.preloaded}. Width: ${width}. Height: ${height}`)
 
             const textPart = createComponent("div", "text-part", fragment)
-            textPart.style.width = `${100 / columns}%`
+            textPart.style.setProperty("--textColumns", 1)
+            // textPart.style.width = `${100 / columns}%`
             textPart.style.setProperty("animation", animationStyle)
             
             const titleComponent = createComponent("h1", "title", textPart)
@@ -124,7 +126,8 @@ var webbViewer = SAGE2_App.extend({
             
             const imagePart = createComponent("div", "image-part", fragment)
             imagePart.style.backgroundImage = `url(${url.asImageUrl()})`
-            imagePart.style.width = `${numOfColumns * (100 / columns)}%`
+            imagePart.style.setProperty("--imageColumns", numOfColumns)
+            // imagePart.style.width = `${numOfColumns * (100 / usableColumns)}%`
             imagePart.style.setProperty("animation", animationStyle)
         }
         
@@ -353,8 +356,8 @@ var webbViewer = SAGE2_App.extend({
 
             const title = responseImage["title"]["_content"]
 
-            // let description = formatDescription(responseImage["description"]["_content"])
-            let description = "This is an example description."
+            let description = formatDescription(responseImage["description"]["_content"])
+            // let description = "This is an example description."
             
             //  -----   -----   Get image URL   -----   -----   //
 
@@ -477,7 +480,8 @@ var webbViewer = SAGE2_App.extend({
                 title: title,
                 description: description,
                 url: url,
-                preloaded: false
+                preloaded: false,
+                numOfColumns: 3
             }
             return artifact
         }
@@ -499,7 +503,6 @@ var webbViewer = SAGE2_App.extend({
             loadingStar.src = `${metaImageDirectory}star.svg`
 
             container.appendChild(fragment)
-
         }
 
         /**

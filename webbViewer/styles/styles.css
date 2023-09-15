@@ -4,12 +4,17 @@
     --highlightColour: #bada55;
     --secondaryColour: #E8F3C6;
     --mutedColour: #888;
+    --columns: 20;
     --usableColumns: 19;
 }
-
-body, div.container {
-    background-color: black;
+body, .display {
+    display: flex;
+    flex-direction: row;
+    /* background-color: black; */
+}
+body, .display, div.container, div.display-log {
     margin: 0;
+    position: relative;
 }
 p {
     color: white
@@ -17,17 +22,22 @@ p {
 div.container {
     display: flex;
     flex-direction: row;
-    width: calc(100% / var(--usableColumns));
+    min-width: 10%;
+    width: calc(var(--usableColumns) / var(--columns) * 100%);
+    /* width: 70%; */
+    background-color: grey;
+    /* width: calc((100% / var(--usableColumns)) * var(--usableColumns)); */
     height: 100%;
 }
 div.text-part, div.image-part {
     height: inherit;
     /* background-color: black; */
     box-sizing: border-box;
-    width: calc(100% / var(--usableColumns));
+    min-width: calc(1 / var(--usableColumns) * 100%);
 }
 div.text-part {
-    width: calc(100% / var(--usableColumns));
+    width: calc(var(--textColumns) / var(--usableColumns) * 100%);
+    /* min-width: calc(1 * var(--usableColumns) / 100%); */
     overflow: hidden;
 }
 h1.title, p.description {
@@ -76,6 +86,7 @@ div.image-part {
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
+    width: calc(var(--imageColumns) / var(--usableColumns) * 100%)
 }
 .display-center {
     width: 100%;
@@ -90,7 +101,20 @@ div.image-part {
 .display-log {
     padding-left: 10px;
     width: 5%;
+    max-width: 5%;
     height: 100%;
+    overflow: scroll;
+    background-color: rgb(20,20,20);
+    /* display: none; */
+    overflow-y: auto;
+    scrollbar-gutter: stable;
+}
+.display-log > p.display-log-text {
+    color: white;
+    width: 100%;
+    position: absolute;
+    bottom: 0;
+    left: 0;
 }
 .loading-star-icon {
     width: 160px;
