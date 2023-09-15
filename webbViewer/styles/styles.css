@@ -34,6 +34,7 @@ div.text-part, div.image-part {
     /* background-color: black; */
     box-sizing: border-box;
     min-width: calc(1 / var(--usableColumns) * 100%);
+    animation-timing-function: ease-in;
 }
 div.text-part {
     width: calc(var(--textColumns) / var(--usableColumns) * 100%);
