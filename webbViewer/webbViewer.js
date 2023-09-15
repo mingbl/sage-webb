@@ -29,6 +29,8 @@ var webbViewer = SAGE2_App.extend({
         const imageLifespan = 5
         // Duration of fade in / fade out transitions
         const fadeDuration = 1.5
+        // Time for black screen between rotations
+        const cooldownPeriod = 0.5
         // Time before the next external image is pulled from the API (seconds)
         const externalImagePullRate = 2
         // Pull external images in order? aka, Maintain image album order?
@@ -131,6 +133,16 @@ var webbViewer = SAGE2_App.extend({
             imagePart.style.setProperty("animation", animationStyle)
         }
         
+        function nextRotation() {
+            clearDisplay()
+            setTimeout(renderDisplay, cooldownPeriod * 1000)
+        }
+
+        function clearDisplay() {
+            printConsoleLog(`Clearing Display`)
+            container.innerHTML = ""
+        }
+
         /**
          * Render as many images as can be displayed until adding an image exceeds 20 columns.
          */
@@ -139,7 +151,7 @@ var webbViewer = SAGE2_App.extend({
 
             // Clear display
             // container.replaceChildren()
-            container.innerHTML = ""
+            // container.innerHTML = ""
             // while (container.firstChild) container.removeChild(container.lastChild)
 
             // Fragment to append this rotation's images to, before appending to the DOM container
@@ -516,7 +528,7 @@ var webbViewer = SAGE2_App.extend({
             // Initial render
             renderDisplay()
             // Render loop
-            renderLoopInterval = setInterval(renderDisplay, imageLifespan * 1000 + (fadeDuration * 2 * 1000))
+            renderLoopInterval = setInterval(nextRotation, imageLifespan * 1000 + (fadeDuration * 2 * 1000))
         }
 
         /**
