@@ -28,7 +28,7 @@ var webbViewer = SAGE2_App.extend({
         // Time before the image set is replaced (seconds) (exclusive of fade transition duration below)
         const imageLifespan = 5
         // Duration of fade in / fade out transitions
-        const fadeDuration = 1.5
+        const fadeDuration = 3
         // Time before the next external image is pulled from the API (seconds)
         const externalImagePullRate = 2
         // Pull external images in order? aka, Maintain image album order?
