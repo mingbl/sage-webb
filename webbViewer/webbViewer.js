@@ -13,15 +13,9 @@ var webbViewer = SAGE2_App.extend({
             imageJson = `${imageDirectory}images.json`,
             metaImageDirectory = `${resourcePath}images/meta/`
 
-        const display = this.element
-        const log = createComponent("div", "display-log", display)
-        const logText = createComponent("p", "display-log-text", log)
-        const container = createComponent("div", "container", display)
-        this.element.classList.add("display")
-        this.resizeEvents = "continuous"
-
         //  Initialise variables to represent CAVE screen attributes
-        const columns = 20, usableColumns = 19, viewerWidth = 4000, viewerHeight = 440
+        const columns = 20, viewerWidth = 4000, viewerHeight = 440, imageHeightCeiling = 3072
+        let usableColumns = 20
 
         // Startup screen delay duration (seconds)
         const loadingDelay = 5
@@ -37,6 +31,8 @@ var webbViewer = SAGE2_App.extend({
         const limitNumOfExternalImagesToPull = false
         // The max number of external images to pull (irrelevant if the above is set to false)
         const numOfExternalImagesToPull = 20
+        // Show display log visible?
+        const showDisplayLog = false
         
         // Array of image objects [{title, description, url}...]
         let images = []
@@ -64,6 +60,20 @@ var webbViewer = SAGE2_App.extend({
         const viewerAspectRatio = viewerWidth / viewerHeight
         const animationStyle = `${fadeDuration}s linear fadein, ${fadeDuration}s linear ${imageLifespan + fadeDuration}s fadeout`
 
+        const display = this.element
+
+        if (showDisplayLog) {
+            usableColumns = 19
+            document.querySelector(':root').style.setProperty("--usableColumns", 20)
+
+            const log = createComponent("div", "display-log", display)
+            const logText = createComponent("p", "display-log-text", log)
+        }
+        
+        const container = createComponent("div", "container", display)
+        this.element.classList.add("display")
+        this.resizeEvents = "continuous"
+
         //  -----   -----   End global variables    -----   -----   //
 
         /**
@@ -81,7 +91,7 @@ var webbViewer = SAGE2_App.extend({
          */
         function printConsoleLog(message) {
             this.log(message)
-            logText.innerHTML += `<br>${message}`
+            if (showDisplayLog) logText.innerHTML += `<br>${message}`
         }
 
         /**
@@ -111,18 +121,17 @@ var webbViewer = SAGE2_App.extend({
 
             const { title, description, url, width, height } = image
 
-            printConsoleLog(`CREATING SHOWCASE for: IMAGE ${imageIndex}/${images.length}. URL: ${url.asImageUrl()}. Preloaded: ${image.preloaded}. Width: ${width}. Height: ${height}`)
+            printConsoleLog(`CREATING SHOWCASE for: IMAGE ${imageIndex}/${images.length - 1}. URL: ${url.asImageUrl()}. Preloaded: ${image.preloaded}. Width: ${width}. Height: ${height}`)
 
             const textPart = createComponent("div", "text-part", fragment)
             textPart.style.setProperty("--textColumns", 1)
-            // textPart.style.width = `${100 / columns}%`
             textPart.style.setProperty("animation", animationStyle)
             
-            // const titleComponent = createComponent("h1", "title", textPart)
-            // titleComponent.innerHTML = title
+            const titleComponent = createComponent("h1", "title", textPart)
+            titleComponent.innerHTML = title
         
             const descriptionComponent = createComponent("p", "description", textPart)
-            descriptionComponent.innerHTML = `imageCounter:${imageCounter}<br>${JSON.stringify(images)}<br><br>${description}`
+            descriptionComponent.textContent = `${description}\nimageCounter:${imageCounter}`
             // descriptionComponent.innerHTML = `imageCounter:${imageCounter}<br>${JSON.stringify(images)}`
             // images.forEach((image, index) => {
             //     descriptionComponent.innerHTML += `image ${index}: ${image.url}<br>`
@@ -225,7 +234,7 @@ var webbViewer = SAGE2_App.extend({
             image.height = height
             image.preloaded = true
             image.aspectRatio = aspectRatio
-            image.numOfColumns = 3
+            image.numOfColumns = numOfColumns || 3
             // image.numOfColumns = numOfColumns
         
             printConsoleLog(`IMAGE ${imageIndex} has preloaded. Width: ${width} Height: ${height}. (${image.url.asImageUrl()})`)
@@ -234,7 +243,7 @@ var webbViewer = SAGE2_App.extend({
         }
 
         /**
-         * Checks if startup images are fully preloaded now, and starts the render loop.
+         * Checks if startup images are fulzly preloaded now, and starts the render loop.
          */
         function checkStartupImagesFullyPreloaded() {
             // If the 'startup images fully preloaded' flag has already been marked true, don't continue
@@ -350,36 +359,15 @@ var webbViewer = SAGE2_App.extend({
                 //  Build url to make api calls to
                 const sizeURL = `https://www.flickr.com/services/rest/?method=flickr.photos.getSizes&api_key=${apiKey}&photo_id=${imageID}&format=json&nojsoncallback=1`
 
-                //  Make api call / request
-                const sizeReponse = await fetch(sizeURL)
-                //  Parse api call data to JSON
-                const sizeData = await sizeReponse.json()
-
-                //  Store the response data for use
-                const responseSize = sizeData["sizes"]["size"];
-
-                // Initialise url variable
-                let url = ""
-
-                // Get the url for the image that matches the resolution choice (e.g. 'Original', 'Small')
-                for (let i = 0; i < responseSize.length; i++) {
-                    const s = responseSize[i]
-                    // printConsoleLog(`${responseImage["title"]["_content"]}: ${s.label}`)
-                    if (s.label != "Original") continue
-                    url = s.source
-                    description += `<br/>${JSON.stringify(s)}`
-                    break
-                }
+                const { url, width, height } = await getBestImageMetadata(sizeURL)
 
                 //  Create image object to push to list of images to display
-                let artifact = createArtifact(title, description, url)
+                let artifact = createArtifact(title, description, url, width, height)
 
-
-                // Push to images array
-                // images.push(artifact);
+                // Push to external images array
                 externalImages.push(artifact)
 
-                printConsoleLog(`Pulled IMAGE ${index}/${whitelist.length} (whitelist index) ${artifact.title} from external repo`)
+                printConsoleLog(`Pulled IMAGE ${index}/${whitelist.length - 1} (whitelist index) ${artifact.title} from external repo`)
 
                 // Preload this image
                 // preloadImage(images.length - 1)
@@ -392,6 +380,42 @@ var webbViewer = SAGE2_App.extend({
             printConsoleLog("all whitelist images added")
 
 
+        }
+
+
+        async function getBestImageMetadata(apiURL) {
+            //  Make api call / request
+            const sizeReponse = await fetch(apiURL)
+            //  Parse api call data to JSON
+            const sizeData = await sizeReponse.json()
+
+            //  Store the response data for use
+            const sizes = sizeData["sizes"]["size"]
+
+            //  Initialise variable to store the desired URL
+            let bestURL = sizes[0].source
+            let bestWidth = sizes[0].width
+            let bestHeight = sizes[0].height
+
+            let difference = Math.abs(imageHeightCeiling - bestHeight);
+
+            sizes.forEach(size => {
+
+                //  See how close the size 
+                let newDifference = Math.abs(imageHeightCeiling - size.height)
+
+                if (newDifference < difference) {
+
+                    difference = newDifference
+                    bestURL = size.source
+                    bestHeight = size.height
+                    bestWidth = size.width
+
+                }
+                
+            })
+
+            return { bestURL, bestWidth, bestHeight }
         }
 
 
@@ -472,13 +496,19 @@ var webbViewer = SAGE2_App.extend({
          * @param {string} url 
          * @returns - the artifact object {}, for pushing to the images array []
          */
-        function createArtifact(title, description, url) {
+        function createArtifact(title, description, url, width, height) {
+
+            const aspectRatio = width / height
+            const numOfColumns = Math.ceil((columns / viewerAspectRatio) * aspectRatio)
+
             let artifact = {
                 title: title,
                 description: description,
                 url: url,
+                width: width,
+                height: height,
                 preloaded: false,
-                numOfColumns: 3
+                numOfColumns: numOfColumns
             }
             return artifact
         }

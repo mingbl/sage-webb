@@ -5,7 +5,7 @@
     --secondaryColour: #E8F3C6;
     --mutedColour: #888;
     --columns: 20;
-    --usableColumns: 19;
+    --usableColumns: 20;
 }
 body, .display {
     display: flex;
