@@ -270,9 +270,6 @@ var webbViewer = SAGE2_App.extend({
 
                         preloadImage(index)
                     })
-
-                    getExternalImagesList()
-
                 }
               }, "JSON")
         }
@@ -313,9 +310,7 @@ var webbViewer = SAGE2_App.extend({
 
             printConsoleLog("***** WHITELIST FETCHED   *****")
             printConsoleLog(`WHITELIST: ${JSON.stringify(whitelist)}`)
-
-            //  Start pulling data for external images
-            getExternalImageMetadata()
+          
         }
 
         /**
@@ -378,7 +373,7 @@ var webbViewer = SAGE2_App.extend({
                 printConsoleLog(`Pulled IMAGE ${images.length} ${artifact.title} from external repo`)
 
                 // Preload this image
-                preloadImage(images.length - 1)
+                // preloadImage(images.length - 1)
             }
         }
 
@@ -518,7 +513,12 @@ var webbViewer = SAGE2_App.extend({
 
         readStartupImages()
 
+        getExternalImagesList()
+
         setTimeout(startRenderLoop, loadingDelay * 1000)
+
+        //  Start pulling data for external images
+        setTimeout(getExternalImageMetadata, 5000)
 
     },
     resize: function(date) {
