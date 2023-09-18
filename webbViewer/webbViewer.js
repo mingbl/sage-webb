@@ -308,9 +308,13 @@ var webbViewer = SAGE2_App.extend({
                 }
             }
 
+            
             printConsoleLog("***** WHITELIST FETCHED   *****")
             printConsoleLog(`WHITELIST: ${JSON.stringify(whitelist)}`)
           
+            // Start pulling data for external images
+            setTimeout(getExternalImageMetadata, 5000)
+
         }
 
         /**
@@ -318,6 +322,8 @@ var webbViewer = SAGE2_App.extend({
          */
         async function getExternalImageMetadata() {
             let externalImages = []
+
+            printConsoleLog("Now getting external image metadata")
 
             for (const index in whitelist) {
                 const imageID = whitelist[index]
@@ -379,11 +385,11 @@ var webbViewer = SAGE2_App.extend({
                 // preloadImage(images.length - 1)
             }
 
+            
             images = [...images, externalImages]
             printConsoleLog("all whitelist images added")
 
-            // Start pulling data for external images
-            setTimeout(getExternalImageMetadata, 5000)
+
         }
 
 
