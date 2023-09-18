@@ -122,11 +122,11 @@ var webbViewer = SAGE2_App.extend({
             // titleComponent.innerHTML = title
         
             const descriptionComponent = createComponent("p", "description", textPart)
-            // descriptionComponent.innerHTML = `imageCounter:${imageCounter}<br>${JSON.stringify(images)}<br><br>${description}`
+            descriptionComponent.innerHTML = `imageCounter:${imageCounter}<br>${JSON.stringify(images)}<br><br>${description}`
             // descriptionComponent.innerHTML = `imageCounter:${imageCounter}<br>${JSON.stringify(images)}`
-            images.forEach((image, index) => {
-                descriptionComponent.innerHTML += `image ${index}: ${image.url}<br>`
-            });
+            // images.forEach((image, index) => {
+            //     descriptionComponent.innerHTML += `image ${index}: ${image.url}<br>`
+            // });
             
             const imagePart = createComponent("div", "image-part", fragment)
             imagePart.style.backgroundImage = `url(${url.asImageUrl()})`
@@ -317,6 +317,8 @@ var webbViewer = SAGE2_App.extend({
          *  Retrieves the information required to display each image in the whitelist
          */
         async function getExternalImageMetadata() {
+            let externalImages = []
+
             for (const index in whitelist) {
                 const imageID = whitelist[index]
     
@@ -368,13 +370,20 @@ var webbViewer = SAGE2_App.extend({
 
 
                 // Push to images array
-                images.push(artifact);
+                // images.push(artifact);
+                externalImages.push(artifact)
 
                 printConsoleLog(`Pulled IMAGE ${images.length} ${artifact.title} from external repo`)
 
                 // Preload this image
                 // preloadImage(images.length - 1)
             }
+
+            images = [...images, externalImages]
+            printConsoleLog("all whitelist images added")
+
+            // Start pulling data for external images
+            setTimeout(getExternalImageMetadata, 5000)
         }
 
 
@@ -516,10 +525,6 @@ var webbViewer = SAGE2_App.extend({
         getExternalImagesList()
 
         setTimeout(startRenderLoop, loadingDelay * 1000)
-
-        //  Start pulling data for external images
-        setTimeout(getExternalImageMetadata, 5000)
-
     },
     resize: function(date) {
         this.refresh(date)
