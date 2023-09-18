@@ -379,14 +379,16 @@ var webbViewer = SAGE2_App.extend({
                 // images.push(artifact);
                 externalImages.push(artifact)
 
-                printConsoleLog(`Pulled IMAGE ${images.length} ${artifact.title} from external repo`)
+                printConsoleLog(`Pulled IMAGE ${index}/${whitelist.length} (whitelist index) ${artifact.title} from external repo`)
 
                 // Preload this image
                 // preloadImage(images.length - 1)
             }
 
             
-            images = [...images, externalImages]
+            images = images.concat(externalImages)
+            // Reset to counter to the first external image in the images array
+            imageCounter = numOfStartupImages
             printConsoleLog("all whitelist images added")
 
 
