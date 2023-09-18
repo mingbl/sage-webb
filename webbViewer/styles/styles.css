@@ -56,10 +56,9 @@ h1.title {
 }
 p.description {
     padding-top: 1em;
-    /* font-size: 2em;
-     */
-    /* text-align: justify; */
-    /* text-justify: inter-word; */
+    font-size: 2em;
+    text-align: justify;
+    text-justify: inter-word;
 }
 /* p.description > a:link {
     color: var(--highlightColour);

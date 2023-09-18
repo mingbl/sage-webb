@@ -32,7 +32,7 @@ var webbViewer = SAGE2_App.extend({
         // The max number of external images to pull (irrelevant if the above is set to false)
         const numOfExternalImagesToPull = 20
         // Show display log visible?
-        const showDisplayLog = false
+        const showDisplayLog = true
         
         // Array of image objects [{title, description, url}...]
         let images = []
@@ -62,12 +62,13 @@ var webbViewer = SAGE2_App.extend({
 
         const display = this.element
 
+        let log, logText
         if (showDisplayLog) {
             usableColumns = 19
-            document.querySelector(':root').style.setProperty("--usableColumns", 20)
+            document.querySelector(':root').style.setProperty("--usableColumns", 19)
 
-            const log = createComponent("div", "display-log", display)
-            const logText = createComponent("p", "display-log-text", log)
+            log = createComponent("div", "display-log", display)
+            logText = createComponent("p", "display-log-text", log)
         }
         
         const container = createComponent("div", "container", display)
@@ -234,7 +235,7 @@ var webbViewer = SAGE2_App.extend({
             image.height = height
             image.preloaded = true
             image.aspectRatio = aspectRatio
-            image.numOfColumns = numOfColumns || 3
+            image.numOfColumns = numOfColumns > 0 ? numOfColumns : 3
             // image.numOfColumns = numOfColumns
         
             printConsoleLog(`IMAGE ${imageIndex} has preloaded. Width: ${width} Height: ${height}. (${image.url.asImageUrl()})`)
