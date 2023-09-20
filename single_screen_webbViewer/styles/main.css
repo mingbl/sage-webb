@@ -1,0 +1,120 @@
+@import url('https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;500&display=swap');
+
+:root {
+    --highlightColour: #bada55;
+    --secondaryColour: #E8F3C6;
+    --mutedColour: #888;
+}
+
+body, div.container {
+    background-color: black;
+    margin: 0;
+}
+
+div.container {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    height: 100%;
+}
+
+@keyframes fadeInAnimation {
+    0% {opacity: 0}
+    10% {opacity: 1}
+    90% {opacity: 1}
+    100% {opacity: 0}
+}
+
+div.text-part, div.image-part {
+    height: inherit;
+    box-sizing: border-box;
+    min-width: 5%;
+    animation-name: fadeInAnimation;
+    /* animation-duration: 10s; */
+}
+
+div.text-part {
+    /*width: 5%;*/
+    overflow: hidden;
+}
+
+h1.title, p.description {
+    font-family: 'Ubuntu', sans-serif;
+    margin: 0;
+    padding: 10%;
+    width: 100%;
+    color: white;
+    hyphens: auto;
+    box-sizing: border-box;
+}
+h1.title {
+    padding-bottom: 0;
+    font-size: 2em;
+}
+p.description {
+    padding-top: 1em;
+    font-size: 1em;
+    text-align: left;
+    text-justify: inter-word;
+}
+
+p.description::first-letter {
+    color: var(--highlightColour);
+    font-size: 3em;
+    margin: 0 .1em 0 0;
+    line-height: .85;
+}
+
+p > span.credits {
+    color: var(--secondaryColour);
+    font-style: italic;
+}
+
+p > span.meta-description {
+    color: var(--mutedColour);
+}
+
+p > br {
+    display: block;
+    margin-bottom:1em;
+    line-height:1em;
+    content: " ";
+}
+
+p.description > a:link {
+    color: var(--highlightColour);
+}
+
+div.image-part {
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    height: 100vh;
+}
+
+.display-center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    min-height: 100vh;
+    min-width: 100vw;
+}
+
+.loading-star-icon {
+    width: 160px;
+    height: 160px
+}
+
+.rotate {
+    animation-name: rotate;
+    animation-duration: 4s;
+    animation-iteration-count: infinite;
+    animation-timing-function: linear;
+}
+
+@keyframes rotate {
+    100% {
+        transform: rotate(360deg);
+    }
+}
