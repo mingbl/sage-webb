@@ -122,7 +122,7 @@ async function getExternalImageData() {
     //  Get external image URL
     imageObject.url = await getExternalImageURL(whitelist[numOfExternalImagesPulled]);
     //  Get image title and description
-    imageObject.title, imageObject.description = await getExternalImageText(whitelist[numOfExternalImagesPulled]);
+    [imageObject.title, imageObject.description] = await getExternalImageText(whitelist[numOfExternalImagesPulled]);
 
     // Push to images array
     images.push(imageObject);
@@ -155,11 +155,8 @@ async function getExternalImageText(_imageID) {
     //  Store the response data for use
     const responseImage = responseData["photo"];
 
-    //  Create image object to push to list of images to display
-    let imageObject = {
-        title: responseImage.title._content,
-        description:""
-    };  
+    //  Store image title
+    let title = responseImage.title._content
 
     //  -----   -----   Format Image Description    -----   -----   //
 
@@ -215,7 +212,7 @@ async function getExternalImageText(_imageID) {
     }
     
     //  Apply the desired, formatted paragraphs to the description of the image object
-    imageObject.description = formattedDescParagraphs.join("<br/>");    
+    let description = formattedDescParagraphs.join("<br/>");    
 
     //  For each formatted paragraph in the description
     for (let i = 0; i < formattedDescParagraphs.length; i++) {
@@ -225,16 +222,12 @@ async function getExternalImageText(_imageID) {
                 
     }
 
-    //  Use HTML tag to apply styling
-    imageDescription = document.createElement("p");
-    imageDescription.innerHTML = imageObject.description;
-
     //  -----   -----   End Format Image Description   -----   -----   //
 
-    console.log(`Pulled data for image ${_imageID}, Title = ${imageObject.title}, description = ${imageObject.description}`);
+    console.log(`Pulled data for image ${_imageID}, Title = ${title}, description = ${description}`);
 
     //  Add imageObject to list of image objects to display
-    return(imageObject.title, imageObject.description);
+    return[title, description];
 
 }
 
