@@ -1,4 +1,4 @@
-//  -----   Initialise variables    -----   //
+//  -----   Global variables    -----   //
 
 //  Store API key in a variable
 const apiKey = "01dcb39fbbee4546f965dd0d8d512342";
@@ -9,10 +9,25 @@ const apiSecret = "0dec3ebc72ea2d36";
 let albumID = "72177720305127361";
 
 //  Initialise a list to hold the IDs of blacklisted images
-let blacklist = [], whitelist = [], images = [];
+let blacklist = [], whitelist = [], images = [], imageCache = [];
+
+// Incrementing counter for external images pulled
+let numOfExternalImagesPulled = 0
+
+// Time before the next external image is pulled from the API (ms)
+const externalImagePullRate = .8 * 1000
+
+//  Initialise variable to represent the number of images preloaded
+let numOfImagesCurrentlyPreloaded = 0
+
+// Startup screen delay duration
+const loadingDelay = 5 * 1000
+
+//  Declare variable used to iterate whitelist index when displaying images
+let counter = 0;
 
 //  Declare interval for image transition
-const transitionInterval = 50000;
+const transitionInterval = 25000;
 
 // Time before the image set is replaced (ms)
 const imageLifespan = 20 * 1000
@@ -20,31 +35,28 @@ const imageLifespan = 20 * 1000
 //  Initialise variables to represent CAVE screen attributes
 const columns = 1, viewerWidth = 4000, viewerHeight = 440
 
-let container;
-
-let counter = 0;
-
+//  Declare variable to represent maximum height of images desired
 let imageHeightCeiling = 3072;
 
-//  When the window loads, apply DOM elements to variables initialised above, show loading screen and get external image data
-window.onload = function() {intialiseVariables(), createLoading(), getExternalImagesList();};
+
+//  -----   Script functions    -----   //
 
 /**
- *  Initialises global variables intiialised above
- * 
+ * Returns the url input, and prepends the file path if it's a local file
+ * @returns image url, formatted correctly
  */
-function intialiseVariables(){
-
-    //  Apply DOM elements to variables initialised above
-    container = document.querySelector(".container");
-
-}
+String.prototype.asImageUrl = function () {
+    if (this.includes("http")) return this
+    else return `${imageDirectory}${this}`
+}  
 
 /**
  *  Pull external images, check if they are excluded from the blacklist and add to the dictionary of image objects to be displayed
  * 
  */
 async function getExternalImagesList(){
+
+    console.log("FETCHING IMAGE WHITELIST")
 
     //  Build url to make api calls to
     const apiURL = `https://www.flickr.com/services/rest/?method=flickr.photosets.getPhotos&api_key=${apiKey}&photoset_id=${albumID}&format=json&nojsoncallback=1`
@@ -54,7 +66,7 @@ async function getExternalImagesList(){
     //  Parse api call data to JSON
     const responseData = await apiResponse.json();
 
-    //  Get the list of images from the album via the response data
+    //  Store the response data for use
     let responseImages = responseData["photoset"]["photo"]; 
     
     //  -----   Function logic  -----   //
@@ -75,81 +87,52 @@ async function getExternalImagesList(){
                 
     };
 
-    console.log(whitelist.length);
+    //  Print the external image IDs fetched to the log
+    console.log("***** WHITELIST FETCHED   *****")
+    console.log(`Whitelist length = ${whitelist.length}`);
+    console.log(`WHITELIST: ${JSON.stringify(whitelist)}`)
 
-    //  Hide loading animation
-    hideLoading();
-
-    //  Show the first image
-    displayImages();
+    //  Get external image data
+    console.log("*****  STARTING TO PULL EXTERNAL IMAGE DATA   *****")
     
-    //  Continue showing images after the first is shown
-    setInterval(displayImages, transitionInterval);
+    //  Create delay for API calls so not calling all at once
+    setInterval(getExternalImageData, externalImagePullRate)
 
 }
 
 
 /**
- *  Display images on screen
- * 
+ *  Retrieves the information required to display each image in the whitelist
  */
-async function displayImages(){
+async function getExternalImageData() {          
 
-    //  Start from the beginning of the whitelist after reaching the end
-    let imageIndex = counter % whitelist.length;
+    // insert check for if all images in the whitelist have been pulled, end here
+    if (numOfExternalImagesPulled == whitelist.length) return  
 
-    //  Clear the display
-    clearDisplay();
+    // Pull image data
+    console.log(`----- PULLING EXTERNAL IMAGE: Array no. [${numOfExternalImagesPulled}] ID: ${whitelist[numOfExternalImagesPulled]} of a list of ${whitelist.length} images`)
+        
+    //  Create image object to push to list of images to display
+    let imageObject = {
+        title: "",
+        description: "",
+        url: ""
+    };  
 
-    //  Create text part of showcase
-    const textPart = createComponent("div", "text-part", container)    
-    textPart.style.width = `${100 / columns}%`
-    textPart.style.setProperty("animation-duration", `${imageLifespan / 1000}s`)
+    //  Get external image URL
+    imageObject.url = await getExternalImageURL(whitelist[numOfExternalImagesPulled]);
+    //  Get image title and description
+    imageObject.title, imageObject.description = await getExternalImageText(whitelist[numOfExternalImagesPulled]);
 
-    //  Create image part of showcase
-    const imagePart = createComponent("div", "image-part", container)    
-    imagePart.style.width = `${100 / columns}%`
-    imagePart.style.setProperty("animation-duration", `${imageLifespan / 1000}s`)
+    // Push to images array
+    images.push(imageObject);
 
+    // Increment 'external images pulled' counter
+    numOfExternalImagesPulled++
+
+    // The following line should preload the image
+    preloadImage(images.length-1)
     
-    //  Get the ID of the image to display
-    let imageID = whitelist[imageIndex];
-
-    //  -----   Add the image data to the showcase containers   -----   //
-
-    //  API call to get image size
-    let imageUrl = await getExternalImageURL(imageID);
-
-    imagePart.style.backgroundImage = `url(${imageUrl.asImageUrl()}`
-
-    //  Get the title, description and url of the image to display
-    let imageData = await getExternalImageText(imageID);  
-
-    //  Add the title to the text part
-    const title = createComponent("h1", "title", textPart)
-    title.innerHTML = imageData.title
-
-    //  Add the description to the text part
-    const description = createComponent("p", "description", textPart)
-    description.innerHTML = imageData.description
-   
-    //  Show the data on screen
-    container.appendChild(imagePart, textPart);
-
-    //  Increment the counter show the next image is shown the next time this image is called
-    counter ++;
-
-}
-
-
-/**
- *  Clears the images and their descriptions from the display
- * 
- */
-function clearDisplay(){
-
-    container.innerHTML = "";
-
 }
 
 
@@ -248,8 +231,10 @@ async function getExternalImageText(_imageID) {
 
     //  -----   -----   End Format Image Description   -----   -----   //
 
+    console.log(`Pulled data for image ${_imageID}, Title = ${imageObject.title}, description = ${imageObject.description}`);
+
     //  Add imageObject to list of image objects to display
-    return(imageObject);
+    return(imageObject.title, imageObject.description);
 
 }
 
@@ -273,22 +258,6 @@ function removeLink(paragraph) {
     //  Change the paragraph to contain only the sentences we want to keep
     return paragraph = newSentences.join(". ");
 
-}
-
-
-/**
- * Create an element, add class name, and append to a parent element
- * @param {string} tag - html element <div> <h1> <p> etc.
- * @param {string} className - class name to add to element, for CSS
- * @param {string} parent - parent element, for appending this element to as a child
- * @returns reference to the new component (element) created
- */
-function createComponent(tag, className, parent) {
-    const newElement = document.createElement(tag)
-    let classes = className.split(" ")
-    classes.forEach(c => {newElement.classList.add(c)})
-    parent.appendChild(newElement)
-    return newElement
 }
 
 
@@ -338,10 +307,119 @@ async function getExternalImageURL(_imageID){
 
 
 /**
- * Returns the url input, and prepends the file path if it's a local file
- * @returns image url, formatted correctly
+ * Preload an image by creating an image element in memory and setting the src to the url, to download the img and cache it in memory.
+ * @param {integer} imageIndex - index in images array []
  */
-String.prototype.asImageUrl = function () {
-    if (this.includes("http")) return this
-    else return `${imageDirectory}${this}`
-}  
+async function preloadImage(imageIndex) {
+
+    if (images.length < imageIndex) return
+
+    const image = images[imageIndex]
+
+    // If the image is already preloaded, skip. This function should not be called at this point.
+    if (image.preloaded === true) return
+
+    console.log(`IMAGE ${imageIndex} will be preloaded. (${image.url.asImageUrl()})`)
+
+    // Create img in memory
+    const imgCache = new Image()
+    // const imgCache = document.createElement("img")
+    imgCache.src = image.url.asImageUrl()
+    imageCache[imageIndex] = imgCache
+
+    imgCache.onload = function () {
+
+        image.width = imgCache.naturalWidth
+        image.height = imgCache.naturalHeight
+        image.preloaded = true
+
+        console.log(`IMAGE ${imageIndex} has preloaded. Width: ${imgCache.naturalWidth} Height: ${imgCache.naturalHeight}. (${image.url.asImageUrl()})`)
+
+        numOfImagesCurrentlyPreloaded++
+
+        // If images are all preloaded, begin render loop
+        if (numOfImagesCurrentlyPreloaded === whitelist.length) {
+           setTimeout(startRenderLoop, loadingDelay)
+        }
+
+    }
+
+}
+
+
+/**
+ * Start render loop.
+ */
+function startRenderLoop() {
+
+    //  Hide loading animation
+    hideLoading()
+
+    console.log(`STARTING FIRST RENDER`)
+
+    // Initial render
+    displayImages()
+
+    // Render loop
+    setInterval(displayImages, imageLifespan)
+
+}
+
+
+/**
+ *  Display images on screen
+ * 
+ */
+async function displayImages(){
+
+    //  Start from the beginning of the whitelist after reaching the end
+    let imageIndex = counter % images.length;
+
+    //  Clear the display
+    clearDisplay();
+
+    //  -----   Create showcase containers  -----   //
+
+    //  Create text part of showcase
+    const textPart = createComponent("div", "text-part", container)    
+    textPart.style.width = `${100 / columns}%`
+    textPart.style.setProperty("animation-duration", `${imageLifespan / 1000}s`)
+
+    //  Create image part of showcase
+    const imagePart = createComponent("div", "image-part", container)    
+    imagePart.style.width = `${100 / columns}%`
+    imagePart.style.setProperty("animation-duration", `${imageLifespan / 1000}s`)
+    
+    //  Get the ID of the image to display
+    let image = images[imageIndex];
+
+    //  -----   Add the image data to the showcase containers   -----   //
+
+    imagePart.style.backgroundImage = `url(${image.url.asImageUrl()}` 
+
+    //  Add the title to the text part
+    const title = createComponent("h1", "title", textPart)
+    title.innerHTML = image.title
+
+    //  Add the description to the text part
+    const description = createComponent("p", "description", textPart)
+    description.innerHTML = image.description
+   
+    //  Show the data on screen
+    container.appendChild(imagePart, textPart);
+
+    //  Increment the counter show the next image is shown the next time this image is called
+    counter ++;
+
+}
+
+
+/**
+ *  Clears the images and their descriptions from the display
+ * 
+ */
+function clearDisplay(){
+
+    container.innerHTML = "";
+
+}
