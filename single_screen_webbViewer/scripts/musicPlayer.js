@@ -1,5 +1,13 @@
-//  Declare variable to reference mp3 file
-const audio = new Audio("./media/ambient_endeavours_morning_mood.mp3")
+function playAudio(_audio){  
 
-//  Play audio
-audio.play()
+    //  Play audio
+    _audio.play()
+
+}
+
+function stopAudio(_audio){
+
+    _audio.pause()
+    _audio.currentTime = 0
+
+}

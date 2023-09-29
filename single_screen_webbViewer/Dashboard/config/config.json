@@ -14,8 +14,8 @@
             },
             "imageLifespan": {
                 "label": "Image Lifespan (seconds):",
-                "value": 15,
-                "default": 15,
+                "value": 20,
+                "default": 20,
                 "input": {
                     "type": "spinbox",
                     "minValue": 5,
@@ -24,8 +24,8 @@
             },
             "fadeDuration": {
                 "label": "Fade Duration (seconds):",
-                "value": 1.5,
-                "default": 1.5,
+                "value": 10,
+                "default": 10,
                 "input": {
                     "type": "spinbox",
                     "minValue": 0,
@@ -34,11 +34,11 @@
             },
             "externalImagePullRate": {
                 "label": "External Image Pull Rate (seconds):",
-                "value": 2,
-                "default": 2,
+                "value": 0.8,
+                "default": 0.8,
                 "input": {
                     "type": "spinbox",
-                    "minValue": 2,
+                    "minValue": 0.8,
                     "maxValue": 20
                 }
             },
@@ -83,7 +83,7 @@
             },
             "columns": {
                 "label": "Number of Columns:",
-                "value": "20",
+                "value": "1",
                 "default": "20",
                 "input": {
                     "type": "spinbox",
@@ -93,7 +93,7 @@
             },
             "usableColumns": {
                 "label": "Number of Usable Columns:",
-                "value": "20",
+                "value": "1",
                 "default": "20",
                 "input": {
                     "type": "spinbox",
@@ -112,9 +112,19 @@
                 }
             },
             "viewerHeight": {
-                "label": "Total Heigh of Screen/s (pixels):",
+                "label": "Total Height of Screen/s (pixels):",
                 "value": "440",
                 "default": "440",
+                "input": {
+                    "type": "spinbox",
+                    "minValue": 440,
+                    "maxValue": 4320
+                }
+            },
+            "imageHeightCeiling": {
+                "label": "Desired Maximum Height of Images:",
+                "value": "3072",
+                "default": "3072",
                 "input": {
                     "type": "spinbox",
                     "minValue": 440,
@@ -185,18 +195,34 @@
                 "input": {
                     "type": "colour"
                 }
+            },
+            "backgroundMusic": {
+                "label": "Play Background Music?",
+                "value": true,
+                "default": true,
+                "input": {
+                    "type": "checkbox"                 
+                }
+            },
+            "backgroundMusicSource": {
+                "label": "Play Background Music?",
+                "value": "./media/ambient_endeavours_morning_mood.mp3",
+                "default": "./media/ambient_endeavours_morning_mood.mp3",
+                "input": {
+                    "type": "music"             
+                }
             }
         }
     },
     "images": {
         "label": "Images",
         "properties": {
-            "whitelist": {
-                "label": "Image Whitelist",
+            "blacklist": {
+                "label": "Image Blacklist",
                 "value": [],
                 "default": [],
                 "input": {
-                    "type": "whitelist"
+                    "type": "blacklist"
                 }   
             },
             "apiKey": {

@@ -1,42 +1,16 @@
 //  -----   Global variables    -----   //
 
-//  Store API key in a variable
-const apiKey = "01dcb39fbbee4546f965dd0d8d512342";
-//  Store API secret in a variable
-const apiSecret = "0dec3ebc72ea2d36";
-
-//  Store ID of a photoset (album) to retrieve images from
-let albumID = "72177720305127361";
-
 //  Initialise a list to hold the IDs of blacklisted images
-let blacklist = [], whitelist = [], images = [], imageCache = [];
+let whitelist = [], images = [], imageCache = []
 
 // Incrementing counter for external images pulled
 let numOfExternalImagesPulled = 0
 
-// Time before the next external image is pulled from the API (ms)
-const externalImagePullRate = .8 * 1000
-
 //  Initialise variable to represent the number of images preloaded
 let numOfImagesCurrentlyPreloaded = 0
 
-// Startup screen delay duration
-const loadingDelay = 5 * 1000
-
 //  Declare variable used to iterate whitelist index when displaying images
-let counter = 0;
-
-//  Declare interval for image transition
-const transitionInterval = 25000;
-
-// Time before the image set is replaced (ms)
-const imageLifespan = 20 * 1000
-
-//  Initialise variables to represent CAVE screen attributes
-const columns = 1, viewerWidth = 4000, viewerHeight = 440
-
-//  Declare variable to represent maximum height of images desired
-let imageHeightCeiling = 3072;
+let counter = 0
 
 
 //  -----   Script functions    -----   //
@@ -58,6 +32,10 @@ async function getExternalImagesList(){
 
     console.log("FETCHING IMAGE WHITELIST")
 
+    //  Retrieve required values from config data
+    const apiKey = configImages.apiKey.value
+    const albumID = configImages.albumID.value
+
     //  Build url to make api calls to
     const apiURL = `https://www.flickr.com/services/rest/?method=flickr.photosets.getPhotos&api_key=${apiKey}&photoset_id=${albumID}&format=json&nojsoncallback=1`
 
@@ -70,6 +48,8 @@ async function getExternalImagesList(){
     let responseImages = responseData["photoset"]["photo"]; 
     
     //  -----   Function logic  -----   //
+
+    const blacklist = configImages.blacklist.value
 
     //  For all of the external images retrieved
     for (let i = 0; i < responseImages.length; i++) {
@@ -94,6 +74,8 @@ async function getExternalImagesList(){
 
     //  Get external image data
     console.log("*****  STARTING TO PULL EXTERNAL IMAGE DATA   *****")
+
+    const externalImagePullRate = configFunctionality.externalImagePullRate.value * 1000
     
     //  Create delay for API calls so not calling all at once
     setInterval(getExternalImageData, externalImagePullRate)
@@ -143,6 +125,9 @@ async function getExternalImageText(_imageID) {
 
  
     //  -----   -----   Get image title and description -----   -----   //
+
+    //  Retrieve required values from config data
+    const apiKey = configImages.apiKey.value
 
     //  Build url to make api calls to
     const apiURL = `https://www.flickr.com/services/rest/?method=flickr.photos.getInfo&api_key=${apiKey}&photo_id=${_imageID}&format=json&nojsoncallback=1`
@@ -258,6 +243,9 @@ async function getExternalImageURL(_imageID){
 
     //  -----   -----   Get image urls and return the one closest to the screen size we specify -----   -----   //
 
+    //  Retrieve required values from config data
+    const apiKey = configImages.apiKey.value
+
     //  Build url to make api calls to
     const apiURL = `https://www.flickr.com/services/rest/?method=flickr.photos.getSizes&api_key=${apiKey}&photo_id=${_imageID}&format=json&nojsoncallback=1`
 
@@ -273,6 +261,9 @@ async function getExternalImageURL(_imageID){
     let bestURL = sizes[0].source;
     let bestWidth = sizes[0].width;
     let bestHeight = sizes[0].height
+
+    //  Declare variable to represent maximum height of images desired
+    const imageHeightCeiling = configUserInterface.imageHeightCeiling.value
 
     let difference = Math.abs(imageHeightCeiling - bestHeight);
 
@@ -330,6 +321,8 @@ async function preloadImage(imageIndex) {
 
         numOfImagesCurrentlyPreloaded++
 
+        const loadingDelay = configFunctionality.loadingDelay.value * 1000
+
         // If images are all preloaded, begin render loop
         if (numOfImagesCurrentlyPreloaded === whitelist.length) {
            setTimeout(startRenderLoop, loadingDelay)
@@ -353,6 +346,9 @@ function startRenderLoop() {
     // Initial render
     displayImages()
 
+    // Declare time before the image set is replaced (ms)
+    const imageLifespan = configFunctionality.imageLifespan.value * 1000
+
     // Render loop
     setInterval(displayImages, imageLifespan)
 
@@ -360,8 +356,8 @@ function startRenderLoop() {
 
 
 /**
- *  Display images on screen
- * 
+ *  Display images on screen 
+ *  
  */
 async function displayImages(){
 
@@ -371,17 +367,25 @@ async function displayImages(){
     //  Clear the display
     clearDisplay();
 
+    //  Declare variables to represent screen attributes
+    const columns = configUserInterface.columns.value
+    const viewerWidth = configUserInterface.viewerWidth.value
+    const viewerHeight = configUserInterface.viewerHeight.value
+
+    //  Declare time transition animation should take to complete
+    const fadeDuration = configFunctionality.fadeDuration.value
+
     //  -----   Create showcase containers  -----   //
 
     //  Create text part of showcase
     const textPart = createComponent("div", "text-part", container)    
     textPart.style.width = `${100 / columns}%`
-    textPart.style.setProperty("animation-duration", `${imageLifespan / 1000}s`)
+    textPart.style.setProperty("animation-duration", `${fadeDuration}s`)
 
     //  Create image part of showcase
     const imagePart = createComponent("div", "image-part", container)    
     imagePart.style.width = `${100 / columns}%`
-    imagePart.style.setProperty("animation-duration", `${imageLifespan / 1000}s`)
+    imagePart.style.setProperty("animation-duration", `${fadeDuration}s`)
     
     //  Get the ID of the image to display
     let image = images[imageIndex];
