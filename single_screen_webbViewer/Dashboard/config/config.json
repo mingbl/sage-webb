@@ -1,0 +1,228 @@
+{
+    "functionality": {
+        "label": "Functionality",
+        "properties": {
+            "loadingDelay": {
+                "label": "Loading Delay (seconds):",
+                "value": 2,
+                "default": 2,
+                "input": {
+                    "type": "spinbox",
+                    "minValue": 2,
+                    "maxValue": 20
+                }
+            },
+            "imageLifespan": {
+                "label": "Image Lifespan (seconds):",
+                "value": 15,
+                "default": 15,
+                "input": {
+                    "type": "spinbox",
+                    "minValue": 5,
+                    "maxValue": 60
+                }
+            },
+            "fadeDuration": {
+                "label": "Fade Duration (seconds):",
+                "value": 1.5,
+                "default": 1.5,
+                "input": {
+                    "type": "spinbox",
+                    "minValue": 0,
+                    "maxValue": 5
+                }
+            },
+            "externalImagePullRate": {
+                "label": "External Image Pull Rate (seconds):",
+                "value": 2,
+                "default": 2,
+                "input": {
+                    "type": "spinbox",
+                    "minValue": 2,
+                    "maxValue": 20
+                }
+            },
+            "pullImagesInOrder": {
+                "label": "Pull Images in Order?",
+                "value": false,
+                "default": false,
+                "input": {
+                    "type": "checkbox"
+                }
+            },
+            "limitNumOfExternalImagesToPull": {
+                "label": "Limit Number of External Images to Pull?",
+                "value": true,
+                "default": true,
+                "input": {
+                    "type": "checkbox"
+                }
+            },
+            "numOfExternalImagesToPull": {
+                "label": "Number of Images to Pull:",
+                "value": 20,
+                "default": 20,
+                "input": {
+                    "type": "spinbox",
+                    "minValue": 1,
+                    "maxValue": 20
+                }
+            }
+        }
+    },
+    "userInterface": {
+        "label": "User Interface",
+        "properties": {
+            "showDisplayLog": {
+                "label": "Show Display Log?",
+                "value": false,
+                "default": false,
+                "input": {
+                    "type": "checkbox"
+                }
+            },
+            "columns": {
+                "label": "Number of Columns:",
+                "value": "20",
+                "default": "20",
+                "input": {
+                    "type": "spinbox",
+                    "minValue": 1,
+                    "maxValue": 20
+                }
+            },
+            "usableColumns": {
+                "label": "Number of Usable Columns:",
+                "value": "20",
+                "default": "20",
+                "input": {
+                    "type": "spinbox",
+                    "minValue": 1,
+                    "maxValue": 20
+                }
+            },
+            "viewerWidth": {
+                "label": "Total Width of Screen/s (pixels):",
+                "value": "4000",
+                "default": "4000",
+                "input": {
+                    "type": "spinbox",
+                    "minValue": 720,
+                    "maxValue": 7680
+                }
+            },
+            "viewerHeight": {
+                "label": "Total Heigh of Screen/s (pixels):",
+                "value": "440",
+                "default": "440",
+                "input": {
+                    "type": "spinbox",
+                    "minValue": 440,
+                    "maxValue": 4320
+                }
+            }
+        }
+    },
+    "theme": {
+        "label": "Theme",
+        "properties": {
+            "titleTextSize": {
+                "label": "Title Text Size (em):",
+                "value": "5",
+                "default": "5",
+                "input": {
+                    "type": "spinbox",
+                    "minValue": 3,
+                    "maxValue": 10
+                }
+            },
+            "bodyTextSize": {
+                "label": "Body Text Size (em):",
+                "value": "2",
+                "default": "2",
+                "input": {
+                    "type": "spinbox",
+                    "minValue": 2,
+                    "maxValue": 6
+                }
+            },
+            "textColour": {
+                "label": "Text Colour:",
+                "value": "#fff",
+                "default": "#fff",
+                "input": {
+                    "type": "colour"
+                }
+            },
+            "highlightColour": {
+                "label": "Highlighted Text Colour:",
+                "value": "#bada55",
+                "default": "#bada55",
+                "input": {
+                    "type": "colour"
+                }
+            },
+            "secondaryColour": {
+                "label": "Secondary Text Colour:",
+                "value": "#E8F3C6",
+                "default": "#E8F3C6",
+                "input": {
+                    "type": "colour"
+                }
+            },
+            "mutedColour": {
+                "label": "Muted Text Colour:",
+                "value": "#888",
+                "default": "#888",
+                "input": {
+                    "type": "colour"
+                }
+            },
+            "backgroundColour": {
+                "label": "Background Colour:",
+                "value": "#000",
+                "default": "#000",
+                "input": {
+                    "type": "colour"
+                }
+            }
+        }
+    },
+    "images": {
+        "label": "Images",
+        "properties": {
+            "whitelist": {
+                "label": "Image Whitelist",
+                "value": [],
+                "default": [],
+                "input": {
+                    "type": "whitelist"
+                }   
+            },
+            "apiKey": {
+                "label": "Flickr API Key:",
+                "value": "92c8e64a1118fb6e9e5b777c5625f04b",
+                "default": "92c8e64a1118fb6e9e5b777c5625f04b",
+                "input": {
+                    "type": "entry"
+                }                
+            },
+            "apiSecret": {
+                "label": "Flickr API Secret:",
+                "value": "295160358e33d9b6",
+                "default": "295160358e33d9b6",
+                "input": {
+                    "type": "entry"
+                }   
+            },
+            "albumID": {
+                "label": "Flickr Album ID:",
+                "value": "72177720305127361",
+                "default": "72177720305127361",
+                "input": {
+                    "type": "entry"
+                }   
+            }
+        }
+    }
+}
