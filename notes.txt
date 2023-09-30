@@ -1,0 +1,5 @@
+things you have to change when moving from the temporary.js node console only version to sage:
+
+function readStartupImages()
+line 218: remove "utf8"
+line 241: add "TEXT"
