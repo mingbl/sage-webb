@@ -29,7 +29,7 @@ var webbViewer = SAGE2_App.extend({
          * (for troubleshooting in node.js outside of SAGE)
          */
         const sage = true
-        const showDisplayLog = true // Show the display log on the left side of the viewer
+        const showDisplayLog = false // Show the display log on the left side of the viewer
         
         const startupImages = [], externalImages = [] // Arrays to contain images
         let images = [] // Array of image objects [{title, description, url}...]
@@ -77,9 +77,9 @@ var webbViewer = SAGE2_App.extend({
          * @param {string} message - Message to print to console log
          */
         function printConsoleLog(message) {
-            if (!sage) {console.log(message); return}
-            this.log(message)
-            if (showDisplayLog) logText.textContent += `<br>${message}`
+            // if (!sage) {console.log(message); return}
+            // this.log(message)
+            // if (showDisplayLog) {logText.textContent += `<br>${message}`}
         }
         
         /**

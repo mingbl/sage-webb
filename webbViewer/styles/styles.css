@@ -23,7 +23,7 @@ div.container {
     flex-direction: row;
     min-width: 10%;
     width: calc(var(--usableColumns) / var(--columns) * 100%);
-    background-color: black;
+    background-color: rgb(50,50,50);
     height: 100%;
 }
 div.text-part, div.image-part {
