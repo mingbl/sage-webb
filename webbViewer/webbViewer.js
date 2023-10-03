@@ -471,15 +471,15 @@ var webbViewer = SAGE2_App.extend({
                 return value.substring(0, maxCharacters)
             }
             return value
-            }
+        }
         
         if (sage) createLoadingScreen()
         
-        // readStartupImages()
+        readStartupImages()
         
-        // getExternalImagesList()
+        getExternalImagesList()
         
-        // setTimeout(startRenderLoop, loadingDelay * 1000)
+        setTimeout(startRenderLoop, loadingDelay * 1000)
     },
     resize: function(date) {
         this.refresh(date)
