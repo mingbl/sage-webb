@@ -200,11 +200,11 @@ var webbViewer = SAGE2_App.extend({
          * Read startup images specified in images/local_images/images.json
          */
         function readStartupImages() {
-            readFile(imageJson, (err, data) => {
+            readFile(imageJson, (err, fileData) => {
                 printConsoleLog(`- Reading startup images json (${imageJson})`)
                 if (err) throw err
                 else {
-                    imageData = JSON.parse(data)
+                    imageData = JSON.parse(fileData)
         
                     // Copy to images array
                     imageData.forEach((metadata, index) => {
