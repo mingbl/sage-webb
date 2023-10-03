@@ -13,6 +13,20 @@ var webbViewer = SAGE2_App.extend({
             imageJson = `${imageDirectory}images.json`,
             metaImageDirectory = `${resourcePath}images/meta/`
 
+        /**
+         * Is this running in SAGE?
+         * If false, skips all DOM/rendering and only uses console.
+         * (for troubleshooting in node.js outside of SAGE)
+         */
+        const sage = true
+        const useConsoleLog = false
+        const showDisplayLog = false // Show the display log on the left side of the viewer
+
+        const display = this.element
+        const log = createComponent("div", "display-log", display),
+            logText = createComponent("p", "display-log-text", log)
+        const container = createComponent("div", "container", display)
+
         const columns = 20, viewerWidth = 4000, viewerHeight = 440, imageHeightCeiling = 3072 // CAVE screen attributes
         let usableColumns = 20 // How many columns should be used? In case the last few monitors are broken, or for displaying the console on screen
         
@@ -22,14 +36,6 @@ var webbViewer = SAGE2_App.extend({
         const limitNumOfExternalImagesToPull = false // Limit how many external images should be pulled?
         const numOfExternalImagesToPull = 10 // The max number of external images to pull (irrelevant if the above is set to false)
         const preloadImageFlag = true // Preload images before they're displayed on screen?
-        
-        /**
-         * Is this running in SAGE?
-         * If false, skips all DOM/rendering and only uses console.
-         * (for troubleshooting in node.js outside of SAGE)
-         */
-        const sage = true
-        const showDisplayLog = false // Show the display log on the left side of the viewer
         
         const startupImages = [], externalImages = [] // Arrays to contain images
         let images = [] // Array of image objects [{title, description, url}...]
@@ -45,11 +51,6 @@ var webbViewer = SAGE2_App.extend({
         
         const viewerAspectRatio = viewerWidth / viewerHeight
         const animationStyle = `${fadeDuration}s linear fadein, ${fadeDuration}s linear ${imageLifespan + fadeDuration}s fadeout` // CSS value for transition animation
-        
-        const display = (sage) ? this.element : []
-        const log = (sage && showDisplayLog) ? createComponent("div", "display-log", display) : [],
-            logText = (sage && showDisplayLog) ? createComponent("p", "display-log-text", log) : []
-        const container = (sage) ? createComponent("div", "container", display) : []
         
         if (sage) {
             this.element.classList.add("display")
@@ -77,9 +78,10 @@ var webbViewer = SAGE2_App.extend({
          * @param {string} message - Message to print to console log
          */
         function printConsoleLog(message) {
-            // if (!sage) {console.log(message); return}
-            // this.log(message)
-            // if (showDisplayLog) {logText.textContent += `<br>${message}`}
+            if (!sage) {console.log(message); return}
+            if (!useConsoleLog) return
+            this.log(message)
+            if (showDisplayLog) {logText.innerHTML += `<br>${message}`}
         }
         
         /**
@@ -116,10 +118,10 @@ var webbViewer = SAGE2_App.extend({
             textPart.style.setProperty("animation", animationStyle)
             
             const titleComponent = createComponent("h1", "title", textPart)
-            titleComponent.textContent = title
+            titleComponent.innerHTML = title
         
             const descriptionComponent = createComponent("p", "description", textPart)
-            descriptionComponent.textContent = `${description}`
+            descriptionComponent.innerHTML = `${description}`
             
             const imagePart = createComponent("div", "image-part", showcase)
             imagePart.style.backgroundImage = `url(${url.asImageUrl()})`
