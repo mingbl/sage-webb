@@ -449,6 +449,12 @@ var webbViewer = SAGE2_App.extend({
             loadingStar.src = `${metaImageDirectory}star.svg`
         
             container.appendChild(fragment)
+
+            readStartupImages()
+        
+            getExternalImagesList()
+            
+            setTimeout(startRenderLoop, loadingDelay * 1000)
         }
         
         /**
@@ -477,11 +483,7 @@ var webbViewer = SAGE2_App.extend({
         
         if (sage) createLoadingScreen()
         
-        readStartupImages()
-        
-        getExternalImagesList()
-        
-        setTimeout(startRenderLoop, loadingDelay * 1000)
+
     },
     resize: function(date) {
         this.refresh(date)
