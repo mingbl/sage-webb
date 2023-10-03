@@ -79,7 +79,7 @@ var webbViewer = SAGE2_App.extend({
         function printConsoleLog(message) {
             if (!sage) {console.log(message); return}
             this.log(message)
-            if (showDisplayLog) logText.textContent += `\n${message}`
+            if (showDisplayLog) logText.textContent += `<br>${message}`
         }
         
         /**
@@ -328,7 +328,7 @@ var webbViewer = SAGE2_App.extend({
         
             const artifact = createArtifact(title, description, source, width, height, "external")
         
-            printConsoleLog(`@@@ [${id}] Pulled image from external repo - ${JSON.stringify(artifact, truncateStrings)}\n<=>`)
+            printConsoleLog(`@@@ [${id}] Pulled image from external repo - ${JSON.stringify(artifact, truncateStrings)}<br><=>`)
         
             return artifact
         }
