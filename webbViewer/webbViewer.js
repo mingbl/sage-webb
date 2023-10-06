@@ -13,7 +13,7 @@ var webbViewer = SAGE2_App.extend({
             imageJson = `${imageDirectory}images.json`,
             metaImageDirectory = `${resourcePath}images/meta/`
 
-            const columns = 20, viewerWidth = 4000, viewerHeight = 440, imageHeightCeiling = 3072 // CAVE screen attributes
+            const viewerColumns = 20, viewerWidth = 4000, viewerHeight = 440, imageHeightCeiling = 3072 // CAVE screen attributes
             let usableColumns = 20 // How many columns should be used? In case the last few monitors are broken, or for displaying the console on screen
             
             const loadingDelay = 5 // Startup screen delay duration (seconds)
@@ -57,6 +57,7 @@ var webbViewer = SAGE2_App.extend({
             
                 // Full screen: Taken from https://bitbucket.org/sage2/sage2/src/46a011ba6bacd47572c26f588310628b55069aad/public/uploads/apps/welcome/welcome.js?at=master#welcome.js-65
                 if (this.state.goFullscreen) {
+                    this.log(`Going full screen`)
                     this.sendFullscreen()
                     // only go fullscreen at creation time, not reload nor session
                     this.state.goFullscreen = false
@@ -220,7 +221,7 @@ var webbViewer = SAGE2_App.extend({
             
                             printConsoleLog(`=== Awaiting startup image [${index}/${imageData.length - 1}]`)
             
-                            const artifact = createArtifact(title, description, url, width, height, "startup")
+                            const artifact = new Artifact(title, description, url, width, height, "startup")
             
                             startupImages.push(artifact)
                         })
@@ -271,6 +272,9 @@ var webbViewer = SAGE2_App.extend({
                 imageCounter = 0 // Reset counter
             
                 printConsoleLog(`- Now using external images - ${JSON.stringify(images, truncateStrings)}`)
+
+                this.SAGE2Sync()
+                this.refresh(date.getTime())
             }
             
             /**
@@ -335,7 +339,7 @@ var webbViewer = SAGE2_App.extend({
             
                 printConsoleLog(`@@@ [${id}] Best image size: ${width}x${height} (${title}) (${source})`)
             
-                const artifact = createArtifact(title, description, source, width, height, "external")
+                const artifact = new Artifact(title, description, source, width, height, "external", viewerColumns, viewerAspectRatio)
             
                 printConsoleLog(`@@@ [${id}] Pulled image from external repo - ${JSON.stringify(artifact, truncateStrings)}<br><=>`)
             
@@ -425,7 +429,7 @@ var webbViewer = SAGE2_App.extend({
             function createArtifact(title, description, url, width, height, origin) {
             
                 const aspectRatio = width / height
-                const numOfColumns = Math.ceil((columns / viewerAspectRatio) * aspectRatio) > 1 ? Math.ceil((columns / viewerAspectRatio) * aspectRatio) : 3
+                const numOfColumns = Math.ceil((viewerColumns / viewerAspectRatio) * aspectRatio) > 1 ? Math.ceil((viewerColumns / viewerAspectRatio) * aspectRatio) : 3
             
                 const artifact = {
                     title: title,
@@ -480,7 +484,21 @@ var webbViewer = SAGE2_App.extend({
                     return value.substring(0, maxCharacters)
                 }
                 return value
+            }
+            
+            class Artifact {
+                constructor(title, description, url, width, height, origin, viewerColumns, viewerAspectRatio) {
+                    this.title = title
+                    this.description = description
+                    this.url = url
+                    this.aspectRatio = width / height
+                    this.numOfColumns = Math.ceil((viewerColumns / viewerAspectRatio) * this.aspectRatio) > 1 ? Math.ceil((viewerColumns / viewerAspectRatio) * this.aspectRatio) : 3
+                    this.origin = origin
+            
+                    printConsoleLog(`=== Created ${origin} artifact: ${JSON.stringify(this, truncateStrings)}`)
+                    if (sage && preloadImageFlag) {preloadImage(url)}
                 }
+            }
             
             if (sage) createLoadingScreen()
             
@@ -489,6 +507,9 @@ var webbViewer = SAGE2_App.extend({
             getExternalImagesList()
             
             setTimeout(startRenderLoop, loadingDelay * 1000)
+    },
+    load: function(date) {
+        this.refresh(date)
     },
     resize: function(date) {
         this.refresh(date)

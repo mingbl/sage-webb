@@ -6,9 +6,10 @@
     "dependencies": [
         "./styles/styles.css"
     ],
-	"load": {
-		"goFullscreen": true
-	},
+    "load": {
+        "imageCounter": "0",
+        "goFullscreen": true
+    },
     "animation": true,
     "title": "MeSH James Webb Telescope Viewer",
     "description": "Cave2 image viewer for images taken using the James Web Telescope.",

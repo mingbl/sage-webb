@@ -7,7 +7,7 @@ const imageDirectory = `${resourcePath}images/local_images/`,
     imageJson = `${imageDirectory}images.json`,
     metaImageDirectory = `${resourcePath}images/meta/`
 
-const columns = 20, viewerWidth = 4000, viewerHeight = 440, imageHeightCeiling = 3072 // CAVE screen attributes
+const viewerColumns = 20, viewerWidth = 4000, viewerHeight = 440, imageHeightCeiling = 3072 // CAVE screen attributes
 let usableColumns = 20 // How many columns should be used? In case the last few monitors are broken, or for displaying the console on screen
 
 const loadingDelay = 5 // Startup screen delay duration (seconds)
@@ -203,7 +203,7 @@ function readStartupImages() {
 
                 printConsoleLog(`=== Awaiting startup image [${index}/${imageData.length - 1}]`)
 
-                const artifact = createArtifact(title, description, url, width, height, "startup")
+                const artifact = new Artifact(title, description, url, width, height, "startup", viewerColumns, viewerAspectRatio)
 
                 startupImages.push(artifact)
             })
@@ -318,7 +318,7 @@ async function getExternalImageMetadata(id) {
 
     printConsoleLog(`@@@ [${id}] Best image size: ${width}x${height} (${title}) (${source})`)
 
-    const artifact = createArtifact(title, description, source, width, height, "external")
+    const artifact = new Artifact(title, description, source, width, height, "external", viewerColumns, viewerAspectRatio)
 
     printConsoleLog(`@@@ [${id}] Pulled image from external repo - ${JSON.stringify(artifact, truncateStrings)}<br><=>`)
 
@@ -370,36 +370,6 @@ function removeLinks(paragraph) {
 }
 
 /**
- * Create an artifact (image object {})
- * @param {string} title Title of the artifact
- * @param {string} description Description of the artifact
- * @param {string} url Direct URL to the image
- * @param {integer} width Width of the image
- * @param {integer} height Height of the image
- * @param {string} origin Origin of the image (startup or external)
- * @returns - the artifact object {}
- */
-function createArtifact(title, description, url, width, height, origin) {
-
-    const aspectRatio = width / height
-    const numOfColumns = Math.ceil((columns / viewerAspectRatio) * aspectRatio) > 1 ? Math.ceil((columns / viewerAspectRatio) * aspectRatio) : 3
-
-    const artifact = {
-        title: title,
-        description: description,
-        url: url,
-        numOfColumns: numOfColumns,
-        origin: origin
-    }
-
-    printConsoleLog(`=== Created ${origin} artifact: ${JSON.stringify(artifact, truncateStrings)}`)
-
-    if (sage && preloadImageFlag) {preloadImage(url)}
-
-    return artifact
-}
-
-/**
     * Create loading screen.
     */
 function createLoadingScreen() {
@@ -438,7 +408,24 @@ function truncateStrings(key, value) {
         return value.substring(0, maxCharacters)
     }
     return value
+}
+
+/**
+ * Create an artifact (image object)
+ */
+class Artifact {
+    constructor(title, description, url, width, height, origin, viewerColumns, viewerAspectRatio) {
+        this.title = title
+        this.description = description
+        this.url = url
+        this.aspectRatio = width / height
+        this.numOfColumns = Math.ceil((viewerColumns / viewerAspectRatio) * this.aspectRatio) > 1 ? Math.ceil((viewerColumns / viewerAspectRatio) * this.aspectRatio) : 3
+        this.origin = origin
+
+        printConsoleLog(`=== Created ${origin} artifact: ${JSON.stringify(this, truncateStrings)}`)
+        if (sage && preloadImageFlag) {preloadImage(url)}
     }
+}
 
 if (sage) createLoadingScreen()
 
