@@ -382,7 +382,7 @@ function removeLinks(paragraph) {
 function createArtifact(title, description, url, width, height, origin) {
 
     const aspectRatio = width / height
-    const numOfColumns = Math.ceil((columns / viewerAspectRatio) * aspectRatio) ?? 3
+    const numOfColumns = Math.ceil((columns / viewerAspectRatio) * aspectRatio) > 1 ? Math.ceil((columns / viewerAspectRatio) * aspectRatio) : 3
 
     const artifact = {
         title: title,
