@@ -73,7 +73,7 @@ String.prototype.asImageUrl = function () {
 function printConsoleLog(message) {
     if (!sage) {console.log(message); return}
     this.log(message)
-    if (showDisplayLog) logText.textContent += `\n${message}`
+    if (showDisplayLog) logText.innerHTML += `<br>${message}`
 }
 
 /**
@@ -113,7 +113,7 @@ function createShowcase(index) {
     titleComponent.textContent = title
 
     const descriptionComponent = createComponent("p", "description", textPart)
-    descriptionComponent.textContent = `${description}`
+    descriptionComponent.innerHTML = `${description}`
     
     const imagePart = createComponent("div", "image-part", showcase)
     imagePart.style.backgroundImage = `url(${url.asImageUrl()})`
@@ -320,7 +320,7 @@ async function getExternalImageMetadata(id) {
 
     const artifact = createArtifact(title, description, source, width, height, "external")
 
-    printConsoleLog(`@@@ [${id}] Pulled image from external repo - ${JSON.stringify(artifact, truncateStrings)}\n<=>`)
+    printConsoleLog(`@@@ [${id}] Pulled image from external repo - ${JSON.stringify(artifact, truncateStrings)}<br><=>`)
 
     return artifact
 }
