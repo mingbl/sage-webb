@@ -19,7 +19,7 @@ var webbViewer = SAGE2_App.extend({
             const loadingDelay = 5 // Startup screen delay duration (seconds)
             const imageLifespan = 5 // Time before the image set is replaced (seconds) (exclusive of fade transition duration below)
             const fadeDuration = 3 // Duration of fade in / fade out transitions
-            const limitNumOfExternalImagesToPull = false // Limit how many external images should be pulled?
+            const limitNumOfExternalImagesToPull = true // Limit how many external images should be pulled?
             const numOfExternalImagesToPull = 10 // The max number of external images to pull (irrelevant if the above is set to false)
             const preloadImageFlag = true // Preload images before they're displayed on screen?
             
@@ -55,6 +55,15 @@ var webbViewer = SAGE2_App.extend({
                 this.element.classList.add("display")
                 this.resizeEvents = "continuous"
             
+                // Full screen: Taken from https://bitbucket.org/sage2/sage2/src/46a011ba6bacd47572c26f588310628b55069aad/public/uploads/apps/welcome/welcome.js?at=master#welcome.js-65
+                if (this.state.goFullscreen) {
+                    this.sendFullscreen()
+                    // only go fullscreen at creation time, not reload nor session
+                    this.state.goFullscreen = false
+                    // Manual sync of the state since changed outside event handler
+                    this.SAGE2Sync()
+                }
+
                 if (showDisplayLog) {
                     usableColumns = usableColumns - 1
                     document.querySelector(':root').style.setProperty("--usableColumns", usableColumns)
