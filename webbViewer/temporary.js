@@ -7,6 +7,14 @@ const imageDirectory = `${resourcePath}images/local_images/`,
     imageJson = `${imageDirectory}images.json`,
     metaImageDirectory = `${resourcePath}images/meta/`
 
+/**
+ * Is this running in SAGE?
+ * If false, skips all DOM/rendering and only uses console.
+ * (for troubleshooting in node.js outside of SAGE)
+ */
+const sage = false
+const showDisplayLog = true // Show the display log on the left side of the viewer
+
 const viewerColumns = 20, viewerWidth = 4000, viewerHeight = 440, imageHeightCeiling = 3072 // CAVE screen attributes
 let usableColumns = 20 // How many columns should be used? In case the last few monitors are broken, or for displaying the console on screen
 
@@ -17,18 +25,10 @@ const limitNumOfExternalImagesToPull = true // Limit how many external images sh
 const numOfExternalImagesToPull = 10 // The max number of external images to pull (irrelevant if the above is set to false)
 const preloadImageFlag = true // Preload images before they're displayed on screen?
 
-/**
- * Is this running in SAGE?
- * If false, skips all DOM/rendering and only uses console.
- * (for troubleshooting in node.js outside of SAGE)
- */
-const sage = false
-const showDisplayLog = false // Show the display log on the left side of the viewer
-
 const startupImages = [], externalImages = [] // Arrays to contain images
-let artifacts = [] // Array of artifacts / image objects [{title, description, url}...]
-let imageCounter = 0 // Incrementing counter for image displayed, used by renderDisplay()
+let artifacts = [] // Array of image objects [{title, description, url}...]
 
+let imageCounter = 0 // Incrementing counter for image displayed, used by renderDisplay()
 let rotationCounter = 0 // Incrementing counter for number of rotations
 
 const apiKey = "92c8e64a1118fb6e9e5b777c5625f04b", apiSecret = "295160358e33d9b6"
@@ -48,6 +48,16 @@ const container = (sage) ? createComponent("div", "container", display) : []
 if (sage) {
     this.element.classList.add("display")
     this.resizeEvents = "continuous"
+
+    // Full screen: Taken from https://bitbucket.org/sage2/sage2/src/46a011ba6bacd47572c26f588310628b55069aad/public/uploads/apps/welcome/welcome.js?at=master#welcome.js-65
+    if (this.state.goFullscreen) {
+        this.log(`Going full screen`)
+        this.sendFullscreen()
+        // only go fullscreen at creation time, not reload nor session
+        this.state.goFullscreen = false
+        // Manual sync of the state since changed outside event handler
+        this.SAGE2Sync()
+    }
 
     if (showDisplayLog) {
         usableColumns = usableColumns - 1
@@ -131,7 +141,7 @@ function renderDisplay() {
 
     if (sage) container.innerHTML = "" // Clear display
 
-    const fragment = (sage) ? new DocumentFragment() : [] // Fragment to append this rotation's images to, before appending to the DOM container
+    let fragment = (sage) ? new DocumentFragment() : [] // Fragment to append this rotation's images to, before appending to the DOM container
 
     /**
      * This algorithm uses the aspect ratio of the image to calculate 
@@ -143,8 +153,6 @@ function renderDisplay() {
         
         const artifact = artifacts[index]
         const { numOfColumns, origin } = artifact
-
-        imageCounter++
 
         const numOfRequiredColumns = numOfColumns + 1 // Image + Text
 
@@ -159,6 +167,8 @@ function renderDisplay() {
 
         printConsoleLog(`#.#.# Selecting ${origin} image [${index}/${artifacts.length - 1}] - ${JSON.stringify(artifact, truncateStrings)}`)
 
+        imageCounter++
+
         if (!sage) continue
 
         const showcase = createShowcase(index)
@@ -169,7 +179,9 @@ function renderDisplay() {
 
     rotationCounter++
 
-    if (sage) container.appendChild(fragment)
+    if (!sage) return
+
+    container.appendChild(fragment)
 }
 
 /**
@@ -203,7 +215,7 @@ function readStartupImages() {
 
                 printConsoleLog(`=== Awaiting startup image [${index}/${imageData.length - 1}]`)
 
-                const artifact = new Artifact(title, description, url, width, height, "startup", viewerColumns, viewerAspectRatio)
+                const artifact = new Artifact(title, description, url, width, height, "startup")
 
                 startupImages.push(artifact)
             })
@@ -254,6 +266,11 @@ async function getExternalImagesList() {
     imageCounter = 0 // Reset counter
 
     printConsoleLog(`- Now using external images - ${JSON.stringify(artifacts, truncateStrings)}`)
+
+    if (sage) {
+        this.SAGE2Sync()
+        this.refresh(date.getTime())
+    }
 }
 
 /**
@@ -328,22 +345,46 @@ async function getExternalImageMetadata(id) {
 /**
     * Format description to style credits paragraphs, remove links, etc.
     * @param {string} description - description, plain unformatted response from the API
-    * @returns a formatted description with styling and removed links
+    * @returns 
     */
 function formatDescription(description) {
-    const paragraphs = description.split("\n")
-    const newParagraphs = []
 
+    const paragraphs = description.split("\n")
+    let newParagraphs = []
+
+    // console.log("++++++++++++++++++++   DESCRIPTION PARAGRAPHS ++++++++++++++++++++++++")
+    
+    //  For each paragraph in the description
     paragraphs.forEach((paragraph) => {
         if (paragraph.length < 1) return
 
         let lowercase = paragraph.toLowerCase()
 
-        if (lowercase.includes("image description:")) return // If paragraph includes 'image description', exclude this paragraph
-        if (paragraph.includes("href")) paragraph = removeLinks(paragraph) // Remove sentences from paragraphs that contain links
-        if (lowercase.includes("credit") || lowercase.includes("illustration:")) paragraph = `<span class="credits">${paragraph}</span>` // Style 'credit' paragraphs
-        if (lowercase.includes("this image:")) paragraph = `<span class="meta-description">${paragraph}</span>` // Style 'info' paragraphs
+        // If paragraph includes 'image description', exclude this paragraph
+        if (lowercase.includes("image description:")) return
+
+        //  Remove sentences from paragraphs which contain links
+        if (paragraph.includes("href")) {
+            paragraph = removeLinks(paragraph)
+        }
         
+        // Cut off text after a (and inclusive of) backslash
+        if (paragraph.includes("\\")) {
+            let backslashIndex = paragraph.indexOf("\\")
+            paragraph = paragraph.substring(0, backslashIndex)
+        }
+
+        // Apply styling to 'credits' or 'illustration' paragraph
+        if (lowercase.includes("credit") || lowercase.includes("illustration:")){
+            paragraph = `<span class="credits">${paragraph}</span>`
+        }
+
+        //  Apply styling to 'this image' paragraph
+        if (lowercase.includes("this image:")){
+            paragraph = `<span class="meta-description">${paragraph}</span>`
+        }
+        
+        //  Add the paragraph to the list of descriptions to show on-screen
         newParagraphs.push(paragraph)
     })
 
@@ -356,17 +397,49 @@ function formatDescription(description) {
     * @returns paragraph with links excluded
     */
 function removeLinks(paragraph) {
-    const sentences = paragraph.split(/[\. \? \! ]\s/) //  Split paragraph into sentences
-    const newSentences = [] // Array for left over sentences
- 
-    // Filter sentences to remove ones with links
+    //  Split paragraph into sentences
+    const sentences = paragraph.split(/[\. \? \! ]\s/)
+    //  Declare variable to store new sentence
+    let newSentences = []
+
+    //  For each sentence in the paragraph
     sentences.forEach((sentence) => {
         if (sentence.includes("href")) return
         newSentences.push(sentence)
     })
 
-    // Change the paragraph to contain only the sentences we want to keep
+    //  Change the paragraph to contain only the sentences we want to keep
     return paragraph = newSentences.join(". ")
+}
+
+/**
+ * Create an artifact (image object {})
+ * @param {string} title Title of the artifact
+ * @param {string} description Description of the artifact
+ * @param {string} url Direct URL to the image
+ * @param {integer} width Width of the image
+ * @param {integer} height Height of the image
+ * @param {string} origin Origin of the image (startup or external)
+ * @returns - the artifact object {}
+ */
+function createArtifact(title, description, url, width, height, origin) {
+
+    const aspectRatio = width / height
+    const numOfColumns = Math.ceil((viewerColumns / viewerAspectRatio) * aspectRatio) > 1 ? Math.ceil((viewerColumns / viewerAspectRatio) * aspectRatio) : 3
+
+    const artifact = {
+        title: title,
+        description: description,
+        url: url,
+        numOfColumns: numOfColumns,
+        origin: origin
+    }
+
+    printConsoleLog(`=== Created ${origin} artifact: ${JSON.stringify(artifact, truncateStrings)}`)
+
+    if (sage && preloadImageFlag) {preloadImage(url)}
+
+    return artifact
 }
 
 /**
@@ -410,9 +483,6 @@ function truncateStrings(key, value) {
     return value
 }
 
-/**
- * Create an artifact (image object)
- */
 class Artifact {
     constructor(title, description, url, width, height, origin, viewerColumns, viewerAspectRatio) {
         this.title = title
@@ -430,6 +500,7 @@ class Artifact {
 if (sage) createLoadingScreen()
 
 readStartupImages()
+
 getExternalImagesList()
 
 setTimeout(startRenderLoop, loadingDelay * 1000)

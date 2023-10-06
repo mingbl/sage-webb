@@ -10,8 +10,16 @@ var webbViewer = SAGE2_App.extend({
 
         const resourcePath = this.resrcPath
         const imageDirectory = `${resourcePath}images/local_images/`,
-            imageJson = `${imageDirectory}images.json`,
-            metaImageDirectory = `${resourcePath}images/meta/`
+        imageJson = `${imageDirectory}images.json`,
+        metaImageDirectory = `${resourcePath}images/meta/`
+
+        /**
+         * Is this running in SAGE?
+         * If false, skips all DOM/rendering and only uses console.
+         * (for troubleshooting in node.js outside of SAGE)
+         */
+        const sage = true
+        const showDisplayLog = true // Show the display log on the left side of the viewer
 
         const viewerColumns = 20, viewerWidth = 4000, viewerHeight = 440, imageHeightCeiling = 3072 // CAVE screen attributes
         let usableColumns = 20 // How many columns should be used? In case the last few monitors are broken, or for displaying the console on screen
@@ -23,18 +31,10 @@ var webbViewer = SAGE2_App.extend({
         const numOfExternalImagesToPull = 10 // The max number of external images to pull (irrelevant if the above is set to false)
         const preloadImageFlag = true // Preload images before they're displayed on screen?
         
-        /**
-         * Is this running in SAGE?
-         * If false, skips all DOM/rendering and only uses console.
-         * (for troubleshooting in node.js outside of SAGE)
-         */
-        const sage = true
-        const showDisplayLog = true // Show the display log on the left side of the viewer
-        
         const startupImages = [], externalImages = [] // Arrays to contain images
-        let images = [] // Array of image objects [{title, description, url}...]
+        let artifacts = [] // Array of image objects [{title, description, url}...]
+
         let imageCounter = 0 // Incrementing counter for image displayed, used by renderDisplay()
-        
         let rotationCounter = 0 // Incrementing counter for number of rotations
         
         const apiKey = "92c8e64a1118fb6e9e5b777c5625f04b", apiSecret = "295160358e33d9b6"
@@ -113,11 +113,11 @@ var webbViewer = SAGE2_App.extend({
          * @returns showcase (HTML element) of the artifact
          */
         function createShowcase(index) {
-            const artifact = images[index]
+            const artifact = artifacts[index]
         
             const { title, description, url, numOfColumns, origin } = artifact
         
-            printConsoleLog(`#.#.#.# Showcasing ${origin} image [${index}/${images.length - 1}] - ${JSON.stringify(artifact, truncateStrings)}`)
+            printConsoleLog(`#.#.#.# Showcasing ${origin} image [${index}/${artifacts.length - 1}] - ${JSON.stringify(artifact, truncateStrings)}`)
         
             let showcase = new DocumentFragment()
         
@@ -155,9 +155,9 @@ var webbViewer = SAGE2_App.extend({
              */
             let columnsUsed = 0
             while (columnsUsed < usableColumns) {
-                let index = imageCounter % images.length
+                let index = imageCounter % artifacts.length
                 
-                const artifact = images[index]
+                const artifact = artifacts[index]
                 const { numOfColumns, origin } = artifact
         
                 const numOfRequiredColumns = numOfColumns + 1 // Image + Text
@@ -171,7 +171,7 @@ var webbViewer = SAGE2_App.extend({
 
                 columnsUsed += numOfRequiredColumns
         
-                printConsoleLog(`#.#.# Selecting ${origin} image [${index}/${images.length - 1}] - ${JSON.stringify(artifact, truncateStrings)}`)
+                printConsoleLog(`#.#.# Selecting ${origin} image [${index}/${artifacts.length - 1}] - ${JSON.stringify(artifact, truncateStrings)}`)
         
                 imageCounter++
 
@@ -226,7 +226,7 @@ var webbViewer = SAGE2_App.extend({
                         startupImages.push(artifact)
                     })
         
-                    images = startupImages
+                    artifacts = startupImages
                 }
             }, "TEXT")
         }
@@ -268,13 +268,15 @@ var webbViewer = SAGE2_App.extend({
                 externalImages.push(artifact) // Push to external images array
             }
             
-            images = externalImages // Change render loop to use external images
+            artifacts = externalImages // Change render loop to use external images
             imageCounter = 0 // Reset counter
         
-            printConsoleLog(`- Now using external images - ${JSON.stringify(images, truncateStrings)}`)
+            printConsoleLog(`- Now using external images - ${JSON.stringify(artifacts, truncateStrings)}`)
 
-            this.SAGE2Sync()
-            this.refresh(date.getTime())
+            if (sage) {
+                this.SAGE2Sync()
+                this.refresh(date.getTime())
+            }
         }
         
         /**
@@ -470,7 +472,8 @@ var webbViewer = SAGE2_App.extend({
             
             renderDisplay() // Initial render
             
-            renderLoopInterval = setInterval(renderDisplay, imageLifespan * 1000 + (fadeDuration * 2 * 1000)) // Render loop
+            const interval = imageLifespan * 1000 + (fadeDuration * 2 * 1000)
+            renderLoopInterval = setInterval(renderDisplay, interval) // Render loop
         }
         
         /**
