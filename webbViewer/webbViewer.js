@@ -11,7 +11,8 @@ var webbViewer = SAGE2_App.extend({
         const resourcePath = this.resrcPath
         const imageDirectory = `${resourcePath}images/local_images/`,
         imageJson = `${imageDirectory}images.json`,
-        metaImageDirectory = `${resourcePath}images/meta/`
+        metaImageDirectory = `${resourcePath}images/meta/`,
+        configJson = `${resourcePath}config.json`
 
         /**
          * Is this running in SAGE?
@@ -19,57 +20,37 @@ var webbViewer = SAGE2_App.extend({
          * (for troubleshooting in node.js outside of SAGE)
          */
         const sage = true
-        const showDisplayLog = true // Show the display log on the left side of the viewer
 
-        const viewerColumns = 20, viewerWidth = 4000, viewerHeight = 440, imageHeightCeiling = 3072 // CAVE screen attributes
-        let usableColumns = 20 // How many columns should be used? In case the last few monitors are broken, or for displaying the console on screen
-        
-        const loadingDelay = 5 // Startup screen delay duration (seconds)
-        const imageLifespan = 5 // Time before the image set is replaced (seconds) (exclusive of fade transition duration below)
-        const fadeDuration = 3 // Duration of fade in / fade out transitions
-        const limitNumOfExternalImagesToPull = false // Limit how many external images should be pulled?
-        const numOfExternalImagesToPull = 10 // The max number of external images to pull (irrelevant if the above is set to false)
-        const preloadImageFlag = true // Preload images before they're displayed on screen?
-        
+        let config
+
         const startupImages = [], externalImages = [] // Arrays to contain images
         let artifacts = [] // Array of image objects [{title, description, url}...]
-
+        
         let imageCounter = 0 // Incrementing counter for image displayed, used by renderDisplay(), for console version
         let rotationCounter = 0 // Incrementing counter for number of rotations
-        
-        const apiKey = "92c8e64a1118fb6e9e5b777c5625f04b", apiSecret = "295160358e33d9b6"
-        const albumID = "72177720305127361" // Flickr photoset/album id
         
         const blacklist = []
         let renderLoopInterval // Reference to the render loop (started later)
         
-        const viewerAspectRatio = viewerWidth / viewerHeight
-        const animationStyle = `${fadeDuration}s linear fadein, ${fadeDuration}s linear ${imageLifespan + fadeDuration}s fadeout` // CSS value for transition animation
-        
+        let showDisplayLog = true // To be overriden by the config json
+
         const display = (sage) ? this.element : []
-        const log = (sage && showDisplayLog) ? createComponent("div", "display-log", display) : [],
-            logText = (sage && showDisplayLog) ? createComponent("p", "display-log-text", log) : []
+        const log = (sage) ? createComponent("div", "display-log", display) : [],
+            logText = (sage) ? createComponent("p", "display-log-text", log) : []
         const container = (sage) ? createComponent("div", "container", display) : []
         
         const sageState = (sage) ? this.state : null
-
+        
         if (sage) {
             this.element.classList.add("display")
             this.resizeEvents = "continuous"
         
             // Full screen: Taken from https://bitbucket.org/sage2/sage2/src/46a011ba6bacd47572c26f588310628b55069aad/public/uploads/apps/welcome/welcome.js?at=master#welcome.js-65
             if (this.state.goFullscreen) {
-                this.log(`Going full screen`)
+                printConsoleLog(`Going full screen`)
                 this.sendFullscreen()
-                // only go fullscreen at creation time, not reload nor session
                 this.state.goFullscreen = false
-                // Manual sync of the state since changed outside event handler
                 this.SAGE2Sync()
-            }
-
-            if (showDisplayLog) {
-                usableColumns = usableColumns - 1
-                document.querySelector(':root').style.setProperty("--usableColumns", usableColumns)
             }
         }
         
@@ -84,11 +65,53 @@ var webbViewer = SAGE2_App.extend({
             else return `${imageDirectory}${this}`
         }
         
+        function readConfig() {
+            readFile(configJson, (err, data) => {
+                printConsoleLog(`- Reading config images json (${configJson})`)
+                if (err) throw err
+                else {
+                    configData = JSON.parse(data)
+        
+                    config = configData
+        
+                    let fadeDuration = config.functionality.properties.fadeDuration.value
+                    let imageLifespan = config.functionality.properties.imageLifespan.value
+        
+                    config.generated = {
+                        viewerAspectRatio: config.userInterface.properties.viewerWidth.value / config.userInterface.properties.viewerHeight.value,
+                        animationStyle: `${fadeDuration}s linear fadein, ${fadeDuration}s linear ${imageLifespan + fadeDuration}s fadeout` // CSS value for transition animation
+                    }
+                    
+                    printConsoleLog(JSON.stringify(config, truncateStrings))
+
+                    const configShowDisplayLog = config.userInterface.properties.showDisplayLog.value
+                    if (sage) {
+                        if (configShowDisplayLog) {
+                            printConsoleLog(`Enabling console log`)
+
+                            const usableColumns = config.userInterface.properties.usableColumns
+    
+                            usableColumns.value = usableColumns.value - 1
+                            document.querySelector(':root').style.setProperty("--usableColumns", usableColumns.value)
+                        } else {
+                            printConsoleLog(`Hiding console log`)
+                            showDisplayLog = false
+                            log.style.setProperty("display", "none")
+                        }
+                    }
+        
+                    let loadingDelay = config.functionality.properties.loadingDelay.value
+                    setTimeout(startRenderLoop, loadingDelay * 1000)
+                }
+            }, "TEXT")
+        }
+        
         /**
          * Workaround for printing to the console
          * @param {string} message - Message to print to console log
          */
         function printConsoleLog(message) {
+            if (typeof message != "string") message = JSON.stringify(message)
             if (!sage) {console.log(message); return}
             this.log(message)
             if (showDisplayLog) logText.innerHTML += `<br>${message}`
@@ -123,6 +146,8 @@ var webbViewer = SAGE2_App.extend({
         
             let showcase = new DocumentFragment()
         
+            const animationStyle = config.generated.animationStyle
+        
             const textPart = createComponent("div", "text-part", showcase)
             textPart.style.setProperty("--textColumns", 1)
             textPart.style.setProperty("animation", animationStyle)
@@ -150,7 +175,7 @@ var webbViewer = SAGE2_App.extend({
             if (sage) {
                 printConsoleLog(`${JSON.stringify(sageState)}`)
             }
-
+        
             if (sage) container.innerHTML = "" // Clear display
         
             let fragment = (sage) ? new DocumentFragment() : [] // Fragment to append this rotation's images to, before appending to the DOM container
@@ -160,9 +185,11 @@ var webbViewer = SAGE2_App.extend({
              * how many columns are required to display this image and its text part.
              */
             let columnsUsed = 0
+            const usableColumns = config.userInterface.properties.usableColumns.value
             while (columnsUsed < usableColumns) {
                 let index = getImageCounter() % artifacts.length
                 
+        
                 const artifact = artifacts[index]
                 const { numOfColumns, origin } = artifact
         
@@ -174,13 +201,13 @@ var webbViewer = SAGE2_App.extend({
                  * but consideration of its accompanying text part means the columns needs to have 2 empty spaces
                  */
                 if (columnsUsed + numOfRequiredColumns > usableColumns) break
-
+        
                 columnsUsed += numOfRequiredColumns
         
                 printConsoleLog(`#.#.# Selecting ${origin} image [${index}/${artifacts.length - 1}] - ${JSON.stringify(artifact, truncateStrings)}`)
         
                 setImageCounter(getImageCounter() + 1)
-
+        
                 if (!sage) continue
         
                 const showcase = createShowcase(index)
@@ -244,6 +271,11 @@ var webbViewer = SAGE2_App.extend({
         async function getExternalImagesList() {
             printConsoleLog(`- Calling external images (flickr api list)`)
         
+            const apiKey = config.images.properties.apiKey.value
+            const albumID = config.images.properties.albumID.value
+            const limitNumOfExternalImagesToPull = config.functionality.properties.limitNumOfExternalImagesToPull.value
+            const numOfExternalImagesToPull = config.functionality.properties.numOfExternalImagesToPull.value
+        
             //  Build url to make api calls to
             const apiURL = `https://www.flickr.com/services/rest/?method=flickr.photosets.getPhotos&api_key=${apiKey}&photoset_id=${albumID}&format=json&nojsoncallback=1`
             
@@ -278,7 +310,7 @@ var webbViewer = SAGE2_App.extend({
             setImageCounter(0) // Reset counter
         
             printConsoleLog(`- Now using external images - ${JSON.stringify(artifacts, truncateStrings)}`)
-
+        
             if (sage) {
                 this.SAGE2Sync()
                 this.refresh(date.getTime())
@@ -291,6 +323,8 @@ var webbViewer = SAGE2_App.extend({
          * @returns title and description
          */
         async function getDescription(id) {
+            const apiKey = config.images.properties.apiKey.value
+        
             const apiURL = `https://www.flickr.com/services/rest/?method=flickr.photos.getInfo&api_key=${apiKey}&photo_id=${id}&format=json&nojsoncallback=1` // Build url to make api calls to
         
             const apiResponse = await fetch(apiURL) //  Make api call / request
@@ -310,6 +344,9 @@ var webbViewer = SAGE2_App.extend({
          * @returns width, height, and source/url
          */
         async function getSource(id) {
+            const apiKey = config.images.properties.apiKey.value
+            const imageHeightCeiling = config.userInterface.properties.imageHeightCeiling.value
+        
             const apiURL = `https://www.flickr.com/services/rest/?method=flickr.photos.getSizes&api_key=${apiKey}&photo_id=${id}&format=json&nojsoncallback=1` //  Build url to make api calls to
             const apiResponse = await fetch(apiURL) // Make api call / request
             const responseData = await apiResponse.json() // Parse api call data to JSON
@@ -347,7 +384,7 @@ var webbViewer = SAGE2_App.extend({
         
             printConsoleLog(`@@@ [${id}] Best image size: ${width}x${height} (${title}) (${source})`)
         
-            const artifact = new Artifact(title, description, source, width, height, "external", viewerColumns, viewerAspectRatio)
+            const artifact = new Artifact(title, description, source, width, height, "external")
         
             printConsoleLog(`@@@ [${id}] Pulled image from external repo - ${JSON.stringify(artifact, truncateStrings)}<br><=>`)
         
@@ -448,6 +485,9 @@ var webbViewer = SAGE2_App.extend({
             
             renderDisplay() // Initial render
             
+            const imageLifespan = config.functionality.properties.imageLifespan.value
+            const fadeDuration = config.functionality.properties.fadeDuration.value
+        
             const interval = imageLifespan * 1000 + (fadeDuration * 2 * 1000)
             renderLoopInterval = setInterval(renderDisplay, interval) // Render loop
         }
@@ -464,38 +504,42 @@ var webbViewer = SAGE2_App.extend({
             }
             return value
         }
-
+        
         function getImageCounter() {
             if (sage) return sageState.imageCounter
             return imageCounter
         }
-
+        
         function setImageCounter(index) {
             if (sage) sageState.imageCounter = index
             imageCounter = index
         }
         
         class Artifact {
-            constructor(title, description, url, width, height, origin, viewerColumns, viewerAspectRatio) {
+            constructor(title, description, url, width, height, origin) {
                 this.title = title
                 this.description = description
                 this.url = url
-                this.aspectRatio = width / height
-                this.numOfColumns = Math.ceil((viewerColumns / viewerAspectRatio) * this.aspectRatio) > 1 ? Math.ceil((viewerColumns / viewerAspectRatio) * this.aspectRatio) : 3
+                
+                const aspectRatio = width / height
+        
+                const viewerColumns = config.userInterface.properties.viewerColumns.value
+                const viewerAspectRatio = config.generated.viewerAspectRatio
+        
+                this.numOfColumns = Math.ceil((viewerColumns / viewerAspectRatio) * aspectRatio) > 1 ? Math.ceil((viewerColumns / viewerAspectRatio) * aspectRatio) : 3
                 this.origin = origin
         
                 printConsoleLog(`=== Created ${origin} artifact: ${JSON.stringify(this, truncateStrings)}`)
-                if (sage && preloadImageFlag) {preloadImage(url)}
+                if (sage && config.functionality.properties.preloadImageFlag.value) {preloadImage(url)}
             }
         }
         
         if (sage) createLoadingScreen()
         
-        readStartupImages()
+        readConfig()
         
-        getExternalImagesList()
-        
-        setTimeout(startRenderLoop, loadingDelay * 1000)
+        setTimeout(readStartupImages, 1000)
+        setTimeout(getExternalImagesList, 1000)
     },
     load: function(date) {
         this.refresh(date)

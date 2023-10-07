@@ -12,9 +12,9 @@
     },
     "animation": true,
     "title": "MeSH James Webb Telescope Viewer",
-    "description": "Cave2 image viewer for images taken using the James Web Telescope.",
+    "description": "CAVE2 image viewer for images taken using the James Webb Telescope.",
     "author": "MeSH - Ming Leong, Scott Green and Hugh Crossan",
     "license": "SAGE2-Software-License",
-    "version": "0.4.0",
+    "version": "0.7.0",
     "icon": "./images/meta/moon-stars-fill.png"
 }
