@@ -78,21 +78,7 @@ function readConfig() {
             
             printConsoleLog(JSON.stringify(config, truncateStrings))
 
-            const configShowDisplayLog = config.userInterface.properties.showDisplayLog.value
-            if (sage) {
-                if (configShowDisplayLog) {
-                    printConsoleLog(`Enabling console log`)
-
-                    const usableColumns = config.userInterface.properties.usableColumns
-
-                    usableColumns.value = usableColumns.value - 1
-                    document.querySelector(':root').style.setProperty("--usableColumns", usableColumns.value)
-                } else {
-                    printConsoleLog(`Hiding console log`)
-                    showDisplayLog = false
-                    log.style.setProperty("display", "none")
-                }
-            }
+            manageDisplayLog(config.userInterface.properties.showDisplayLog.value)
 
             blacklist = config.images.properties.blacklist.value
 
@@ -100,6 +86,29 @@ function readConfig() {
             setTimeout(startRenderLoop, loadingDelay * 1000)
         }
     })
+}
+
+/**
+ * Enable/disable the visible display log
+ * @param {Boolean} useDisplayLog - the Boolean value from the config.json
+ */
+function manageDisplayLog(useDisplayLog) {
+    if (!sage) return
+
+    if (useDisplayLog) {
+        printConsoleLog(`Enabling console log`)
+
+        const usableColumns = config.userInterface.properties.usableColumns
+
+        usableColumns.value = usableColumns.value - 1
+        document.querySelector(':root').style.setProperty("--usableColumns", usableColumns.value)
+
+        return
+    } 
+
+    printConsoleLog(`Hiding console log`)
+    showDisplayLog = false
+    log.style.setProperty("display", "none")
 }
 
 /**
