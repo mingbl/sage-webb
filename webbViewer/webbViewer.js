@@ -10,48 +10,52 @@ var webbViewer = SAGE2_App.extend({
 
         const resourcePath = this.resrcPath
         const imageDirectory = `${resourcePath}images/local_images/`,
-            imageJson = `${imageDirectory}images.json`,
-            metaImageDirectory = `${resourcePath}images/meta/`
+        imageJson = `${imageDirectory}images.json`,
+        metaImageDirectory = `${resourcePath}images/meta/`,
+        configJson = `${resourcePath}config.json`
 
-        const container = this.element
-        this.element.classList.add("container")
-        this.resizeEvents = "continuous"
+        /**
+         * Is this running in SAGE?
+         * If false, skips all DOM/rendering and only uses console.
+         * (for troubleshooting in node.js outside of SAGE)
+         */
+        const sage = true
 
-        //  Initialise variables to represent CAVE screen attributes
-        const columns = 20, viewerWidth = 4000, viewerHeight = 440
+        let config
 
-        // Startup screen delay duration
-        const loadingDelay = 5 * 1000
-        // Time before the image set is replaced (ms)
-        const imageLifespan = 20 * 1000
-        // Time before the next external image is pulled from the API (ms)
-        const externalImagePullRate = 0.5 * 1000
+        const startupImages = [], externalImages = [] // Arrays to contain images
+        let artifacts = [] // Array of image objects [{title, description, url}...]
         
-        // Array of image objects [{title, description, url}...]
-        let images = []
-        // Array of Image() elements [HTMLImageElement]
-        let imageCache = []
-        // Incrementing counter for image displayed, used by renderDisplay()
-        let imageCounter = 0
-        // Counter for startup images preloaded. Used by checkStartupImagesFullyPreloaded() to stop attempting to preload nonexistant startup images
-        let numOfStartupImages = 0, numOfImagesCurrentlyPreloaded = 0, startUpImagesFullyPreloaded = false
-        // Incrementing counter for external images pulled
-        let numOfExternalImagesPulled = 0
+        let imageCounter = 0 // Incrementing counter for image displayed, used by renderDisplay(), for console version
+        let rotationCounter = 0 // Incrementing counter for number of rotations
         
-        //  Store API key in a variable
-        const apiKey = "01dcb39fbbee4546f965dd0d8d512342"
-        //  Store API secret in a variable
-        const apiSecret = "0dec3ebc72ea2d36"
-        //  Store ID of a photoset (album) to retrieve images from
-        const albumID = "72177720305127361"
+        let blacklist = []
+        let renderLoopInterval // Reference to the render loop (started later)
+        
+        let showDisplayLog = true // To be overriden by the config json
 
-        //  Initialise arrays to hold the IDs of blacklisted and whitelisted images
-        let blacklist = [], whitelist = []
-
-        const viewerAspectRatio = viewerWidth / viewerHeight
-
+        const display = (sage) ? this.element : []
+        const log = (sage) ? createComponent("div", "display-log", display) : [],
+            logText = (sage) ? createComponent("p", "display-log-text", log) : []
+        const container = (sage) ? createComponent("div", "container", display) : []
+        
+        const sageState = (sage) ? this.state : null
+        
+        if (sage) {
+            this.element.classList.add("display")
+            this.resizeEvents = "continuous"
+        
+            // Full screen: Taken from https://bitbucket.org/sage2/sage2/src/46a011ba6bacd47572c26f588310628b55069aad/public/uploads/apps/welcome/welcome.js?at=master#welcome.js-65
+            if (this.state.goFullscreen) {
+                printConsoleLog(`Going full screen`)
+                this.sendFullscreen()
+                this.state.goFullscreen = false
+                this.SAGE2Sync()
+            }
+        }
+        
         //  -----   -----   End global variables    -----   -----   //
-
+        
         /**
          * Returns the url input, and prepends the file path if it's a local file
          * @returns image url, formatted correctly
@@ -60,13 +64,70 @@ var webbViewer = SAGE2_App.extend({
             if (this.includes("http")) return this
             else return `${imageDirectory}${this}`
         }
-  
+        
+        function readConfig() {
+            readFile(configJson, (err, data) => {
+                printConsoleLog(`- Reading config images json (${configJson})`)
+                if (err) throw err
+                else {
+                    configData = JSON.parse(data)
+        
+                    config = configData
+        
+                    let fadeDuration = config.functionality.properties.fadeDuration.value
+                    let imageLifespan = config.functionality.properties.imageLifespan.value
+        
+                    config.generated = {
+                        viewerAspectRatio: config.userInterface.properties.viewerWidth.value / config.userInterface.properties.viewerHeight.value,
+                        animationStyle: `${fadeDuration}s linear fadein, ${fadeDuration}s linear ${imageLifespan + fadeDuration}s fadeout` // CSS value for transition animation
+                    }
+                    
+                    printConsoleLog(JSON.stringify(config, truncateStrings))
+
+                    manageDisplayLog(config.userInterface.properties.showDisplayLog.value)
+
+                    blacklist = config.images.properties.blacklist.value
+        
+                    let loadingDelay = config.functionality.properties.loadingDelay.value
+                    setTimeout(startRenderLoop, loadingDelay * 1000)
+                }
+            })
+        }
+        
+        /**
+         * Enable/disable the visible display log
+         * @param {Boolean} useDisplayLog - the Boolean value from the config.json
+         */
+        function manageDisplayLog(useDisplayLog) {
+            if (!sage) return
+        
+            if (useDisplayLog) {
+                printConsoleLog(`Enabling console log`)
+        
+                const usableColumns = config.userInterface.properties.usableColumns
+        
+                usableColumns.value = usableColumns.value - 1
+                document.querySelector(':root').style.setProperty("--usableColumns", usableColumns.value)
+        
+                return
+            } 
+        
+            printConsoleLog(`Hiding console log`)
+            showDisplayLog = false
+            log.style.setProperty("display", "none")
+        }
+        
         /**
          * Workaround for printing to the console
          * @param {string} message - Message to print to console log
          */
-        function printConsoleLog(message) {this.log(message)}
-
+        function printConsoleLog(message) {
+            if (typeof message != "string") message = JSON.stringify(message)
+            if (!sage) {console.log(message); return}
+            this.log(message)
+            if (showDisplayLog) logText.innerHTML += `<br>${message}`
+        }
+        
         /**
          * Create an element, add class name, and append to a parent element
          * @param {string} tag - html element <div> <h1> <p> etc.
@@ -83,312 +144,416 @@ var webbViewer = SAGE2_App.extend({
         }
         
         /**
-         * Create a showcase (text part + image part) and append to the container
-         * @param {object} image - an image object {} in the images [] array
-         * @param {integer} numOfColumns - number of columns necessary to display the whole image (excluding text part)
+         * Create a showcase (text part + image part)
+         * @param {integer} index - the image index for an image object {} in the images [] array
+         * @returns showcase (HTML element) of the artifact
          */
-        function createShowcase(image, numOfColumns) {
-            this.log(`CREATING SHOWCASE for: ${image.url.asImageUrl()}`)
-
-            const textPart = createComponent("div", "text-part", container)
-            textPart.style.width = `${100 / columns}%`
-            textPart.style.setProperty("animation-duration", `${imageLifespan / 1000}s`)
-            
-            const title = createComponent("h1", "title", textPart)
-            title.innerHTML = image.title
+        function createShowcase(index) {
+            const artifact = artifacts[index]
         
-            const description = createComponent("p", "description", textPart)
-            description.innerHTML = image.description
+            const { title, description, url, numOfColumns, origin } = artifact
+        
+            printConsoleLog(`#.#.#.# Showcasing ${origin} image [${index}/${artifacts.length - 1}] - ${JSON.stringify(artifact, truncateStrings)}`)
+        
+            let showcase = new DocumentFragment()
+        
+            const animationStyle = config.generated.animationStyle
+        
+            const textPart = createComponent("div", "text-part", showcase)
+            textPart.style.setProperty("--textColumns", 1)
+            textPart.style.setProperty("animation", animationStyle)
             
-            const imagePart = createComponent("div", "image-part", container)
-            imagePart.style.backgroundImage = `url(${image.url.asImageUrl()})`
-            imagePart.style.width = `${numOfColumns * (100 / columns)}%`
-            imagePart.style.setProperty("animation-duration", `${imageLifespan / 1000}s`)
+            const titleComponent = createComponent("h1", "title", textPart)
+            titleComponent.textContent = title
+        
+            const descriptionComponent = createComponent("p", "description", textPart)
+            descriptionComponent.innerHTML = `${description}`
+            
+            const imagePart = createComponent("div", "image-part", showcase)
+            imagePart.style.backgroundImage = `url(${url.asImageUrl()})`
+            imagePart.style.setProperty("--imageColumns", numOfColumns)
+            imagePart.style.setProperty("animation", animationStyle)
+        
+            return showcase
         }
         
         /**
          * Render as many images as can be displayed until adding an image exceeds 20 columns.
          */
         function renderDisplay() {
-            this.log(`Rendering Display`)
-
-            // Clear display
-            while (container.firstChild) container.removeChild(container.lastChild)
-
+            printConsoleLog(`#.# Start rendering display #${rotationCounter}`)
+        
+            if (sage) {
+                printConsoleLog(`${JSON.stringify(sageState)}`)
+            }
+        
+            if (sage) container.innerHTML = "" // Clear display
+        
+            let fragment = (sage) ? new DocumentFragment() : [] // Fragment to append this rotation's images to, before appending to the DOM container
+        
             /**
              * This algorithm uses the aspect ratio of the image to calculate 
              * how many columns are required to display this image and its text part.
              */
             let columnsUsed = 0
-            while (columnsUsed < columns) {
-                let imageCounterModulo = imageCounter % images.length
-                const image = images[imageCounterModulo]
+            const usableColumns = config.userInterface.properties.usableColumns.value
+            while (columnsUsed < usableColumns) {
+                let index = getImageCounter() % artifacts.length
+                
         
-                imageCounter++
-
-                // If image has not been preloaded, skip this image for now
-                if (image.preloaded === false) {
-                    this.log(`IMAGE NOT PRELOADED: ${imageCounterModulo}/${images.length - 1} (${image.url.asImageUrl()})`)
-                    continue
-                }
-
-                const imageAspectRatio = image.width / image.height
+                const artifact = artifacts[index]
+                const { numOfColumns, origin } = artifact
         
-                const numOfColumns = Math.ceil((columns / viewerAspectRatio) * imageAspectRatio)
                 const numOfRequiredColumns = numOfColumns + 1 // Image + Text
-
-                // Don't render this image this rotation if it can't fit on the screen
-                if (columnsUsed + numOfRequiredColumns > columns) return
-
+        
+                /**
+                 * Don't render this image this rotation if it can't fit on the screen. 
+                 * If we had images that could fit within 1 column, 'break' could be set to 'continue', 
+                 * but consideration of its accompanying text part means the columns needs to have 2 empty spaces
+                 */
+                if (columnsUsed + numOfRequiredColumns > usableColumns) break
+        
                 columnsUsed += numOfRequiredColumns
-
-                createShowcase(image, numOfColumns)
+        
+                printConsoleLog(`#.#.# Selecting ${origin} image [${index}/${artifacts.length - 1}] - ${JSON.stringify(artifact, truncateStrings)}`)
+        
+                setImageCounter(getImageCounter() + 1)
+        
+                if (!sage) continue
+        
+                const showcase = createShowcase(index)
+                fragment.appendChild(showcase)
             }
+        
+            printConsoleLog(`#.# End rendering display #${rotationCounter}`)
+        
+            rotationCounter++
+        
+            if (!sage) return
+        
+            container.appendChild(fragment)
         }
-
+        
         /**
          * Preload an image by creating an image element in memory and setting the src to the url, to download the img and cache it in memory.
-         * @param {integer} imageIndex - index in images array []
+         * @param {string} url - url of image
          */
-        async function preloadImage(imageIndex) {
-            if (images.length < imageIndex) return
-
-            const image = images[imageIndex]
-
-            // If the image is already preloaded, skip. This function should not be called at this point.
-            if (image.preloaded === true) return
-
-            this.log(`IMAGE ${imageIndex} will be preloaded. (${image.url.asImageUrl()})`)
-
+        async function preloadImage(url) {
+            const imgUrl = url.asImageUrl()
+        
+            printConsoleLog(`$$$$ Preloading image - (${imgUrl})`)
+        
             // Create img in memory
             const imgCache = new Image()
-            // const imgCache = document.createElement("img")
-            imgCache.src = image.url.asImageUrl()
-            imageCache[imageIndex] = imgCache
-
-            imgCache.onload = function () {
-                image.width = imgCache.naturalWidth
-                image.height = imgCache.naturalHeight
-                image.preloaded = true
-
-                printConsoleLog(`IMAGE ${imageIndex} has preloaded. Width: ${imgCache.naturalWidth} Height: ${imgCache.naturalHeight}. (${image.url.asImageUrl()})`)
-
-                checkStartupImagesFullyPreloaded()
-            }
+            imgCache.src = imgUrl
         }
-
-        /**
-         * Checks if startup images are fully preloaded now, and starts the render loop.
-         */
-        function checkStartupImagesFullyPreloaded() {
-            // If the 'startup images fully preloaded' flag has already been marked true, don't continue
-            if (startUpImagesFullyPreloaded) return
-
-            numOfImagesCurrentlyPreloaded++
-
-            // If startup images are all preloaded, begin render loop
-            if (numOfImagesCurrentlyPreloaded === numOfStartupImages) {
-                startUpImagesFullyPreloaded = true
-                printConsoleLog(`STARTUP IMAGES fully preloaded (${numOfImagesCurrentlyPreloaded}/${numOfStartupImages})`)
-                setTimeout(startRenderLoop, loadingDelay)
-            }
-        }
-
+        
         /**
          * Read startup images specified in images/local_images/images.json
          */
         function readStartupImages() {
-            readFile(imageJson, function(err, imageData) {
-                this.log(`Attempting to read file ${imageJson}`)
+            readFile(imageJson, (err, data) => {
+                printConsoleLog(`- Reading startup images json (${imageJson})`)
                 if (err) throw err
                 else {
-                    for (let i = 0; i < imageData.length; i++) {
-                        const image = imageData[i]
-                        image.preloaded = false
-
-                        images.push(image)
-                    }
-                    this.log(`Reading images`)
-    
-                    images.forEach(image => {this.log(`IMAGE ${image.title} ${image.url} found in the json`)})
-    
-                    // Preload startup images
-                    numOfStartupImages = imageData.length
-                    for (let i = 0; i < numOfStartupImages; i++) {
-                        preloadImage(i)
-                    }
+                    imageData = JSON.parse(data)
+        
+                    // Copy to images array
+                    imageData.forEach((metadata, index) => {
+        
+                        const { title, description, url, width, height } = metadata
+        
+                        printConsoleLog(`=== Awaiting startup image [${index}/${imageData.length - 1}]`)
+        
+                        const artifact = new Artifact(title, description, url, width, height, "startup")
+        
+                        startupImages.push(artifact)
+                    })
+        
+                    artifacts = startupImages
                 }
-              }, "JSON")
+            }, "TEXT")
         }
-
+        
         /**
          * Pull external images, check if they are excluded from the blacklist and add to the dictionary of image objects to be displayed 
          * Then use list of external image IDs to add external images and necessary properties to list of images to display
          */
-        async function getExternalImages(){
-
+        async function getExternalImagesList() {
+            printConsoleLog(`- Calling external images (flickr api list)`)
+        
+            const apiKey = config.images.properties.apiKey.value
+            const albumID = config.images.properties.albumID.value
+            const limitNumOfExternalImagesToPull = config.functionality.properties.limitNumOfExternalImagesToPull.value
+            const numOfExternalImagesToPull = config.functionality.properties.numOfExternalImagesToPull.value
+        
             //  Build url to make api calls to
             const apiURL = `https://www.flickr.com/services/rest/?method=flickr.photosets.getPhotos&api_key=${apiKey}&photoset_id=${albumID}&format=json&nojsoncallback=1`
-
-            //  Make api call / request
-            const apiResponse = await fetch(apiURL)
-            //  Parse api call data to JSON
-            const responseData = await apiResponse.json()
-
-            //  Store the response data for use
-            let responseImages = responseData["photoset"]["photo"]
             
-            //  -----   Function logic  -----   //
-
-            //  For all of the external images retrieved
+            const apiResponse = await fetch(apiURL) // Make api call / request
+            const responseData = await apiResponse.json() // Parse api call data to JSON
+            const responseImages = responseData["photoset"]["photo"] // Store the response data for use
+            
+            const list = [] // List of external image IDs
+        
+            // Filter out blacklisted images
             for (let i = 0; i < responseImages.length; i++) {
-
-                //  Create a reference to the ID of the image being checked
-                const externalImageID = responseImages[i]["id"]
-
-                // If the blacklist doesn't contain the image
-                if (!blacklist.includes(externalImageID)) {
-
-                    //  Add the images to the queue of images to display
-                    whitelist.push(externalImageID)
-                }
+                if (limitNumOfExternalImagesToPull && i >= numOfExternalImagesToPull) break // Stop adding images that exceed the limit (if a limit is in place)
+        
+                const id = responseImages[i]["id"] // Create a reference to the ID of the image being checked
+        
+                if (blacklist.includes(id)) continue
+        
+                list.push(id)
             }
-
-            this.log("***** WHITELIST FETCHED   *****")
-            this.log(`WHITELIST: ${JSON.stringify(whitelist)}`)
-
-            //  Start pulling data for external images
-            startPullingExternalImages()
+        
+            // Get metadata for the leftover images
+            for (let i = 0; i < list.length; i++) {
+                const id = list[i]
+        
+                printConsoleLog(`@@@ Awaiting external image [${i}/${list.length - 1}]`)
+                const artifact = await getExternalImageMetadata(id)
+        
+                externalImages.push(artifact) // Push to external images array
+            }
+            
+            artifacts = externalImages // Change render loop to use external images
+            setImageCounter(0) // Reset counter
+        
+            printConsoleLog(`- Now using external images - ${JSON.stringify(artifacts, truncateStrings)}`)
+        
+            if (sage) {
+                this.SAGE2Sync()
+                this.refresh(date.getTime())
+            }
         }
-
+        
         /**
-         *  Retrieves the information required to display each image in the whitelist
+         * Get title and description of an external image.
+         * @param {*} id - ID of image on flickr
+         * @returns title and description
          */
-        async function getExternalImageData() {          
-
-            // insert check for if all images in the whitelist have been pulled, end here
-            if (numOfExternalImagesPulled == whitelist.length) return  
-
-            // Pull image data
-            this.log(`----- PULLING EXTERNAL IMAGE: Array no. [${numOfExternalImagesPulled}] ID: ${whitelist[numOfExternalImagesPulled]} of a list of ${whitelist.length} images`)
+        async function getDescription(id) {
+            const apiKey = config.images.properties.apiKey.value
+        
+            const apiURL = `https://www.flickr.com/services/rest/?method=flickr.photos.getInfo&api_key=${apiKey}&photo_id=${id}&format=json&nojsoncallback=1` // Build url to make api calls to
+        
+            const apiResponse = await fetch(apiURL) //  Make api call / request
+            const responseData = await apiResponse.json() //  Parse api call data to JSON
+        
+            const responseImage = responseData["photo"] //  Store the response data for use
+        
+            const title = responseImage["title"]["_content"],
+                description = formatDescription(responseImage["description"]["_content"])
+        
+            return { title, description }
+        }
+        
+        /**
+         * Get width, height, and source/url of an external image.
+         * @param {*} id - ID of image on flickr
+         * @returns width, height, and source/url
+         */
+        async function getSource(id) {
+            const apiKey = config.images.properties.apiKey.value
+            const imageHeightCeiling = config.userInterface.properties.imageHeightCeiling.value
+        
+            const apiURL = `https://www.flickr.com/services/rest/?method=flickr.photos.getSizes&api_key=${apiKey}&photo_id=${id}&format=json&nojsoncallback=1` //  Build url to make api calls to
+            const apiResponse = await fetch(apiURL) // Make api call / request
+            const responseData = await apiResponse.json() // Parse api call data to JSON
+        
+            const sizes = responseData["sizes"]["size"] // Store the response data for use
+        
+            let { source, width, height } = sizes[0], // Use first size to start with
+            difference = Math.abs(imageHeightCeiling - height) // the difference (how close this is) from the desired height (3000px)
+        
+            // Get best size
+            sizes.forEach(size => {
+                let newDifference = Math.abs(imageHeightCeiling - size.height)
+        
+                if (newDifference >= difference) return
+        
+                difference = newDifference
+                source = size.source
+                width = size.width
+                height = size.height
+            })
+        
+            return { width, height, source }
+        }
+        
+        /**
+         * Retrieves the metadata of an external image
+         * @param {integer} id - external image id
+         * @returns artifact - title, desc, width, height, url
+         */
+        async function getExternalImageMetadata(id) {
+            printConsoleLog(`@@@ [${id}] Calling external image metadata`)
+        
+            const { title, description } = await getDescription(id)
+            const { width, height, source } = await getSource(id)
+        
+            printConsoleLog(`@@@ [${id}] Best image size: ${width}x${height} (${title}) (${source})`)
+        
+            const artifact = new Artifact(title, description, source, width, height, "external")
+        
+            printConsoleLog(`@@@ [${id}] Pulled image from external repo - ${JSON.stringify(artifact, truncateStrings)}<br><=>`)
+        
+            return artifact
+        }
+        
+        /**
+            * Format description to style credits paragraphs, remove links, etc.
+            * @param {string} description - description, plain unformatted response from the API
+            * @returns 
+            */
+        function formatDescription(description) {
+        
+            const paragraphs = description.split("\n")
+            let newParagraphs = []
+        
+            // console.log("++++++++++++++++++++   DESCRIPTION PARAGRAPHS ++++++++++++++++++++++++")
             
-            //  -----   -----   Get image title and description -----   -----   //
-
-            //  Build url to make api calls to
-            const apiURL = `https://www.flickr.com/services/rest/?method=flickr.photos.getInfo&api_key=${apiKey}&photo_id=${whitelist[numOfExternalImagesPulled]}&format=json&nojsoncallback=1`
-
-            //  Make api call / request
-            const apiResponse = await fetch(apiURL)
-            //  Parse api call data to JSON
-            const responseData = await apiResponse.json()
-
-            //  Store the response data for use
-            const responseImage = responseData["photo"];
-
-            const lineBreakRegex = /\\n/g, linkRegex = /<a/g, lineBreakReplacement = "<br/>", linkReplacement = "<br/><a"
-
-            "hi\nhello\n".split("\n").join("")
-
-            let desc = responseImage["description"]["_content"]
-
-            desc = JSON.stringify(desc).replace(lineBreakRegex, lineBreakReplacement)
-            desc = JSON.stringify(desc).replace(linkRegex, linkReplacement)
-            desc = desc.substring(1, desc.length - 1)
-            desc = desc.substring(0, desc.indexOf("Image description"))
-
-            //  Create image object to push to list of images to display
-            let imageObject = {
-                title: responseImage["title"]["_content"],
-                description: String(desc),
-                url: ""
-            };  
-
-            printConsoleLog(desc)
-            
-            //  -----   -----   Get image URL   -----   -----   //
-
-            //  Build url to make api calls to
-            const sizeURL = `https://www.flickr.com/services/rest/?method=flickr.photos.getSizes&api_key=${apiKey}&photo_id=${whitelist[numOfExternalImagesPulled]}&format=json&nojsoncallback=1`
-
-            //  Make api call / request
-            const sizeReponse = await fetch(sizeURL)
-            //  Parse api call data to JSON
-            const sizeData = await sizeReponse.json()
-
-            //  Store the response data for use
-            const responseSize = sizeData["sizes"]["size"];
-
-            for (let i = 0; i < responseSize.length; i++) {
-                
-                const s = responseSize[i];
-
-                if (s.label = "Small") {
-
-                    imageObject.url = s.source
-                    
+            //  For each paragraph in the description
+            paragraphs.forEach((paragraph) => {
+                if (paragraph.length < 1) return
+        
+                let lowercase = paragraph.toLowerCase()
+        
+                // If paragraph includes 'image description', exclude this paragraph
+                if (lowercase.includes("image description:")) return
+        
+                //  Remove sentences from paragraphs which contain links
+                if (paragraph.includes("href")) {
+                    paragraph = removeLinks(paragraph)
                 }
                 
-            }
-
-            printConsoleLog(`Pulled ${imageObject.title} from external repo`);
-            printConsoleLog(`Description: ${imageObject.description}`);
-            printConsoleLog(`URL: ${imageObject.url}`);
-
-            // Push to images array
-            images.push(imageObject);
-
-            // Increment 'external images pulled' counter
-            numOfExternalImagesPulled++
-
-            // The following line should preload the image
-            preloadImage(images.length-1)
-            
+                // Cut off text after a (and inclusive of) backslash
+                if (paragraph.includes("\\")) {
+                    let backslashIndex = paragraph.indexOf("\\")
+                    paragraph = paragraph.substring(0, backslashIndex)
+                }
+        
+                // Apply styling to 'credits' or 'illustration' paragraph
+                if (lowercase.includes("credit") || lowercase.includes("illustration:")){
+                    paragraph = `<span class="credits">${paragraph}</span>`
+                }
+        
+                //  Apply styling to 'this image' paragraph
+                if (lowercase.includes("this image:")){
+                    paragraph = `<span class="meta-description">${paragraph}</span>`
+                }
+                
+                //  Add the paragraph to the list of descriptions to show on-screen
+                newParagraphs.push(paragraph)
+            })
+        
+            return newParagraphs.join("<br/>")
         }
-
+        
         /**
-         * Create loading screen.
-         */
+            * Remove links (and accompanying 'Learn more:' preceding text) from a paragraph
+            * @param {string} paragraph - Input paragraph
+            * @returns paragraph with links excluded
+            */
+        function removeLinks(paragraph) {
+            //  Split paragraph into sentences
+            const sentences = paragraph.split(/[\. \? \! ]\s/)
+            //  Declare variable to store new sentence
+            let newSentences = []
+        
+            //  For each sentence in the paragraph
+            sentences.forEach((sentence) => {
+                if (sentence.includes("href")) return
+                newSentences.push(sentence)
+            })
+        
+            //  Change the paragraph to contain only the sentences we want to keep
+            return paragraph = newSentences.join(". ")
+        }
+        
+        /**
+            * Create loading screen.
+            */
         function createLoadingScreen() {
-            //  Create containing div for startup animation
-            let loadingContainer = createComponent("div", "display-center", container)
-
+            let fragment = new DocumentFragment() // Fragment for appending loading elements to before appending to the DOM container
+            
+            let loadingContainer = createComponent("div", "display-center", fragment) //  Create containing div for startup animation
             let loading = createComponent("div", "auto-size", loadingContainer)
-
+        
             //  Create startup animation element
             let loadingStar = createComponent("img", "loading-star-icon rotate", loading)
             loadingStar.src = `${metaImageDirectory}star.svg`
+        
+            container.appendChild(fragment)
         }
-
+        
         /**
-         * Start render loop.
-         */
+            * Start render loop.
+            */
         function startRenderLoop() {
-            printConsoleLog(`STARTING FIRST RENDER`)
-            // Initial render
-            renderDisplay()
-            // Render loop
-            setInterval(renderDisplay, imageLifespan)
-
-            // Get external images
-            getExternalImages()
+            printConsoleLog(`# Starting render loop`)
+            
+            renderDisplay() // Initial render
+            
+            const imageLifespan = config.functionality.properties.imageLifespan.value
+            const fadeDuration = config.functionality.properties.fadeDuration.value
+        
+            const interval = imageLifespan * 1000 + (fadeDuration * 2 * 1000)
+            renderLoopInterval = setInterval(renderDisplay, interval) // Render loop
         }
-
+        
         /**
-         * Start pulling external images.
+         * Trunicate strings (used for console logging readability when using json stringify)
+         * @param {string} - String to cut down
+         * @returns cut down string
          */
-        function startPullingExternalImages() {
-
-            printConsoleLog("*****  Starting to pull external image data   *****")
-            
-            //  Create delay for API calls so not calling all at once
-            setInterval(getExternalImageData, externalImagePullRate)
-            
+        function truncateStrings(key, value) {
+            const maxCharacters = 10
+            if (typeof value === "string" && value.length > maxCharacters) {
+                return value.substring(0, maxCharacters)
+            }
+            return value
         }
-
-        createLoadingScreen()
-
-        readStartupImages()
-
+        
+        function getImageCounter() {
+            if (sage) return sageState.imageCounter
+            return imageCounter
+        }
+        
+        function setImageCounter(index) {
+            if (sage) sageState.imageCounter = index
+            imageCounter = index
+        }
+        
+        class Artifact {
+            constructor(title, description, url, width, height, origin) {
+                this.title = title
+                this.description = description
+                this.url = url
+                
+                const aspectRatio = width / height
+        
+                const viewerColumns = config.userInterface.properties.viewerColumns.value
+                const viewerAspectRatio = config.generated.viewerAspectRatio
+        
+                this.numOfColumns = Math.ceil((viewerColumns / viewerAspectRatio) * aspectRatio) > 1 ? Math.ceil((viewerColumns / viewerAspectRatio) * aspectRatio) : 3
+                this.origin = origin
+        
+                printConsoleLog(`=== Created ${origin} artifact: ${JSON.stringify(this, truncateStrings)}`)
+                if (sage && config.functionality.properties.preloadImageFlag.value) {preloadImage(url)}
+            }
+        }
+        
+        if (sage) createLoadingScreen()
+        
+        readConfig()
+        
+        setTimeout(readStartupImages, 1000)
+        setTimeout(getExternalImagesList, 1000)
+    },
+    load: function(date) {
+        this.refresh(date)
     },
     resize: function(date) {
         this.refresh(date)

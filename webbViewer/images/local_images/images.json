@@ -1,47 +1,128 @@
 [
-    {
-        "title": "Webb’s Jupiter Images Showcase Auroras, Hazes",
-        "description": "With giant storms, powerful winds, auroras, and extreme temperature and pressure conditions, Jupiter has a lot going on. Now, NASA’s James Webb Space Telescope has captured new images of the planet. Webb’s Jupiter observations will give scientists even more clues to Jupiter’s inner life.",
-        "url": "https://cdn.discordapp.com/attachments/716936586180165682/1149215503257174086/52303684090_157b08692a_o.png"
-    },
-    {
-        "title": "Cartwheel Galaxy (NIRCam and MIRI Composite Image)",
-        "description": "This image of the Cartwheel and its companion galaxies is a composite from Webb's Near-Infrared Camera (NIRCam) and Mid-Infrared Instrument (MIRI), which reveals details that are difficult to see in the individual images alone.",
-        "url": "https://cdn.discordapp.com/attachments/716936586180165682/1149216261109207122/52258939646_6ad1dc41a1_k.jpg"
-    },
-    {
-        "title": "The Phantom Galaxy Across the Spectrum",
-        "description": "M74 shines at its brightest in this combined optical/mid-infrared image, featuring data from both the Hubble Space Telescope and the James Webb Space Telescope. With Hubble’s venerable Advanced Camera for Surveys (ACS) and Webb’s powerful Mid-InfraRed Instrument (MIRI) capturing a range of wavelengths, this new image has remarkable depth.",
-        "url": "https://cdn.discordapp.com/attachments/716936586180165682/1149216504273981541/52324839010_3401a65e50_o.jpg"
-    },
-    {
-        "title": "The Pillars of Creation (Webb NIRCam Image)",
-        "description": "Journey with us through Webb’s breathtaking view of the Pillars of Creation, where scores of newly formed stars glisten like dewdrops among floating, translucent columns of gas and dust.",
-        "url": "https://cdn.discordapp.com/attachments/716936586180165682/1149216958059909241/image.png"
-    },
-    {
-        "title": "Pillars of Creation (NIRCam and MIRI Composite Image)",
-        "description": "By combining images of the iconic Pillars of Creation from two cameras aboard NASA’s James Webb Space Telescope, the universe has been framed in its infrared glory. Webb’s near-infrared image was fused with its mid-infrared image, setting this star-forming region ablaze with new details.",
-        "url": "https://cdn.discordapp.com/attachments/716936586180165682/1149217220057120778/52534406448_0692982d33_k.jpg"
-    },
-    {
-        "title": "Kabanos",
-        "description": "Kabanos (/kəˈbænəs/; plural: kabanosy), also known as cabanossi or kabana, is a long, thin, dry sausage usually made of pork which originated in Poland. They are smoky in flavor, and can be soft or very dry in texture depending on freshness. Typically, they are quite long, 60 cm (24 in), but very thin, with a diameter around 1 cm (0.39 in), and folded in two, giving them a characteristic appearance. Versions made of chicken and turkey are staples in kosher meat markets and delicatessens.",
-        "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/Kabanos.jpg/1280px-Kabanos.jpg"
-    },
-    {
-        "title": "Galactic Get-Together",
-        "description": "Hang out long enough and you start to become each other…just ask these galaxies.",
-        "url": "https://cdn.discordapp.com/attachments/716936586180165682/1149217610873970698/52533787586_0348bf92af_o.jpg"
-    },
-    {
-        "title": "NASA’s Webb Unveils Young Stars in Early Stages of Formation",
-        "description": "Webb scientists uncovered “buried treasure,” and the Cosmic Cliffs marked the spot. ‍☠️",
-        "url": "https://cdn.discordapp.com/attachments/716936586180165682/1149217831225925713/52565304936_b7f9913fea_o1.png"
-    },
-    {
-        "title": "NASA’s Webb Catches Fiery Hourglass as New Star Forms",
-        "description": "Hidden in the neck of this “hourglass” of light are the very beginnings of a new star — a protostar. The clouds of dust and gas within this region are only visible in infrared light, the wavelengths that Webb specializes in.",
-        "url": "https://cdn.discordapp.com/attachments/716936586180165682/1149218028966395955/52504158265_a309e80827_4k.jpg"
-    }
+  {
+    "title": "Webb Glimpses Field of Extragalactic PEARLS, Studded With Galactic Diamonds (cropped image)",
+    "description": "A galactic panoramic <br/>This multi-wavelength image combines eight colors of near-infrared light captured by Webb with three colors of ultraviolet and visible light from Hubble. It shows — in unprecedented detail and exquisite depth — a universe full of galaxies, many of which were previously unseen by Hubble or large ground-based telescopes.<br/>While this shot is just a portion of what will be the complete wide field covered by this Webb program, it’s already unveiling wonders. The faintest objects here are about 1 billion times fainter than what can be seen with our eyes. <br/><span class=\"credits\">Image Credits: NASA, ESA, CSA, A. Pagan (STScI) &amp; R. Jansen (ASU).</span><br/>Science: R. Jansen, J. Summers, R. O'Brien, and R. Windhorst (Arizona State University); A. Robotham (ICRAR/UWA); A. Koekemoer (STScI); C. Willmer (UofA); and the PEARLS team ",
+    "url": "52563599528_3b615c4d7a_o.png",
+    "width": 2552,
+    "height": 989
+  },
+  {
+    "title": "A Wreath of Star Formation in NGC 7469",
+    "description": "Webb’s holiday card sorted! 🎄<br/> <br/>NGC 7469 is like a cosmic wreath bursting with new stars. This galaxy is very dusty, but Webb’s infrared vision can peer through to observe features like the intense ring of star formation close around its bright center<br/>What are those large spikes? They’re not real objects, but diffraction spikes, an effect of very bright light interacting with the telescope mirrors. Here the center of the galaxy is extremely bright due to light emitted by heated dust and gas falling into the central black hole.<br/><span class=\"credits\">Image credit: ESA/Webb, NASA &amp; CSA, L. Armus, A. S. Evans</span>",
+    "url": "52577236876_d684fc20c2_3k.jpg",
+    "width": 3072,
+    "height": 3059
+  },
+  {
+    "title": "NASA’s Webb Unveils Young Stars in Early Stages of Formation",
+    "description": "Webb scientists uncovered “buried treasure,” and the Cosmic Cliffs marked the spot. ‍☠️<br/>You might remember this view, taken in the Carina Nebula, as part of Webb’s first images released. A deep dive into the data has newly revealed a hotbed of young stars in an elusive stage of development. This discovery may help us investigate how stars like our Sun form, as well as how radiation from nearby massive stars might affect the development of planets.<br/>Webb was able to detect the signatures of extremely young stars, never before seen. Stars at this early stage of development are hidden inside clouds of dust and gas, and are only visible in infrared light and with high resolution instruments. <br/>These young stars interact with their environments by taking in material and then ejecting some of it. The ejections, in the form of jets and outflows of matter, heat the surrounding hydrogen gas (H2, or molecular hydrogen), causing it to emit light.<br/><br/><span class=\"credits\">Credits: NASA, ESA, CSA, STScI, Megan Reiter (Rice University), with image processing by Joseph DePasquale (STScI), Anton M. Koekemoer (STScI)</span>",
+    "url": "52565304936_fc8852f1e9_k.jpg",
+    "width": 2000,
+    "height": 1160
+  },
+  {
+    "title": "Pillars of Creation (NIRCam and MIRI Composite Image)",
+    "description": "By combining images of the iconic Pillars of Creation from two cameras aboard NASA’s James Webb Space Telescope, the universe has been framed in its infrared glory. Webb’s near-infrared image was fused with its mid-infrared image, setting this star-forming region ablaze with new details.<br/>Myriad stars are spread throughout the scene. The stars primarily show up in near-infrared light, marking a contribution of Webb’s Near-Infrared Camera (NIRCam). Near-infrared light also reveals thousands of newly formed stars – look for bright orange spheres that lie just outside the dusty pillars.<br/>In mid-infrared light, the dust is on full display. The contributions from Webb’s Mid-Infrared Instrument (MIRI) are most apparent in the layers of diffuse, orange dust that drape the top of the image, relaxing into a V. The densest regions of dust are cast in deep indigo hues, obscuring our view of the activities inside the dense pillars.<br/>Dust also makes up the spire-like pillars that extend from the bottom left to the top right. This is one of the reasons why the region is overflowing with stars – dust is a major ingredient of star formation. When knots of gas and dust with sufficient mass form in the pillars, they begin to collapse under their own gravitational attraction, slowly heat up, and eventually form new stars. Newly formed stars are especially apparent at the edges of the top two pillars – they are practically bursting onto the scene.<br/>At the top edge of the second pillar, undulating detail in red hints at even more embedded stars. These are even younger, and are quite active as they form. The lava-like regions capture their periodic ejections. As stars form, they periodically send out supersonic jets that can interact within clouds of material, like these thick pillars of gas and dust. These young stars are estimated to be only a few hundred thousand years old, and will continue to form for millions of years.<br/>Almost everything you see in this scene is local. The distant universe is largely blocked from our view both by the interstellar medium, which is made up of sparse gas and dust located between the stars, and a thick dust lane in our Milky Way galaxy. As a result, the stars take center stage in Webb’s view of the Pillars of Creation.<br/>The Pillars of Creation is a small region within the vast Eagle Nebula, which lies 6,500 light-years away.<br/>NIRCam was built by a team at the University of Arizona and Lockheed Martin’s Advanced Technology Center.<br/>MIRI was contributed by ESA and NASA, with the instrument designed and built by a consortium of nationally funded European Institutes (The MIRI European Consortium) in partnership with JPL and the University of Arizona.<br/><span class=\"credits\">Credits:</span><br/>SCIENCE: NASA, ESA, CSA, STScI<br/>IMAGE PROCESSING: Joseph DePasquale (STScI), Alyssa Pagan (STScI), Anton M. Koekemoer (STScI) <br/>",
+    "url": "52534406448_ff60ce1b50_3k.jpg",
+    "width": 3072,
+    "height": 2876
+  },
+  {
+    "title": "NASA’s Webb Catches Fiery Hourglass as New Star Forms",
+    "description": "Countdown to a new star ⏳<br/>Hidden in the neck of this “hourglass” of light are the very beginnings of a new star — a protostar. The clouds of dust and gas within this region are only visible in infrared light, the wavelengths that Webb specializes in.<br/>This protostar is a hot, puffy clump of gas that’s only a fraction of the mass of our Sun. As it draws material in, its core will compress, get hotter, and eventually begin nuclear fusion — creating a star!<br/>See that dark line at the very center of the “hourglass”? That’s an edge-on view of a protoplanetary disk, or the disk of material being pulled into the star as it forms. It’s about the size of our solar system and may eventually clump into planets, giving us a window into our solar system’s history.<br/>Light from the protostar is illuminating cavities in the dust and gas above and below its disk. (Think of flashlights pointing in opposite directions, each shining a cone of light.) The blue areas are where dust is thinnest, while orange represents thicker layers of dust.<br/><br/><span class=\"credits\">Image credit: NASA, ESA, CSA, STScI</span>",
+    "url": "52504158265_d222bb4a24_3k.jpg",
+    "width": 3011,
+    "height": 3072
+  },
+  {
+    "title": "WLM Dwarf Galaxy - Webb only",
+    "description": "Dwarf galaxy Wolf-Lundmark-Melotte as viewed by the Webb telescope’s NIRCam instrument. Countless white stars, interspersed with yellow and orange background galaxies of various shapes, dot the black background. One prominent galaxy is a pale yellow spiral in the top left corner of the image. Another defining feature is a large white star with long diffraction spikes, seen just to the right of the top center.<br/>In this brand new image of dwarf galaxy Wolf-Lundmark-Melotte (WLM), the Webb telescope demonstrates its remarkable ability to resolve faint stars outside the Milky Way. <br/>Just 3 million light-years from Earth, WLM is considered a dwarf galaxy in our galactic neighborhood. While it is close, it’s much more isolated than other nearby galaxies, which interact with our own Milky Way. WLM also has a similar chemical makeup to galaxies in the early universe, meaning it’s poor in elements heavier than hydrogen and helium. Because WLM is small and low-mass, supernovae (star explosion) events can be powerful and energetic enough to expel heavier elements out of the galaxy.<br/>Taken altogether, these traits make WLM ideal for studying how stars form and evolve in small galaxies, similar to those in the early universe. The science here is complementary to what we learn by looking at the farthest and oldest galaxies, which appear as they were when they first formed.<br/><br/>This post highlights data from Webb science in progress, which has not yet been through the peer-review process.<br/><span class=\"credits\">Credit: NASA, ESA, CSA, STScI, and Kristen McQuinn (Rutgers University) </span>",
+    "url": "52489012875_e39d70c640_3k.jpg",
+    "width": 3053,
+    "height": 3072
+  },
+  {
+    "title": "MACS0647",
+    "description": "The combination of Webb’s super powerful vision and a magnifying trick of gravity is allowing astronomers to resolve things never before seen in the early universe. 🔎<br/>Imagine having a giant magnifying glass in space that could help us view the most distant galaxies more easily. Luckily, we can use galaxy clusters. They’re so massive their gravity can bend and magnify the light of objects behind them. In the case of galaxy MACS0647-JD, it is being magnified by the galaxy cluster, called MACS0647, in front of it. A side effect of this is that magnified objects can look warped and even appear multiple times around the edges of the galaxy cluster<br/><br/><span class=\"credits\">Credits: SCIENCE: NASA, ESA, CSA, STScI, and Tiger Hsiao (Johns Hopkins University) IMAGE PROCESSING: Alyssa Pagan (STScI)</span>",
+    "url": "52471113068_4a82608b10_3k.jpg",
+    "width": 3072,
+    "height": 2964
+  },
+  {
+    "title": "The Pillars of Creation (Webb MIRI Image)",
+    "description": "You can’t escape its clutches — just in time for #Halloween, the Pillars of Creation reach back out like a ghostly hand. (Some chilling perspective: these “fingers” are roughly 5 light-years long!) <br/>The eerie landscape is captured this time by the James Webb Space Telescope’s mid-infrared instrument (MIRI). Mid-infrared light specializes in detailing where dust and gas is. Here, the densest areas of dust are the darkest shades of gray, while the red region toward the top is where the dust is diffuse and cooler.<br/>Don’t worry, the baby stars seen in Webb’s near-infrared view (released earlier this month) didn’t disappear. They’re just not easy to detect in mid-infrared! Instead, MIRI sees young stars with dusty cloaks — the crimson orbs at the pillars’ fringes — as well as scattered, aging blue stars.<br/>Hauntingly beautiful in any light, we can’t help but return to the Pillars of Creation over and over. And each time, we deepen our understanding of this region. With this new MIRI image, astronomers now have higher resolution data in mid-infrared light than ever before<br/><span class=\"credits\">Credit: NASA, ESA, CSA, STScI</span>",
+    "url": "52460606229_cab2b0734a_k.jpg",
+    "width": 1987,
+    "height": 1817
+  },
+  {
+    "title": "The Pillars of Creation (Webb NIRCam Image)",
+    "description": "Journey with us through Webb’s breathtaking view of the Pillars of Creation, where scores of newly formed stars glisten like dewdrops among floating, translucent columns of gas and dust.<br/>If this majestic landscape looks familiar, you may recognize the original. Hubble first captured the Pillars of Creation in 1995 and revisited it in 2014. Webb’s latest view was taken in near-infrared light, which is invisible to our eyes. Seeing in infrared allows Webb to pierce through the dust and reveal stars galore. (Find a side-by-side comparison of the Pillars of Creation as seen by Hubble and Webb also on our Flickr!)<br/>Why go back to where we’ve been before. Webb helps us identify far more precise counts of newborn stars, along with the quantities of gas and dust. This will deepen our understanding of how stars form and burst out of these dusty clouds over millions of years<br/><span class=\"credits\">Image Credit: NASA, ESA, CSA, STScI</span>",
+    "url": "52439693830_3b27330f88_3k.jpg",
+    "width": 1774,
+    "height": 3072
+  },
+  {
+    "title": "Star Duo Forms ‘Fingerprint’ in Space, NASA’s Webb Finds",
+    "description": "These cosmic “tree rings” tell a story written by the stars.<br/> <br/>Every 8 years, the two stars in this image are brought together by their orbits — creating colliding streams of gas that, under the right conditions, form a new ring of dust. Webb reveals 15 of the 17 rings seen here for the first time!<br/> <br/>This star pair, known together as Wolf-Rayet 140 (WR 140), contains one Wolf-Rayet star. Wolf-Rayet stars are hard to find — only 600 have been discovered to date. That’s because they’re incredibly short-lived, burning hot and bright. They generate powerful winds that push huge amounts of gas into space. Scientists believe that the Wolf-Rayet star in this pair may have already shed half of its original mass in this process!<br/> <br/>Some other Wolf-Rayet systems also form dust, but only WR 140 is known to make rings. The ring pattern comes from WR 140’s Wolf-Rayet star, which has a unique elongated orbit.<br/> <br/>Webb observed WR 140 with its mid-infrared instrument (MIRI), which is designed to see cooler objects such as these spectacular dust rings. MIRI also shows the best evidence yet that Wolf-Rayet stars can produce carbon-rich dust molecules, and that such molecules can survive even in the hostile environment surrounding these stars.<br/> <br/><br/> <br/><span class=\"credits\">Credit: NASA, ESA, CSA, STScI, JPL-Caltech</span><br/> ",
+    "url": "52423252335_bd751bb02f_o.jpg",
+    "width": 2258,
+    "height": 1558
+  },
+  {
+    "title": "Webb, Hubble Team Up to Trace Interstellar Dust Within a Galactic Pair",
+    "description": "Two galaxies and two telescopes come together in this image of galaxy pair VV 191, merging Hubble’s ultraviolet and visible-light view with Webb’s infrared vision.<br/>Webb allowed researchers to trace light emitted from the bright elliptical galaxy on the left through the spiral galaxy on the right. In doing so, astronomers were able to study the effects of interstellar dust in the spiral galaxy.<br/>See that faint, red arc around 10 o’clock at the core of the elliptical galaxy (left)? That’s actually a distant galaxy that has been gravitationally lensed, meaning the elliptical galaxy’s gravity is so great it has stretched and magnified the background galaxy’s appearance! The distant galaxy is also duplicated as a tiny, hard-to-see dot around 4 o’clock at the center of the elliptical galaxy. Webb reveals this far-off galaxy clearly for the first time, as it was so faint that it went undetected in Hubble’s data.<br/>By teaming up, Webb and Hubble are able to bring us an even more comprehensive view of the universe.<br/>Note: The data here is from Webb science in progress, which has not yet been peer reviewed.<br/><br/><span class=\"credits\">Image Credit: NASA, ESA, CSA, STScI, R. Windhorst (Arizona State University), W. Keel (University of Alabama), S. Wyithe (University of Melbourne, Australia), and the JWST PEARLS Team</span>",
+    "url": "52406400196_c7a2445d92_k.jpg",
+    "width": 1858,
+    "height": 1836
+  },
+  {
+    "title": "Webb Explores a Pair of Merging Galaxies",
+    "description": "270 million light-years away, a pair of entwined galaxies are colliding together, creating new stars at a rate more than 20 times that of our Milky Way. Webb's latest image shines a new light on these interacting galaxies.<br/>When seen by Hubble in visible light, the centers of the galaxies are obscured by dark dust. With its infrared vision, Webb is able to complement Hubble data by piercing through the gaseous veil, revealing bright galactic cores.<br/><br/><span class=\"credits\">Credit: ESA/Webb, NASA &amp; CSA, L. Armus &amp; A. Evans</span>",
+    "url": "52470860009_1f0da74557_o.jpg",
+    "width": 1774,
+    "height": 1693
+  },
+  {
+    "title": "NASA's Chandra Adds X-ray Vision to Webb Images - Cartwheel Galaxy Composite",
+    "description": "These new versions of Webb’s first images combine its infrared data with X-rays collected by NASA’s Chandra X-ray Observatory, underscoring how the power of any of these telescopes is only enhanced when joined with others.<br/>The Cartwheel galaxy gets its shape from a collision with another smaller galaxy — located outside the field of this image — about 100 million years ago. When this smaller galaxy punched through the Cartwheel, it triggered star formation that appears around an outer ring and elsewhere throughout the galaxy. X-rays seen by Chandra (blue and purple) come from superheated gas, individual exploded stars, and neutron stars and black holes pulling material from companion stars. Webb’s infrared view (red, orange, yellow, green, blue) shows the Cartwheel galaxy plus two smaller companion galaxies — not part of the collision — against a backdrop of many more distant galactic cousins. <br/><br/><span class=\"credits\">Image credits: X-ray: NASA/CXC; IR: NASA/ESA/CSA/STScI</span>",
+    "url": "52404135532_3b4eee768f_o.jpg",
+    "width": 864,
+    "height": 795
+  },
+  {
+    "title": "NASA's Chandra Adds X-ray Vision to Webb Images - Cartwheel Galaxy X-ray Only",
+    "description": "The Cartwheel galaxy gets its shape from a collision with another smaller galaxy — located outside the field of this image — about 100 million years ago. When this smaller galaxy punched through the Cartwheel, it triggered star formation that appears around an outer ring and elsewhere throughout the galaxy. X-rays seen by Chandra (blue and purple) come from superheated gas, individual exploded stars, and neutron stars and black holes pulling material from companion stars. <br/><br/><br/><span class=\"credits\">Image credits: NASA/CXC</span>",
+    "url": "52404932904_b9382f6e4e_o.jpg",
+    "width": 864,
+    "height": 795
+  },
+  {
+    "title": "NASA's Chandra Adds X-ray Vision to Webb Images - SMACS 0723.3–7327 Composite",
+    "description": "These new versions of Webb’s first images combine its infrared data with X-rays collected by NASA’s Chandra X-ray Observatory, underscoring how the power of any of these telescopes is only enhanced when joined with others.<br/>Webb brilliantly shows how the galaxy cluster SMACS J0723, located about 4.2 billion light-years away, contains hundreds of individual galaxies. Galaxy clusters, however, contain far more than their galaxies alone. As some of the largest structures in the universe, they are filled with vast reservoirs of superheated gas that is seen only in X-ray light. In this image, the Chandra data (blue) reveals gas with temperatures of tens of millions of degrees, possessing a total mass of about 100 trillion times that of the Sun, several times higher than the mass of all the galaxies in the cluster. Invisible dark matter makes up an even larger fraction of the total mass in the cluster.<br/><br/><span class=\"credits\">Image credits: </span><br/>X-ray: NASA/CXC/Durham Univ./G. Mahler; <br/>IR: NASA/ESA/CSA/STScI ",
+    "url": "52405131881_c7ac3a7d89_o.jpg",
+    "width": 864,
+    "height": 882
+  },
+  {
+    "title": "NASA's Chandra Adds X-ray Vision to Webb Images - Carina Nebula Composite",
+    "description": "These new versions of Webb’s first images combine its infrared data with X-rays collected by NASA’s Chandra X-ray Observatory, underscoring how the power of any of these telescopes is only enhanced when joined with others.<br/>Chandra’s data of the “Cosmic Cliffs” (pink) reveals over a dozen individual X-ray sources. These are mostly stars located in the outer region of a star cluster in the Carina Nebula with ages between 1 and 2 million years old, which is very young in stellar terms. Young stars are much brighter in X-rays than old stars, making X-ray studies an ideal way to distinguish stars in the Carina Nebula from the many stars of different ages from our Milky Way galaxy along our line of sight to the nebula. The diffuse X-ray emission in the top half of the image likely comes from hot gas from the three hottest, most massive stars located in the star cluster outside the field of view of the Webb image. The Webb image uses the following colors: red, orange, yellow, green, cyan, and blue.<br/><br/><span class=\"credits\">Image credits: </span><br/>X-ray: NASA/CXC/Univ. Observ. Munich/T. Preibisch et al.; <br/>IR: NASA/ESA/CSA/STScI",
+    "url": "52404932634_b4508d3a34_o.jpg",
+    "width": 864,
+    "height": 500
+  },
+  {
+    "title": "NASA's Chandra Adds X-ray Vision to Webb Images - Stephan's Quintet Composite",
+    "description": "These new versions of Webb’s first images combine its infrared data with X-rays collected by NASA’s Chandra X-ray Observatory, underscoring how the power of any of these telescopes is only enhanced when joined with others.<br/>The four galaxies within Stephan’s Quintet are undergoing an intricate dance choreographed by gravity. (The fifth galaxy, on the left, is an interloping galaxy at a different distance.) The new Webb image (red, orange, yellow, green, blue) of this object features never-seen-before details of the results of these interactions, including sweeping tails of gas and bursts of star formation. The Chandra data (light blue) of this system has uncovered a shock wave that heats gas to tens of millions of degrees, as one of the galaxies passes through the others at speeds of around 2 million miles per hour. This new composite also includes infrared data from NASA’s now-retired Spitzer Space Telescope (red, green, blue).<br/><br/><span class=\"credits\">Image credits: </span><br/>X-ray: NASA/CXC/SAO; <br/>IR (Spitzer): NASA/JPL-Caltech;<br/>IR (Webb): NASA/ESA/CSA/STScI",
+    "url": "52404135772_8c912d74f8_o.jpg",
+    "width": 864,
+    "height": 828
+  },
+  {
+    "title": "Cartwheel Galaxy (NIRCam and MIRI Composite Image)",
+    "description": "This image of the Cartwheel and its companion galaxies is a composite from Webb's Near-Infrared Camera (NIRCam) and Mid-Infrared Instrument (MIRI), which reveals details that are difficult to see in the individual images alone.<br/>This galaxy formed as the result of a high-speed collision that occurred about 400 million years ago. The Cartwheel is composed of two rings, a bright inner ring and a colorful outer ring. Both rings expand outward from the center of the collision like shockwaves.<br/>However, despite the impact, much of the character of the large, spiral galaxy that existed before the collision remains, including its rotating arms. This leads to the &quot;spokes&quot; that inspired the name of the Cartwheel Galaxy, which are the bright red streaks seen between the inner and outer rings. These brilliant red hues, located not only throughout the Cartwheel, but also the companion spiral galaxy at the top left, are caused by glowing, hydrocarbon-rich dust.<br/>In this near- and mid-infrared composite image, MIRI data are colored red while NIRCam data are colored blue, orange, and yellow. Amidst the red swirls of dust, there are many individual blue dots, which represent individual stars or pockets of star formation. NIRCam also defines the difference between the older star populations and dense dust in the core and the younger star populations outside of it.<br/>Webb's observations capture the Cartwheel in a very transitory stage. The form that the Cartwheel Galaxy will eventually take, given these two competing forces, is still a mystery. However, this snapshot provides perspective on what happened to the galaxy in the past and what it will do in the future.<br/><span class=\"credits\">Image credit: NASA, ESA, CSA, STScI</span><br/>A large galaxy on the right, with two much smaller companion galaxies to the left at 10 o’clock and 9 o’clock. The large galaxy resembles a speckled wheel, with an oval outer ring and a small, off-center inner ring. The outer ring contains pink plumes like wheel spokes, with dusty blue regions in between. The pink areas are silicate dust, while the blue areas are pockets of young stars and hydrocarbon dust. The inner ring is smoother, filled in with a more uniform pale pink. This smaller ring is interwoven with thin, orange-pink threads. On the galaxy's right edge, a bright white star with 8 diffraction spikes shines. The two companion galaxies to the left, one above the other, are about the same size and both spiral galaxies. The galaxy above is a reverse S shape but similar in coloring and texture as the large ring galaxy. The galaxy below is smoother and largely white, with a blue tinge. The background is black and full of more distant, orange-red colored galaxies of various sizes.",
+    "url": "52258939646_71c4203007_3k.jpg",
+    "width": 3072,
+    "height": 2827
+  }
 ]

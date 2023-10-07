@@ -1,31 +1,39 @@
 @import url('https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;500&display=swap');
 
-body, div.container {
-    background-color: black;
+:root {
+    --highlightColour: #bada55;
+    --secondaryColour: #E8F3C6;
+    --mutedColour: #888;
+    --columns: 20;
+    --usableColumns: 20;
+}
+body, .display {
+    display: flex;
+    flex-direction: row;
+}
+body, .display, div.container, div.display-log {
     margin: 0;
+    position: relative;
+}
+p {
+    color: white
 }
 div.container {
     display: flex;
     flex-direction: row;
-    width: 100%;
+    min-width: 10%;
+    width: calc(var(--usableColumns) / var(--columns) * 100%);
+    background-color: black;
     height: 100%;
-}
-@keyframes fadeInAnimation {
-    0% {opacity: 0}
-    10% {opacity: 1}
-    90% {opacity: 1}
-    100% {opacity: 0}
 }
 div.text-part, div.image-part {
     height: inherit;
-    background-color: black;
     box-sizing: border-box;
-    min-width: 5%;
-    animation-name: fadeInAnimation;
-    /* animation-duration: 10s; */
+    min-width: calc(1 / var(--usableColumns) * 100%);
+    animation-timing-function: ease-in;
 }
 div.text-part {
-    width: 5%;
+    width: calc(var(--textColumns) / var(--usableColumns) * 100%);
     overflow: hidden;
 }
 h1.title, p.description {
@@ -39,21 +47,39 @@ h1.title, p.description {
 }
 h1.title {
     padding-bottom: 0;
-    font-size: 6em;
+    font-size: 5em;
 }
 p.description {
     padding-top: 1em;
     font-size: 2em;
-    text-align: left;
+    text-align: justify;
     text-justify: inter-word;
 }
-p.description > a:link {
-    color: #bada55;
+p.description::first-letter {
+    color: var(--highlightColour);
+    font-size: 3em;
+    margin: 0 .1em 0 0;
+    line-height: 0.85;
+    text-transform: uppercase;
+}
+p > span.credits {
+    color: var(--secondaryColour);
+    font-style: italic;
+}
+p > span.meta-description {
+    color: var(--mutedColour);
+}
+p > br {
+    display: block;
+    margin-bottom: 1em;
+    line-height: 1em;
+    content: " ";
 }
 div.image-part {
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
+    width: calc(var(--imageColumns) / var(--usableColumns) * 100%)
 }
 .display-center {
     width: 100%;
@@ -65,6 +91,22 @@ div.image-part {
 .auto-size {
     width: auto;
 }
+.display-log {
+    padding-left: 10px;
+    width: 5%;
+    max-width: 5%;
+    height: 100%;
+    overflow: hidden;
+    background-color: rgb(20,20,20);
+    box-sizing: border-box;
+}
+.display-log > p.display-log-text {
+    color: var(--highlightColour);
+    width: 100%;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+}
 .loading-star-icon {
     width: 160px;
     height: 160px
@@ -74,6 +116,15 @@ div.image-part {
     animation-duration: 4s;
     animation-iteration-count: infinite;
     animation-timing-function: linear;
+}
+@keyframes fadein {
+    0% { opacity: 0 }
+    25% { opacity: 0.1 }
+    100% { opacity: 1 }
+}
+@keyframes fadeout {
+    from { opacity: 1 }
+    to { opacity: 0 }
 }
 @keyframes rotate {
     100% {
