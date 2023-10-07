@@ -23,7 +23,7 @@ let artifacts = [] // Array of image objects [{title, description, url}...]
 let imageCounter = 0 // Incrementing counter for image displayed, used by renderDisplay(), for console version
 let rotationCounter = 0 // Incrementing counter for number of rotations
 
-const blacklist = []
+let blacklist = [] // To be overriden by the config json
 let renderLoopInterval // Reference to the render loop (started later)
 
 let showDisplayLog = true // To be overriden by the config json
@@ -93,6 +93,8 @@ function readConfig() {
                     log.style.setProperty("display", "none")
                 }
             }
+
+            blacklist = config.images.properties.blacklist.value
 
             let loadingDelay = config.functionality.properties.loadingDelay.value
             setTimeout(startRenderLoop, loadingDelay * 1000)
@@ -285,7 +287,7 @@ async function getExternalImagesList() {
 
         const id = responseImages[i]["id"] // Create a reference to the ID of the image being checked
 
-        if (blacklist.includes(id)) break
+        if (blacklist.includes(id)) continue
 
         list.push(id)
     }

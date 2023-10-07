@@ -209,7 +209,7 @@
         "properties": {
             "blacklist": {
                 "label": "Image Blacklist",
-                "value": [],
+                "value": ["53229687476", "53230009083"],
                 "default": [],
                 "input": {
                     "type": "blacklist"
