@@ -7,7 +7,7 @@
         "./styles/styles.css"
     ],
     "load": {
-        "imageCounter": "0",
+        "imageCounter": 0,
         "goFullscreen": true
     },
     "animation": true,
