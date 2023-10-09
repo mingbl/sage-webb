@@ -191,9 +191,11 @@ function renderDisplay() {
      */
     let columnsUsed = 0
     const usableColumns = config.userInterface.properties.usableColumns.value
+    let onScreenImageCounter = 0
     while (columnsUsed < usableColumns) {
-        let index = getImageCounter() % artifacts.length
+        let index = (rotationCounter * 4 + onScreenImageCounter) % artifacts.length
         
+        onScreenImageCounter++
 
         const artifact = artifacts[index]
         const { numOfColumns, origin } = artifact
@@ -211,7 +213,7 @@ function renderDisplay() {
 
         printConsoleLog(`#.#.# Selecting ${origin} image [${index}/${artifacts.length - 1}] - ${JSON.stringify(artifact, truncateStrings)}`)
 
-        setImageCounter(getImageCounter() + 1)
+        // setImageCounter(getImageCounter() + 1)
 
         if (!sage) continue
 
@@ -312,7 +314,7 @@ async function getExternalImagesList() {
     }
     
     artifacts = externalImages // Change render loop to use external images
-    setImageCounter(0) // Reset counter
+    // setImageCounter(0) // Reset counter
 
     printConsoleLog(`- Now using external images - ${JSON.stringify(artifacts, truncateStrings)}`)
 
