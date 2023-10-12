@@ -73,6 +73,27 @@ def openImage(_image):
 iconImage = "../images/meta/moon-stars-fill.png"
 root.wm_iconphoto(False, openImage(iconImage))
 
+def closeWindow(_window):
+
+    print("Closing Window {0}".format(_window.title))
+
+    _window.destroy()
+
+
+def addMenuOptions(_frame, _window):
+
+    # Create a button to save changes 
+    saveButton = Button(_frame, text = "Save")   
+
+    # Add the button to the frame passed
+    saveButton.pack(side=LEFT, padx = 10, pady = 10)
+
+    # Create a button to close the window 
+    exitButton = Button(_frame, text = "Exit", command = lambda window = _window: closeWindow(window))   
+
+    # Add the button to the frame passed
+    exitButton.pack(side=LEFT, padx = 10, pady = 10)  
+
 
 def checkButtonAction(_property, _input):  
 
@@ -123,9 +144,24 @@ def pickAudio(_label):
     # Apply name of audio file to label
     _label.config(text = audioFile)
 
-def showWhitelist():
+def showBlacklist():
+   
+    # Change status message when window opens
+    statusBar.changeStatus("Editing Image Blacklist.")    
+    
 
-    print("Editing Whitelist")
+    # Create a second window for editing image blacklist
+    blacklist = Toplevel()
+    blacklist.title("Editing Image Blacklist")
+    blacklist.wm_iconphoto(False, openImage(iconImage))
+    blacklist.geometry("1080x720")
+
+    # Create a bottom frame to hold menu options
+    menuFrame =  Frame(blacklist, bd=1)
+    menuFrame.pack(side = BOTTOM)
+
+    # Add a save and exit button to the window
+    addMenuOptions(menuFrame, blacklist)    
 
 
 class HelpWindow(Frame):
@@ -233,8 +269,7 @@ class ConfigWindow(Frame):
             elif (propertyInput["type"] == "audio"):
 
                 # Get the name of the music file and format it for display
-                audioPath = property["value"] 
-                
+                audioPath = property["value"]                 
                 audioFile = path.basename(property["value"])[:20]
 
                 audioLabel = Label(propertyFrame, text = audioFile, font = mainFont)
@@ -244,7 +279,7 @@ class ConfigWindow(Frame):
 
             elif (propertyInput["type"] == "blacklist"):
 
-                propertyInputElement = Button(propertyFrame, text = "Edit...", command = lambda: showWhitelist())     
+                propertyInputElement = Button(propertyFrame, text = "Edit...", command = lambda: showBlacklist())     
 
             # Add the input label and element to the frame
             propertyInputElement.pack(side = LEFT, padx = 5)
@@ -307,6 +342,13 @@ class WindowContainer():
         # Create and add a status bar to the frame
         global statusBar
         statusBar = StatusBar(master)
+
+        # Create a bottom frame to hold menu options
+        menuFrame =  Frame(master, bd=1)
+        menuFrame.pack(side = BOTTOM)
+
+        # Add a save and exit button to the frame
+        addMenuOptions(menuFrame, master)    
 
         # Show the main frame
         self.showHelp()
@@ -382,6 +424,7 @@ class StatusBar(Frame):
         """
 
         self.statusLabel.configure(text = _status)
+        print("--> {0}".format(_status))
 
 
 #   Create instance of the main window
@@ -396,4 +439,4 @@ Logic for when user closes out of the GUI
 
 """
 
-print("Config closed")
+print("Dashboard closed")
