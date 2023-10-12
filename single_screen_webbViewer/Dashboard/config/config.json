@@ -196,7 +196,7 @@
                     "type": "colour"
                 }
             },
-            "backgroundMusic": {
+            "playBackgroundMusic": {
                 "label": "Play Background Music?",
                 "value": true,
                 "default": true,
@@ -205,11 +205,11 @@
                 }
             },
             "backgroundMusicSource": {
-                "label": "Play Background Music?",
+                "label": "Background Music Source:",
                 "value": "./media/ambient_endeavours_morning_mood.mp3",
                 "default": "./media/ambient_endeavours_morning_mood.mp3",
                 "input": {
-                    "type": "music"             
+                    "type": "audio"             
                 }
             }
         }
@@ -223,7 +223,7 @@
                 "default": [],
                 "input": {
                     "type": "blacklist"
-                }   
+                }
             },
             "apiKey": {
                 "label": "Flickr API Key:",

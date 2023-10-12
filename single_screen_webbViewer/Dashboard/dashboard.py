@@ -1,9 +1,11 @@
 # Import JSON
 import json
+from os import path
 
 # Import tkinter - used to create interfaces
 from tkinter import *
 from tkinter import font
+from tkinter import filedialog
 from tkinter.colorchooser import askcolor
 
 # Import image library
@@ -68,8 +70,36 @@ def openImage(_image):
 
 
 # Add the app icon to the window
-iconImage = "../sage-webb/webbViewer/images/meta/moon-stars-fill.png"
+iconImage = "../images/meta/moon-stars-fill.png"
 root.wm_iconphoto(False, openImage(iconImage))
+
+
+def checkButtonAction(_property, _input):  
+
+    # Get value of checkbox
+    value = _input    
+
+    print("{0} changed to {1}".format(_property, value))  
+
+    # If this check button is for the "Limit number of images to pull" property
+    if (_property == "Pull Images in Order?"):
+
+        print("{0} changed to {1}".format(_property, value))
+    
+    elif (_property == "Limit Number of External Images to Pull?"):
+
+        print("{0} changed to {1}".format(_property, value))
+
+    
+    elif (_property == "Show Display Log?"):
+
+        print("{0} changed to {1}".format(_property, value))
+
+    
+    elif (_property == "Play Background Music?"):
+
+        print("{0} changed to {1}".format(_property, value))
+
 
 def pickColour(_colour, _label):
 
@@ -81,9 +111,22 @@ def pickColour(_colour, _label):
     # Apply hex code of colour to label
     _label.config(text = colour[1], fg = colour[1])
 
+
+def pickAudio(_label):
+
+    # Get path to music file from user
+    audioPath = filedialog.askopenfilename(initialdir = "/", title = "Select an Audio File", filetypes = (("Audio files", "*.mp3*"), ("all files", "*.*")))
+
+    # Format filepath
+    audioFile = path.basename(audioPath)[:20]
+
+    # Apply name of audio file to label
+    _label.config(text = audioFile)
+
 def showWhitelist():
 
     print("Editing Whitelist")
+
 
 class HelpWindow(Frame):
 
@@ -125,23 +168,28 @@ class ConfigWindow(Frame):
         # Initiate variable to access catagory options in following loop
         optionIndex = 0
 
+        # Initiate a dictionary to keep track of checkbox variables where neccessary
+        checkBoxValues = {}
+
         # Add each category option to frame
         for index in jsonData[_category]["properties"]: 
 
             # Declare reference to property as using multiple times
             property = jsonData[_category]["properties"][index]
 
+            propertyName = property["label"]
+
             # Declare reference to property input type as using multiple times
             propertyInput = property["input"]
 
-            print("Adding property {0}, value = {1}".format(property["label"], property["value"]))
+            print("Adding property {0}, value = {1}".format(propertyName, property["value"]))
 
             # Create a frame to containe the label and input for the property
             propertyFrame = Frame(self)
             propertyFrame.pack(pady = 10)
                
             # Create a label for the property
-            propertyLabel = Label(propertyFrame, text = property["label"], font = mainFont)
+            propertyLabel = Label(propertyFrame, text = propertyName, font = mainFont)
             propertyLabel.pack(side = LEFT)                   
 
             # Initialise a variable to store the input element for the property
@@ -157,10 +205,15 @@ class ConfigWindow(Frame):
 
             elif (propertyInput["type"] == "checkbox"):  
 
+                # Get the current value of the boolean relating to the checkbox from the config file
                 propertyValue = property["value"]
 
-                propertyInputElement = Checkbutton(propertyFrame, onvalue = True, offvalue = False)
+                # Create a variable to check the value of the checkbox and set to the current value of the boolean stored in the config file
+                checkBoxValues["string{0}".format(propertyName)] = propertyValue                            
 
+                propertyInputElement = Checkbutton(propertyFrame, onvalue = True, offvalue = False, variable = checkBoxValues["string{0}".format(propertyName)], command = lambda property = propertyName, value = checkBoxValues["string{0}".format(propertyName)]: checkButtonAction(property, value))
+
+                # If the value is true, show the checkbox as being selected
                 if (propertyValue):
 
                     propertyInputElement.select()   
@@ -170,16 +223,28 @@ class ConfigWindow(Frame):
                 colourLabel = Label(propertyFrame, text = property["value"], fg = property["value"], font = mainFont)
                 colourLabel.pack(side = LEFT, padx = 5)
 
-                propertyInputElement = Button(propertyFrame, text = "Edit...", command = lambda colour = [property["value"]], label = colourLabel: pickColour(colour, label))
+                propertyInputElement = Button(propertyFrame, text = "Edit...", command = lambda colour = property["value"], label = colourLabel: pickColour(colour, label))
 
             elif (propertyInput["type"] == "entry"):
 
                 propertyInputElement = Entry(propertyFrame)
                 propertyInputElement.insert(0, property["value"])     
 
-            elif (propertyInput["type"] == "whitelist"):
+            elif (propertyInput["type"] == "audio"):
 
-                propertyInputElement = Button(propertyFrame, text = "Edit...", command = lambda: showWhitelist())       
+                # Get the name of the music file and format it for display
+                audioPath = property["value"] 
+                
+                audioFile = path.basename(property["value"])[:20]
+
+                audioLabel = Label(propertyFrame, text = audioFile, font = mainFont)
+                audioLabel.pack(side = LEFT, padx = 5)
+
+                propertyInputElement = Button(propertyFrame, text = "Edit...", command = lambda label = audioLabel: pickAudio(label))   
+
+            elif (propertyInput["type"] == "blacklist"):
+
+                propertyInputElement = Button(propertyFrame, text = "Edit...", command = lambda: showWhitelist())     
 
             # Add the input label and element to the frame
             propertyInputElement.pack(side = LEFT, padx = 5)
