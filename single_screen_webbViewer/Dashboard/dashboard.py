@@ -1,167 +1,15 @@
-# Import JSON
-import json
-from os import path
-
 # Import tkinter - used to create interfaces
 from tkinter import *
-from tkinter import font
-from tkinter import filedialog
-from tkinter.colorchooser import askcolor
 
-# Import image library
-from PIL import Image, ImageTk
-
-
-"""
-Get config file
-
-"""
-
-print("***** Retrieving config file ********")
-
-# Open and parse config file
-with open ("./config/config.json", "r") as config:
-    jsonData = json.load(config)
-
-# Print config file 
-print("Config data retrieved:")
-for i in jsonData:
-    # if (default_values) return
-    print(i, jsonData[i])
-
-#   Get list of categories from data
-categories = list(jsonData.keys())
-
-print("Configuration categories: {0}".format(categories))
+# Import custom modules
+from configuration import *
+from appearance import *
+from status import *
+from functionality import *
 
 
-"""
-Create GUI for config file 
-
-"""
-
-# Start tkinter and create reference to instance
-root = Tk()
-
-# Change title that appears in GUI window
-root.title("James Webb Image Viewer Admin Dashboard")
-
-# Open the window at a specific size
-root.geometry("720x720")
-
-# Configure styles for dashboard
-menuFont = font.Font(family = "Arial", size = "18")
-headerFont = font.Font(family = "Arial", size = "14")
-mainFont = font.Font(family = "Arial", size = "12")
-statusFont = font.Font(family = "Arial", size = "10")
-
-statusBar = None
-
-def openImage(_image):
-
-    """
-    Function to open images and format them in a way that Tkinter can read them
-
-    """
-
-    fileImage = Image.open(_image)
-    photoImage = ImageTk.PhotoImage(fileImage)
-    return photoImage
 
 
-# Add the app icon to the window
-iconImage = "../images/meta/moon-stars-fill.png"
-root.wm_iconphoto(False, openImage(iconImage))
-
-def closeWindow(_window):
-
-    print("Closing Window {0}".format(_window.title))
-
-    _window.destroy()
-
-
-def addMenuOptions(_frame, _window):
-
-    # Create a button to save changes 
-    saveButton = Button(_frame, text = "Save")   
-
-    # Add the button to the frame passed
-    saveButton.pack(side=LEFT, padx = 10, pady = 10)
-
-    # Create a button to close the window 
-    exitButton = Button(_frame, text = "Exit", command = lambda window = _window: closeWindow(window))   
-
-    # Add the button to the frame passed
-    exitButton.pack(side=LEFT, padx = 10, pady = 10)  
-
-
-def checkButtonAction(_property, _input):  
-
-    # Get value of checkbox
-    value = _input    
-
-    print("{0} changed to {1}".format(_property, value))  
-
-    # If this check button is for the "Limit number of images to pull" property
-    if (_property == "Pull Images in Order?"):
-
-        print("{0} changed to {1}".format(_property, value))
-    
-    elif (_property == "Limit Number of External Images to Pull?"):
-
-        print("{0} changed to {1}".format(_property, value))
-
-    
-    elif (_property == "Show Display Log?"):
-
-        print("{0} changed to {1}".format(_property, value))
-
-    
-    elif (_property == "Play Background Music?"):
-
-        print("{0} changed to {1}".format(_property, value))
-
-
-def pickColour(_colour, _label):
-
-    # Get colour from user
-    colour = askcolor(initialcolor = _colour, title = "Select a Colour") 
-    
-    print("Colour selected: {0}".format(colour))
-
-    # Apply hex code of colour to label
-    _label.config(text = colour[1], fg = colour[1])
-
-
-def pickAudio(_label):
-
-    # Get path to music file from user
-    audioPath = filedialog.askopenfilename(initialdir = "/", title = "Select an Audio File", filetypes = (("Audio files", "*.mp3*"), ("all files", "*.*")))
-
-    # Format filepath
-    audioFile = path.basename(audioPath)[:20]
-
-    # Apply name of audio file to label
-    _label.config(text = audioFile)
-
-def showBlacklist():
-   
-    # Change status message when window opens
-    statusBar.changeStatus("Editing Image Blacklist.")    
-    
-
-    # Create a second window for editing image blacklist
-    blacklist = Toplevel()
-    blacklist.title("Editing Image Blacklist")
-    blacklist.wm_iconphoto(False, openImage(iconImage))
-    blacklist.geometry("1080x720")
-
-    # Create a bottom frame to hold menu options
-    menuFrame =  Frame(blacklist, bd=1)
-    menuFrame.pack(side = BOTTOM)
-
-    # Add a save and exit button to the window
-    addMenuOptions(menuFrame, blacklist)    
 
 
 class HelpWindow(Frame):
@@ -177,10 +25,12 @@ class HelpWindow(Frame):
         print("***** Creating Help frame *****") 
 
          # Add header to frame
-        headerLabel = Label(self, text = "Admin Dashboard", font = headerFont).pack(pady = 10)
+        headerLabel = Label(self, text = "Admin Dashboard", font = headerFont)
+        headerLabel.pack(pady = 10)
 
          # Add welcome message to frame
-        messageLabel = Label(self, text = "Select a category from the menu above.", font = mainFont).pack()
+        messageLabel = Label(self, text = "Select a category from the menu above.", font = mainFont)
+        messageLabel.pack()
 
         self.pack(padx = 20, pady = 20)
 
@@ -198,7 +48,7 @@ class ConfigWindow(Frame):
         print("***** Creating {0} frame *****".format(_category))     
 
         # Add header to frame
-        headerLabel = Label(self, text = "{0} Settings".format(jsonData[_category]["label"]), font = headerFont)
+        headerLabel = Label(self, text = "{0} Settings".format(JSONDATA[_category]["label"]), font = headerFont)
         headerLabel.pack(pady = 10)    
 
         # Initiate variable to access catagory options in following loop
@@ -208,10 +58,10 @@ class ConfigWindow(Frame):
         checkBoxValues = {}
 
         # Add each category option to frame
-        for index in jsonData[_category]["properties"]: 
+        for index in JSONDATA[_category]["properties"]: 
 
             # Declare reference to property as using multiple times
-            property = jsonData[_category]["properties"][index]
+            property = JSONDATA[_category]["properties"][index]
 
             propertyName = property["label"]
 
@@ -247,7 +97,7 @@ class ConfigWindow(Frame):
                 # Create a variable to check the value of the checkbox and set to the current value of the boolean stored in the config file
                 checkBoxValues["string{0}".format(propertyName)] = propertyValue                            
 
-                propertyInputElement = Checkbutton(propertyFrame, onvalue = True, offvalue = False, variable = checkBoxValues["string{0}".format(propertyName)], command = lambda property = propertyName, value = checkBoxValues["string{0}".format(propertyName)]: checkButtonAction(property, value))
+                propertyInputElement = Checkbutton(propertyFrame, onvalue = True, offvalue = False, variable = checkBoxValues["string{0}".format(propertyName)], command = lambda property = propertyName, value = checkBoxValues["string{0}".format(propertyName)]: checkbutton_action(property, value))
 
                 # If the value is true, show the checkbox as being selected
                 if (propertyValue):
@@ -259,7 +109,7 @@ class ConfigWindow(Frame):
                 colourLabel = Label(propertyFrame, text = property["value"], fg = property["value"], font = mainFont)
                 colourLabel.pack(side = LEFT, padx = 5)
 
-                propertyInputElement = Button(propertyFrame, text = "Edit...", command = lambda colour = property["value"], label = colourLabel: pickColour(colour, label))
+                propertyInputElement = Button(propertyFrame, text = "Edit...", command = lambda colour = property["value"], label = colourLabel: pick_colour(colour, label))
 
             elif (propertyInput["type"] == "entry"):
 
@@ -275,11 +125,11 @@ class ConfigWindow(Frame):
                 audioLabel = Label(propertyFrame, text = audioFile, font = mainFont)
                 audioLabel.pack(side = LEFT, padx = 5)
 
-                propertyInputElement = Button(propertyFrame, text = "Edit...", command = lambda label = audioLabel: pickAudio(label))   
+                propertyInputElement = Button(propertyFrame, text = "Edit...", command = lambda label = audioLabel: pick_audio(label))   
 
             elif (propertyInput["type"] == "blacklist"):
 
-                propertyInputElement = Button(propertyFrame, text = "Edit...", command = lambda: showBlacklist())     
+                propertyInputElement = Button(propertyFrame, text = "Edit...", command = show_blacklist)     
 
             # Add the input label and element to the frame
             propertyInputElement.pack(side = LEFT, padx = 5)
@@ -322,13 +172,13 @@ class WindowContainer():
         categoryIndex = 0
 
         # For each configuration category
-        for category in jsonData:           
+        for category in JSONDATA:           
 
             # Create a new category frame and append to the list of category frames            
             self.frameList.append(ConfigWindow(mainFrame, category))
 
             # Add a button to be able to access the category frame in the menu
-            menu.add_command(label = jsonData[category]["label"], font = menuFont, command = lambda category = categoryIndex: self.changeCategory(category))
+            menu.add_command(label = JSONDATA[category]["label"], font = menuFont, command = lambda category = categoryIndex: self.changeCategory(category))
 
             # Increment the category index to be able to continue the loop
             categoryIndex += 1
@@ -340,15 +190,15 @@ class WindowContainer():
         self.frameList.append(HelpWindow(mainFrame))
 
         # Create and add a status bar to the frame
-        global statusBar
-        statusBar = StatusBar(master)
+        global STATUSBAR
+        STATUSBAR = StatusBar(master)
 
         # Create a bottom frame to hold menu options
         menuFrame =  Frame(master, bd=1)
         menuFrame.pack(side = BOTTOM)
 
         # Add a save and exit button to the frame
-        addMenuOptions(menuFrame, master)    
+        add_menu_options(menuFrame, master)    
 
         # Show the main frame
         self.showHelp()
@@ -381,50 +231,19 @@ class WindowContainer():
     
     def changeCategory(self, _categoryIndex):
 
-        category = categories[_categoryIndex]
+        category = CATEGORIES[_categoryIndex]
 
         self.changeWindow(_categoryIndex)    
-        global statusBar    
-        statusBar.changeStatus("Configure app {0} options.".format(jsonData[category]["label"]))
+        global STATUSBAR    
+        STATUSBAR.changeStatus("Configure app {0} options.".format(JSONDATA[category]["label"]))
         
 
     def showHelp(self):
 
         self.changeWindow(4)
 
-        global statusBar
-        statusBar.changeStatus("Showing the dashboard help screen.")
-
-
-class StatusBar(Frame):
-
-    """
-    Class to create status bar and handle changing the app status
-    
-    """
-
-    def __init__(self, parent):
-
-        super().__init__(parent)
-
-        # Create a bottom frame to contain a status bar
-        self.statusFrame = Frame(parent, bd=1, relief = SUNKEN)
-        self.statusFrame.pack(side = BOTTOM, fill = BOTH)
-
-        # Create a label to display the current status to the user            
-        self.statusLabel = Label(self.statusFrame, text = "Dashboard loaded", font = statusFont)
-        self.statusLabel.pack(anchor = E, padx = 10, pady = 10)
-
-
-    def changeStatus(self, _status):
-
-        """
-        Displays a new status to the user at the bottom of the window
-        
-        """
-
-        self.statusLabel.configure(text = _status)
-        print("--> {0}".format(_status))
+        global STATUSBAR
+        STATUSBAR.changeStatus("Showing the dashboard help screen.")
 
 
 #   Create instance of the main window

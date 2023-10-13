@@ -1,8 +1,8 @@
 from tkinter import *
-from tkinter import font
-from dashboard import categories
 
-statusFont = font.Font(family = "Arial", size = "10")
+from appearance import *
+
+STATUSBAR = None
 
 class StatusBar(Frame):
 
@@ -32,3 +32,4 @@ class StatusBar(Frame):
         """
 
         self.statusLabel.configure(text = _status)
+        print("--> {0}".format(_status))
