@@ -69,6 +69,8 @@ async function getExternalImagesList(){
 
     //  Print the external image IDs fetched to the log
     console.log("***** WHITELIST FETCHED   *****")
+
+    console.log(apiURL)
     console.log(`Whitelist length = ${whitelist.length}`);
     console.log(`WHITELIST: ${JSON.stringify(whitelist)}`)
 

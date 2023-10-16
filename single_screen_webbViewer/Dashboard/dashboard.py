@@ -9,10 +9,7 @@ from functionality import *
 from externalImages import *
 
 
-
-
-
-class HelpWindow(Frame):
+class HelpFrame(Frame):
 
     """
     Class to contain options which change James Webb SAGE app functionality
@@ -35,7 +32,7 @@ class HelpWindow(Frame):
         self.pack(padx = 20, pady = 20)
 
 
-class ConfigWindow(Frame):
+class ConfigFrame(Frame):
 
     """
     Class to contain options which change James Webb SAGE app functionality
@@ -43,6 +40,7 @@ class ConfigWindow(Frame):
     """
 
     def __init__(self, parent, _category):
+
         super().__init__(parent)
 
         print("***** Creating {0} frame *****".format(_category))     
@@ -125,11 +123,11 @@ class ConfigWindow(Frame):
                 audioLabel = Label(propertyFrame, text = audioFile, font = mainFont)
                 audioLabel.pack(side = LEFT, padx = 5)
 
-                propertyInputElement = Button(propertyFrame, text = "Edit...", command = lambda label = audioLabel: pick_audio(label))   
+                propertyInputElement = Button(propertyFrame, text = "Edit...", command = lambda label = audioLabel: pick_audio(label))
 
             elif (propertyInput["type"] == "blacklist"):
 
-                propertyInputElement = Button(propertyFrame, text = "Edit...", command = show_blacklist)     
+                propertyInputElement = Button(propertyFrame, text = "Edit...", command = open_image_manager)
 
             # Add the input label and element to the frame
             propertyInputElement.pack(side = LEFT, padx = 5)
@@ -141,11 +139,10 @@ class ConfigWindow(Frame):
         self.pack(padx = 20, pady = 20)
 
 
-class WindowContainer():
+class AppContainer():
 
     """
-    Class to contain all the windows of the app
-
+    Class to contain all the category frames
     """
 
     def __init__(self, master):
@@ -172,10 +169,10 @@ class WindowContainer():
         categoryIndex = 0
 
         # For each configuration category
-        for category in JSONDATA:           
+        for category in JSONDATA:
 
             # Create a new category frame and append to the list of category frames            
-            self.frameList.append(ConfigWindow(mainFrame, category))
+            self.frameList.append(ConfigFrame(mainFrame, category))
 
             # Add a button to be able to access the category frame in the menu
             menu.add_command(label = JSONDATA[category]["label"], font = menuFont, command = lambda category = categoryIndex: self.changeCategory(category))
@@ -187,14 +184,14 @@ class WindowContainer():
         menu.add_command(label = "Help", font = menuFont, command = lambda: self.showHelp())   
 
         # Create Help frame and add to list of frames
-        self.frameList.append(HelpWindow(mainFrame))
+        self.frameList.append(HelpFrame(mainFrame))
 
         # Create and add a status bar to the frame
         global STATUSBAR
         STATUSBAR = StatusBar(master)
 
         # Create a bottom frame to hold menu options
-        menuFrame =  Frame(master, bd=1)
+        menuFrame = Frame(master, bd=1)
         menuFrame.pack(side = BOTTOM)
 
         # Add a save and exit button to the frame
@@ -247,7 +244,7 @@ class WindowContainer():
 
 
 #   Create instance of the main window
-window = WindowContainer(root)
+window = AppContainer(root)
 
 # Run appication
 root.mainloop()

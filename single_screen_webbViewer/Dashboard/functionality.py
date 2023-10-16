@@ -4,6 +4,7 @@ from tkinter.colorchooser import askcolor
 
 from status import *
 from appearance import *
+from externalImages import *
 
 # Import image library
 from tkinter import *
@@ -81,17 +82,30 @@ def checkbutton_action(_property, _input):
         print("{0} changed to {1}".format(_property, value))
 
 
-def show_blacklist():  
+def open_image_manager():  
 
     # Create a second window for editing image blacklist
-    blacklist = Toplevel()
-    blacklist.title("Editing Image Blacklist")
-    blacklist.wm_iconphoto(False, open_image(ICONIMAGE))
-    blacklist.geometry("1080x720")
+    imageManagerWindow = Toplevel()
+    imageManagerWindow.title("Editing Image Blacklist")
+    imageManagerWindow.wm_iconphoto(False, open_image(ICONIMAGE))
+    imageManagerWindow.geometry("1080x720")
 
     # Create a bottom frame to hold menu options
-    menuFrame =  Frame(blacklist, bd=1)
+    menuFrame =  Frame(imageManagerWindow, bd=1)
     menuFrame.pack(side = BOTTOM)
 
+    # Create a frame which will contain the images pulled via API
+    ImagesFrame = ImageManager(imageManagerWindow)
+    ImagesFrame.pack(padx = 20, pady = 20)    
+
+    # Create an element to hold the image thumbnails
+    ImagesContainer = Listbox(ImagesFrame)
+
+    # Add image thumbnails to the desired element
+    ImagesFrame.showImages(ImagesContainer)
+
+    # Show the image thumbnail container
+    ImagesContainer.pack()
+
     # Add a save and exit button to the window
-    add_menu_options(menuFrame, blacklist)    
+    add_menu_options(menuFrame, imageManagerWindow)    

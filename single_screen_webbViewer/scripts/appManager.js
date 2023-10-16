@@ -1,7 +1,7 @@
 //  -----   Global variables    -----   //
 
 //  Create reference to json file which stores app config
-const configData = "./dashboard//config/config.json";
+const configData = "./dashboard/config/config.json";
 
 //  Initialise variable to store config data and categories
 let config, configFunctionality, configUserInterface, configTheme, configImages
@@ -48,7 +48,7 @@ async function getConfig(){
 function intialiseApp(){  
 
     //  If background music is required
-    if (config.theme.properties.backgroundMusic.value){
+    if (config.theme.properties.playBackgroundMusic.value){
 
         //  Declare variable to reference mp3 file in config
         const audio = new Audio(config.theme.properties.backgroundMusicSource.value)
