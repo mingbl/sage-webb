@@ -88,24 +88,70 @@ def open_image_manager():
     imageManagerWindow = Toplevel()
     imageManagerWindow.title("Editing Image Blacklist")
     imageManagerWindow.wm_iconphoto(False, open_image(ICONIMAGE))
-    imageManagerWindow.geometry("1080x720")
+
+    # Format size of window
+    global IMAGE_MANAGER_WINDOW_SIZE
+    imageManagerWindow.geometry("{0}x{1}".format(IMAGE_MANAGER_WINDOW_SIZE[0], IMAGE_MANAGER_WINDOW_SIZE[1]))
 
     # Create a bottom frame to hold menu options
     menuFrame =  Frame(imageManagerWindow, bd=1)
     menuFrame.pack(side = BOTTOM)
 
     # Create a frame which will contain the images pulled via API
-    ImagesFrame = ImageManager(imageManagerWindow)
-    ImagesFrame.pack(padx = 20, pady = 20)    
+    imagesFrame = ImageManager(imageManagerWindow)
+    imagesFrame.pack(padx = STANDARD_PADDING, pady = STANDARD_PADDING, side=LEFT, fill=BOTH, expand=True)  
 
-    # Create an element to hold the image thumbnails
-    ImagesContainer = Listbox(ImagesFrame)
+    # Get IDs for all the images stored in the desired Flickr Album
+    imagesFrame.changeStatus("Getting IDs of images stored in Flickr Album...")
+    imagesFrame.update()
+    imagesFrame.whitelist = imagesFrame.setWhitelist()
 
-    # Add image thumbnails to the desired element
-    ImagesFrame.showImages(ImagesContainer)
+    # Get image and metadata for each Image ID
+    imagesFrame.changeStatus("Getting image and metadata for each Image ID...")
+    imagesFrame.update()
+    imagesFrame.imageObjects = imagesFrame.getExternalImages()
 
-    # Show the image thumbnail container
-    ImagesContainer.pack()
+    # Show the images in the window
+    show_images(imagesFrame, 0)
 
     # Add a save and exit button to the window
-    add_menu_options(menuFrame, imageManagerWindow)    
+    add_menu_options(menuFrame, imageManagerWindow) 
+
+
+def show_images(_imagesFrame, index):
+
+    if index < len(_imagesFrame.imageObjects):
+
+        next_image = _imagesFrame.imageObjects[index]
+
+        # Update the status
+        _imagesFrame.changeStatus("Displaying images... {}/{}".format(index + 1, len(_imagesFrame.imageObjects)))
+        _imagesFrame.update()
+
+        _imagesFrame.showImage(next_image)
+        _imagesFrame.update()
+
+        index += 1
+
+        # Schedule the next image to be displayed after a short delay
+        _imagesFrame.after(10, show_images, _imagesFrame, index)
+
+    else: 
+
+        # Change the status label text
+        _imagesFrame.changeStatus('Deselect images and click "Save" below to remove them from showing in the application.')
+
+
+def showNextImage(_imagesFrame, _index):
+  
+  _imagesFrame.update()
+
+  if _index < len(_imagesFrame.imageObjects):
+        
+        nextImage = _imagesFrame.imageObjects[_index]
+
+        _imagesFrame.showImage(nextImage)        
+
+        _index += 1
+
+        showNextImage(_imagesFrame, _index)

@@ -22,14 +22,14 @@ class HelpFrame(Frame):
         print("***** Creating Help frame *****") 
 
          # Add header to frame
-        headerLabel = Label(self, text = "Admin Dashboard", font = headerFont)
+        headerLabel = Label(self, text = "Admin Dashboard", font = HEADERFONT)
         headerLabel.pack(pady = 10)
 
          # Add welcome message to frame
-        messageLabel = Label(self, text = "Select a category from the menu above.", font = mainFont)
+        messageLabel = Label(self, text = "Select a category from the menu above.", font = MAINFONT)
         messageLabel.pack()
 
-        self.pack(padx = 20, pady = 20)
+        self.pack(padx = STANDARD_PADDING, pady = STANDARD_PADDING)
 
 
 class ConfigFrame(Frame):
@@ -46,7 +46,7 @@ class ConfigFrame(Frame):
         print("***** Creating {0} frame *****".format(_category))     
 
         # Add header to frame
-        headerLabel = Label(self, text = "{0} Settings".format(JSONDATA[_category]["label"]), font = headerFont)
+        headerLabel = Label(self, text = "{0} Settings".format(JSONDATA[_category]["label"]), font = HEADERFONT)
         headerLabel.pack(pady = 10)    
 
         # Initiate variable to access catagory options in following loop
@@ -73,7 +73,7 @@ class ConfigFrame(Frame):
             propertyFrame.pack(pady = 10)
                
             # Create a label for the property
-            propertyLabel = Label(propertyFrame, text = propertyName, font = mainFont)
+            propertyLabel = Label(propertyFrame, text = propertyName, font = MAINFONT)
             propertyLabel.pack(side = LEFT)                   
 
             # Initialise a variable to store the input element for the property
@@ -104,7 +104,7 @@ class ConfigFrame(Frame):
 
             elif (propertyInput["type"] == "colour"):
 
-                colourLabel = Label(propertyFrame, text = property["value"], fg = property["value"], font = mainFont)
+                colourLabel = Label(propertyFrame, text = property["value"], fg = property["value"], font = MAINFONT)
                 colourLabel.pack(side = LEFT, padx = 5)
 
                 propertyInputElement = Button(propertyFrame, text = "Edit...", command = lambda colour = property["value"], label = colourLabel: pick_colour(colour, label))
@@ -120,7 +120,7 @@ class ConfigFrame(Frame):
                 audioPath = property["value"]                 
                 audioFile = path.basename(property["value"])[:20]
 
-                audioLabel = Label(propertyFrame, text = audioFile, font = mainFont)
+                audioLabel = Label(propertyFrame, text = audioFile, font = MAINFONT)
                 audioLabel.pack(side = LEFT, padx = 5)
 
                 propertyInputElement = Button(propertyFrame, text = "Edit...", command = lambda label = audioLabel: pick_audio(label))
@@ -136,7 +136,7 @@ class ConfigFrame(Frame):
         optionIndex += 1    
 
         # Display the frame
-        self.pack(padx = 20, pady = 20)
+        self.pack(padx = STANDARD_PADDING, pady = STANDARD_PADDING)
 
 
 class AppContainer():
@@ -150,7 +150,7 @@ class AppContainer():
         # Create a frame to hold main "menu"
         topFrame = Frame(master)
         # Add the frame to the window
-        topFrame.pack(padx = 20, pady = 20)
+        topFrame.pack(padx = STANDARD_PADDING, pady = STANDARD_PADDING)
 
         # Add menu to the window
         menu = Menu(topFrame)
@@ -158,7 +158,7 @@ class AppContainer():
 
         # Create a frame which will contain the desired options category
         mainFrame = Frame(master)
-        mainFrame.pack(padx = 20, pady = 20)     
+        mainFrame.pack(padx = STANDARD_PADDING, pady = STANDARD_PADDING)     
 
         # Declare list which will contain all of the category frames
         self.frameList = []
@@ -175,13 +175,13 @@ class AppContainer():
             self.frameList.append(ConfigFrame(mainFrame, category))
 
             # Add a button to be able to access the category frame in the menu
-            menu.add_command(label = JSONDATA[category]["label"], font = menuFont, command = lambda category = categoryIndex: self.changeCategory(category))
+            menu.add_command(label = JSONDATA[category]["label"], font = MENUFONT, command = lambda category = categoryIndex: self.changeCategory(category))
 
             # Increment the category index to be able to continue the loop
             categoryIndex += 1
         
         # Create the menu item for the Help window
-        menu.add_command(label = "Help", font = menuFont, command = lambda: self.showHelp())   
+        menu.add_command(label = "Help", font = MENUFONT, command = lambda: self.showHelp())   
 
         # Create Help frame and add to list of frames
         self.frameList.append(HelpFrame(mainFrame))
@@ -223,7 +223,7 @@ class AppContainer():
 
         # Show the frame we want to show
         desiredFrame.tkraise()        
-        desiredFrame.pack(padx = 20, pady = 20)  
+        desiredFrame.pack(padx = STANDARD_PADDING, pady = STANDARD_PADDING)  
 
     
     def changeCategory(self, _categoryIndex):

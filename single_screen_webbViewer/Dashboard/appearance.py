@@ -27,15 +27,20 @@ root.title("James Webb Image Viewer Admin Dashboard")
 root.geometry("720x720")
 
 # Add the app icon to the window
-ICONIMAGE = "../images/meta/moon-stars-fill.png"
+ICONIMAGE = "../images/meta/app-logo.png"
 root.wm_iconphoto(False, open_image(ICONIMAGE))
 
+# Specify sizing for the Image Manager window
+IMAGE_MANAGER_WINDOW_SIZE = (1080, 720)
+
+# Specify size of padding used throughout app
+STANDARD_PADDING = 20
 
 """
 # Configure styles for dashboard
 
 """
-menuFont = font.Font(family = "Arial", size = "18")
-headerFont = font.Font(family = "Arial", size = "14")
-mainFont = font.Font(family = "Arial", size = "12")
-statusFont = font.Font(family = "Arial", size = "10")
+MENUFONT = font.Font(family = "Arial", size = "18")
+HEADERFONT = font.Font(family = "Arial", size = "14")
+MAINFONT = font.Font(family = "Arial", size = "12")
+STATUSFONT = font.Font(family = "Arial", size = "10")

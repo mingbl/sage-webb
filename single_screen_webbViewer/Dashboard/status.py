@@ -20,7 +20,7 @@ class StatusBar(Frame):
         self.statusFrame.pack(side = BOTTOM, fill = BOTH)
 
         # Create a label to display the current status to the user            
-        self.statusLabel = Label(self.statusFrame, text = "Dashboard loaded", font = statusFont)
+        self.statusLabel = Label(self.statusFrame, text = "Dashboard loaded", font = STATUSFONT)
         self.statusLabel.pack(anchor = E, padx = 10, pady = 10)
 
 

@@ -257,29 +257,29 @@ async function getExternalImageURL(_imageID){
     const reponseData = await sizeReponse.json()
 
     //  Store the response data for use
-    const sizes = reponseData["sizes"]["size"];
+    const imageSizes = reponseData["sizes"]["size"];
 
     //  Initialise variable to store the desired URL
-    let bestURL = sizes[0].source;
-    let bestWidth = sizes[0].width;
-    let bestHeight = sizes[0].height
+    let bestURL = imageSizes[0].source;
+    let bestWidth = imageSizes[0].width;
+    let bestHeight = imageSizes[0].height
 
     //  Declare variable to represent maximum height of images desired
     const imageHeightCeiling = configUserInterface.imageHeightCeiling.value
 
     let difference = Math.abs(imageHeightCeiling - bestHeight);
 
-    sizes.forEach(size => {
+    imageSizes.forEach(imageSize => {
 
         //  See how close the size 
-        let newDifference = Math.abs(imageHeightCeiling - size.height);
+        let newDifference = Math.abs(imageHeightCeiling - imageSize.height);
 
         if (newDifference < difference) {
 
             difference = newDifference;
-            bestURL = size.source;
-            bestHeight = size.height;
-            bestWidth = size.width;
+            bestURL = imageSize.source;
+            bestHeight = imageSize.height;
+            bestWidth = imageSize.width;
 
         }
         
