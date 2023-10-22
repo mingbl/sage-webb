@@ -111,11 +111,14 @@ def open_image_manager():
     imagesFrame.update()
     imagesFrame.imageObjects = imagesFrame.getExternalImages()
 
+    # Create the first row which images will be addeed to
+    imagesFrame.currentRowFrame = createImageRow(imagesFrame)    
+
     # Show the images in the window
     show_images(imagesFrame, 0)
 
     # Add a save and exit button to the window
-    add_menu_options(menuFrame, imageManagerWindow) 
+    add_menu_options(menuFrame, imageManagerWindow)
 
 
 def show_images(_imagesFrame, index):
@@ -128,7 +131,7 @@ def show_images(_imagesFrame, index):
         _imagesFrame.changeStatus("Displaying images... {}/{}".format(index + 1, len(_imagesFrame.imageObjects)))
         _imagesFrame.update()
 
-        _imagesFrame.showImage(next_image)
+        showImage(_imagesFrame, next_image)
         _imagesFrame.update()
 
         index += 1
@@ -142,16 +145,49 @@ def show_images(_imagesFrame, index):
         _imagesFrame.changeStatus('Deselect images and click "Save" below to remove them from showing in the application.')
 
 
-def showNextImage(_imagesFrame, _index):
-  
-  _imagesFrame.update()
+def showImage(_imagesFrame, _image):
 
-  if _index < len(_imagesFrame.imageObjects):
-        
-        nextImage = _imagesFrame.imageObjects[_index]
+    print ("Showing image {0}".format(_image.imageID))
 
-        _imagesFrame.showImage(nextImage)        
+    # Get the width of the containing frame of the images
+    containerWidth = IMAGE_MANAGER_WINDOW_SIZE[0] - STANDARD_PADDING * 2
 
-        _index += 1
+    # Add the width of the image to the cumulative width (to see if it'll fit in the row)
+    imageWidth = _image.getWidth() + STANDARD_PADDING
+    _imagesFrame.cumulativeWidth += imageWidth
 
-        showNextImage(_imagesFrame, _index)
+    print("Image width = {0}. Cumulative width = {1}, container width = {2}".format(imageWidth, _imagesFrame.cumulativeWidth, containerWidth))
+
+    # If the label will go past the end of the row             
+    if _imagesFrame.cumulativeWidth > containerWidth:
+
+        # Reset the cumulative width
+        _imagesFrame.cumulativeWidth = imageWidth
+
+        # Create a new row
+        _imagesFrame.currentRowFrame = createImageRow(_imagesFrame)    
+
+    # Forget the current parent
+    _image.pack_forget()
+
+    # Add the current image row as its new parent
+    _image.master = _imagesFrame.currentRowFrame
+
+    # Show the new label
+    _image.pack(side = LEFT, padx = (0, STANDARD_PADDING)) 
+
+    print("Added image {0} to row number {1}".format(_image.imageID, _imagesFrame.rowNumber))
+
+
+def createImageRow(_imagesFrame):
+
+    print("Making new row")
+
+    # Create a frame to act as a new row for the images when needed
+    rowFrame = Frame(_imagesFrame)
+    rowFrame.pack(fill = X)
+
+    _imagesFrame.rowNumber += 1
+
+    # Return the frame to the showimages() function
+    return rowFrame

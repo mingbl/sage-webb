@@ -127,7 +127,7 @@ class ImageManager(Frame):
         self.imagesFrameScrollbar.pack(side = RIGHT, fill = Y)
 
         # Create a scrollable canvas to hold the element which hold contain the images
-        self.imagesFrameContainer = Canvas(self, yscrollcommand=self.imagesFrameScrollbar.set, background="red", highlightthickness=4, highlightbackground="#000")
+        self.imagesFrameContainer = Canvas(self, yscrollcommand=self.imagesFrameScrollbar.set, highlightthickness=1, highlightbackground="#000")
         self.imagesFrameContainer.pack(fill=BOTH, expand=True, padx = STANDARD_PADDING, pady = STANDARD_PADDING)
 
         # Make the value of the scrolllbar control the view of the canvas
@@ -136,16 +136,13 @@ class ImageManager(Frame):
         # Create a frame to hold the images
         self.imagesFrame = Frame(self.imagesFrameContainer, width = IMAGE_MANAGER_WINDOW_SIZE[0] - STANDARD_PADDING * 2)
         # Add the frame to the canvas
-        self.imagesFrameContainer.create_window((0, 0), window = self.imagesFrame, anchor="nw")
-
-        # Create the first row which images will be addeed to
-        self.currentRowFrame = self.createImageRow()     
+        self.imagesFrameContainer.create_window((0, 0), window = self.imagesFrame, anchor="nw") 
 
         # initialise a list to add ImageObjects to
         imageObjects = []
 
         # Get the image data for each of the images stored in the Flickr album
-        for image in self.externalImageIDs[:5]:
+        for image in self.externalImageIDs[:12]:
 
             print("Adding image {0}".format(image))
 
@@ -163,57 +160,9 @@ class ImageManager(Frame):
 
         print("All images loaded in Image Manager")  
 
-        return imageObjects 
+        return imageObjects   
     
     
-    def showImage(self, _image):
-
-        print ("Showing image {0}".format(_image.imageID))
-
-        # Get the width of the containing frame of the images
-        containerWidth = IMAGE_MANAGER_WINDOW_SIZE[0] - STANDARD_PADDING * 2
-
-        # Add the width of the image to the cumulative width (to see if it'll fit in the row)
-        imageWidth = _image.getWidth() + STANDARD_PADDING
-        self.cumulativeWidth += imageWidth
-
-        print("Image width = {0}. Cumulative width = {1}, container width = {2}".format(imageWidth, self.cumulativeWidth, containerWidth))
-
-        # If the label will go past the end of the row             
-        if self.cumulativeWidth > containerWidth:
-
-            # Reset the cumulative width
-            self.cumulativeWidth = imageWidth
-
-            # Create a new row
-            self.currentRowFrame = self.createImageRow()    
-
-        # Forget the current parent
-        _image.pack_forget()
-
-        # Add the current image row as its new parent
-        _image.master = self.currentRowFrame
-
-        # Show the new label
-        _image.pack(side = LEFT, padx = (0, STANDARD_PADDING)) 
-
-        print("Added image {0} to row number {1}".format(_image.imageID, self.rowNumber))
-
-    
-    def createImageRow(self):
-
-        print("Making new row")
-
-        # Create a frame to act as a new row for the images when needed
-        rowFrame = Frame(self.imagesFrame)
-        rowFrame.pack(fill = X)
-
-        self.rowNumber += 1
-
-        # Return the frame to the showimages() function
-        return rowFrame
-    
-
     def getBlackList(self):
 
         for image in self.blacklist:
